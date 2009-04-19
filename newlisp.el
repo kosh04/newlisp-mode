@@ -2,22 +2,22 @@
 
 ;; This file is NOT part of GNU Emacs.
 
-;; Time-stamp: <2009-04-19T15:14:44>
+;; Time-stamp: <2009-04-19T16:46:25>
 
 ;; Usage:
 ;; (require 'newlisp)
 ;; (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
 
 ;; Todo:
-;; - newlisp-eval-buffer ‚ğ“Æ—§ƒvƒƒZƒX‚Å
+;; - newlisp-eval-buffer ã‚’ç‹¬ç«‹ãƒ—ãƒ­ã‚»ã‚¹ã§
 ;; - newlisp-mode
-;; - F•t‚¯ (newlisp-mode.el, elisp-font-lock.el)
-;; - ƒVƒ“ƒ{ƒ‹•âŠ® -> etags, complete-symbol, dabbrev-expand
-;; - pop-to-buffer ‚Íc•ªŠ„‚ğD‚Şl‚à‚¢‚é‚©‚à
-;; - elisp ‚Ì‘®ƒ`ƒFƒbƒN (checkdoc) -> ŠÖ”‚É‚ÍƒhƒLƒ…ƒƒ“ƒg‚ğ‘‚¯‚Á‚Ä‚³
-;; - defcustom‚È‚Ç
-;; - \•¶ƒXƒe[ƒuƒ‹‚ğ˜M‚é (`|' ‚ÍƒVƒ“ƒ{ƒ‹, `#' ‚ÍƒRƒƒ“ƒg)
-;; - ‘S‚Ä‚Í‹C‚Ì•‹‚­‚Ü‚Ü‚É
+;; - è‰²ä»˜ã‘ (newlisp-mode.el, elisp-font-lock.el)
+;; - ã‚·ãƒ³ãƒœãƒ«è£œå®Œ -> etags, complete-symbol, dabbrev-expand
+;; - pop-to-buffer ã¯ç¸¦åˆ†å‰²ã‚’å¥½ã‚€äººã‚‚ã„ã‚‹ã‹ã‚‚
+;; - elisp ã®æ›¸å¼ãƒã‚§ãƒƒã‚¯ (checkdoc) -> é–¢æ•°ã«ã¯ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’æ›¸ã‘ã£ã¦ã•
+;; - defcustomãªã©
+;; - æ§‹æ–‡ã‚¹ãƒ†ãƒ¼ãƒ–ãƒ«ã‚’å¼„ã‚‹ (`|' ã¯ã‚·ãƒ³ãƒœãƒ«, `#' ã¯ã‚³ãƒ¡ãƒ³ãƒˆ)
+;; - å…¨ã¦ã¯æ°—ã®èµ´ãã¾ã¾ã«
 
 ;;; Code:
 (eval-when-compile (require 'cl))
@@ -33,8 +33,8 @@
   (let ((default-process-coding-system *newlisp-process-coding-system*))
     (get-buffer-process
      (make-comint "newlisp" *newlisp-command* nil
-                  ;; newlisp‘¤‚Å‚Í`~/'‚ğƒz[ƒ€ƒfƒBƒŒƒNƒgƒŠ‚Æ‚µ‚Ä”F¯‚µ‚È‚¢‚Ì‚Å
-                  ;; emacs‘¤‚Å“WŠJ‚µ‚Ä‚¨‚­
+                  ;; newlispå´ã§ã¯`~/'ã‚’ãƒ›ãƒ¼ãƒ ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¨ã—ã¦èªè­˜ã—ãªã„ã®ã§
+                  ;; emacså´ã§å±•é–‹ã—ã¦ãŠã
                   "-C" "-w" (expand-file-name default-directory)))))
 
 (defun newlisp-show-repl (&optional no-focus)
@@ -170,7 +170,7 @@
   (setq major-mode 'newlisp-mode
         mode-name "newLISP")
   (lisp-mode-variables 'and-use-lisp-syntax)
-  ;; `#'‚àƒRƒƒ“ƒgˆµ‚¢‚É‚µ‚½‚¢
+  ;; `#'ã‚‚ã‚³ãƒ¡ãƒ³ãƒˆæ‰±ã„ã«ã—ãŸã„
   ;; (set (make-local-variable 'font-lock-keywords-case-fold-search) nil)
   (run-mode-hooks 'newlisp-mode-hook))
 
