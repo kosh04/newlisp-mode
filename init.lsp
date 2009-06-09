@@ -1,10 +1,10 @@
-;;; -*- encoding: utf-8 -*-
+﻿;;; -*- encoding: utf-8 -*-
 ;;;
 ;;; init.lsp --- newLISP initialization file
 ;;;
 
 (let ((e (env "NEWLISPDIR")))
-  (unless (directory? e)
+  (when (and e (not (directory? e)))
     (println (format "warning: directory %s not found." e))))
 
 (define (find-symbol str (cxt (context)))
@@ -35,6 +35,7 @@
         acc)))
 
 (define (utf8?)
+  "unicode対応のnewLISPならばtrue,そうでなければnilを返す."
   (primitive? MAIN:utf8))
 
 (define (newlisp-version)
@@ -54,16 +55,28 @@
 
 (define (load-guiserver)
   (silent
-    (print "loading guiser...")
-    (load (merge-pathnames "guiserver.lsp" (env "NEWLISPDIR")))
+    (print "loading guiserver...")
+    (load (real-path (append (env "NEWLISPDIR") "/guiserver.lsp")))
     (gs:init)
     (print "done.")))
 
 (define (load-init.lsp)
-  (load (real-path "init.lsp" (env "NEWLISPDIR"))))
+  (load (real-path (string (env "NEWLISPDIR") "/init.lsp"))))
+
+(define declare (lambda-macro () nil))
 
 (define (xml-parse-file file parse-dtd parse-ns)
-  (xml-parse (read-file file)))
+  (declare (ignore parse-dtd parse-dtd))
+  (let ((tags (xml-type-tags)))
+    (local (e)
+      (xml-type-tags nil 'cdata '!-- nil)
+      (if (catch (xml-parse (read-file file) (+ 1 2 8)) 'e)
+          (begin (apply xml-type-tags tags) e)
+          (begin (apply xml-type-tags tags) (throw-error e))))))
+
+(setq default-xml-type-tags (xml-type-tags))
+;; ファイルから読み込むと効かない？
+;; (xml-type-tags nil 'cdata '!-- nil)
 
 ; (global 'progn 't 'null)
 ; (constant (global 'cdr) rest)   ; 全ての名前空間で使えるように
@@ -80,7 +93,7 @@
 (define progn begin)
 (define (funcall f) (apply f (args)))
 (define let* letn)
-(define lexical-let letex)              ; Emacs cl-package
+(define lexical-let letex)              ; from Emacs cl-package
 (define intern sym)                     ; or make-symbol
 (define symbol-name name)
 (define char-code char)                 ; (char "A") => 65
@@ -96,9 +109,16 @@
     (letex ((f (args 0)))
       (lambda ()
         (not (apply f (args)))))))
-(define-macro (identity) (eval (args 0)))
+(define identity
+  (lambda-macro ()
+    (eval (args 0))))
 
 (define read-from-string read-expr)
+
+;; simple-loop
+(define-macro (loop)
+  (let ((return throw))
+    (catch (while true (map eval (args))))))
 
 ;;; @@filesystem, pathname
 (define (merge-pathnames pathname (defaults "."))
@@ -111,15 +131,20 @@
 (define set-default-directory change-dir)
 (define cd change-dir)
 (define cat read-file)
-(define file-exist-p file?)
-(define (probe-file pathname)
+(define (file-exist-p pathname)
   (or (file? pathname)
-      (real-path pathname)))
+      (directory? pathname)))
+(define (probe-file pathname)
+  (and (file? pathname)
+       (real-path pathname)))
 
+;; (define (getenv variable) (env variable))
+;; (define (setenv variable value) (env variable value))
 (define getenv env)
+(define setenv env)
 
 ;;; @@number
-(constant 'most-positive-fixnum 0x7fffffffffffffff) ; 63bit?
+(constant 'most-positive-fixnum 0x7fffffffffffffff)
 (constant 'most-negative-fixnum 0x8000000000000000)
 (defconstant pi (mul (atan 1) 4))       ; 3.141592654
 (define equal =)
@@ -161,7 +186,9 @@
 (define remove-if-not filter)
 (define common-lisp:delete              ; 破壊的な意味で
   (lambda-macro ()
-    (replace (eval (args 0)) (eval (args 1)))))
+    (if (string? (eval (args 1)))
+        (replace (eval (args 0)) (eval (args 1)) "")
+        (replace (eval (args 0)) (eval (args 1))))))
 (define (mapcar f lst)          ; (mapcar function list &rest more-lists)
   (letn ((lists (cons lst (args)))
          (minlength (apply min (map length lists))))
@@ -169,7 +196,9 @@
                               (slice x 0 minlength))
                             lists)))))
 ;; (mapcar list '(1 2 3 4) '(10 nil 30) '(100 200 300 400 500 600))
-;;=> ((1 10 100) (2 nil 200) (3 30 300))
+;; => ((1 10 100) (2 nil 200) (3 30 300))
+;; (map list '(1 2 3 4) '(10 nil 30) '(100 200 300 400 500 600))
+;; => ((1 10 100) (2 nil 200) (3 30 300) (4 nil 400))
 
 ;;; @@sequence, regexp
 (define split-string parse)
@@ -200,7 +229,9 @@
 
 ;; 大文字小文字の区別をしない文字列比較
 (define (string-equal string1 string2)
-  (if (regex (string "^" (regex-quote string1) "$") string2 1) true nil))
+  (let ((PCRE_CASELESS 1))
+    (if (regex (string "^" (regex-quote string1) "$") string2 PCRE_CASELESS)
+        true nil)))
 
 (define (string-left-trim char-bag str)
   (if (string? char-bag)
@@ -229,8 +260,10 @@
 (define (trim-whitespace str)
   (string-trim " \t\r\n" str))
 
+;; (char seq idx)
 (define (elt seq idx)
-  (char (seq idx)))
+  (cond ((string? seq) (char (seq idx)))
+        (true (seq idx))))
 
 ;;; @@error
 (define error throw-error)
@@ -246,7 +279,7 @@
 ;; (error-number) の値も変わってしまう
 (context 'unwind-protect)
 (define-macro (unwind-protect:unwind-protect)
-  (letex ((body (args 0))
+  (letex ((body (first (args)))
           (cleanup-form* (cons 'begin (rest (args)))))
     (local (*result*)           ; letと何が違う？
       (if (catch body '*result*)
@@ -254,12 +287,66 @@
           (begin cleanup-form* (throw-error *result*))))))
 (context MAIN)
 
+(define (pathname? str)
+  (or (file? str) (directory? str)))
+
+(define (curl--head url)
+  (silent
+    (print (get-url url "header"))))
+(define curl-I curl--head)
+;; (curl--head "http://www.newlisp.org/")
+
+(define (arglist fname)
+  (let ((def (eval fname)))
+    (cond ((primitive? def)
+           (setq fname (name fname))
+           (if (find fname "|+*-")
+               (push "\\" fname))       ; ex: "*" => "\\*"
+           ;; 置換の順番間違えると s/&lt;/&amp;lt; になるので注意 (`&' は最初に置換)
+           (replace "&" fname "&amp;")
+           (replace "<" fname "&lt;")
+           (replace ">" fname "&gt;")
+           (letn ((manfile (real-path (string (env "NEWLISPDIR") "/newlisp_manual.html"))
+                           ;; "http://www.newlisp.org/newlisp_manual.html"
+                           )
+                  ;; 複数行だと見つからないな(xml-type-tags)
+                  (html (join (find-all (format "<b>(syntax: \\(%s[\\) ].*?)</b>" fname)
+                                        (read-file manfile))
+                              "\n")))
+             (replace "<.*?>" html "" 0)
+             (replace "&lt;" html "<")
+             (replace "&gt;" html ">")
+             (replace "&amp;" html "&")
+             (println html)
+             ;; 見つかった？
+             (not (empty? html))))
+          ((or (lambda? def)
+               (macro? def))
+           ;; ユーザ定義の関数、マクロ
+           ;; (args)が使われていて、引数が少ない可能性もあるので注意
+           ;; 特にマクロ
+           (cons fname (first def))))))
+
 (when (= ostype "Win32")
-  (import "user32" "MessageBoxA")
+
   (define (message-box text (title "newLISP"))
+    (import "user32" "MessageBoxA")
     (let ((MB_OK 0))
       (MessageBoxA 0 text title MB_OK 1)))
-  )
+
+  (define (get-short-path-name pathname)
+    (unless (file-exist-p pathname)
+      (throw-error (format "Pathname not found: %s" pathname)))
+    (setq pathname (real-path pathname)) ; フルパスに正規化
+    (import "kernel32.dll" "GetShortPathNameA")
+    (letn ((len 512)
+           (strBuff (dup "\000" len)))
+      ;; 戻り値を有効活用するならこれ (ただし評価順序を間違えると落ちるので注意)
+      ;; (0 (GetShortPathNameA pathname strBuff len) strBuff)
+      (GetShortPathNameA pathname strBuff len)
+      (trim strBuff)
+      ))
+  )                             ; end of (when (= ostype "Win32")
 
 (define (one-line str) (replace "[\r|\n]" str " " 0))
 
