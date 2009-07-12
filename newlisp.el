@@ -1,9 +1,9 @@
 ;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
 
-;;; Time-stamp: <2009-07-11T06:34:35>
+;;; Time-stamp: <2009-07-13T01:33:09>
 
 ;; Author: Shigeru Kobayashi <shigeru.kb@gmail.com>
-;; Version: 0.1a
+;; Version: 0.1b
 ;; Keywords: language,lisp
 
 ;; This file is NOT part of GNU Emacs.
@@ -23,7 +23,7 @@
 ;; (newlisp-mode-setup)
 
 ;;; ChangeLog:
-;; 2009-07-05T20:16:05 version ???
+;; 2009-07-05T20:16:05 version 0.1b
 ;; - キーワードをnewLISP v10.1.0に追従
 ;; - *variable* -> variable (Emacsの命名規則に従って変数名変更)
 ;; 2009-06-05 version 0.1a
