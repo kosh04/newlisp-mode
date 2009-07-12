@@ -35,16 +35,18 @@
         acc)))
 
 (define (utf8?)
-  "unicode対応のnewLISPならばtrue,そうでなければnilを返す."
+  "Non-nil means current newLISP is UTF-8 eoncoding are supported."
   (primitive? MAIN:utf8))
 
 (define (newlisp-version)
-  (let ((version (map int (explode (string (sys-info 7))))))
-    (format "newLISP v%d.%d.%d on %s"
-            (version 0)
-            (version 1)
-            (+ (version 2) (version 3))
-            ostype)))
+  (sys-info -2))
+
+;; v10.1.0 で若干使用変更
+(define (newlisp-pid)
+  "Return the Process ID of newLISP."
+  (sys-info -3))
+(define getpid newlisp-pid)
+(define (getppid) (sys-info -4))
 
 ;; newlisp.h 参照
 (define (type-of x)
@@ -123,13 +125,17 @@
 ;;; @@filesystem, pathname
 (define (merge-pathnames pathname (defaults "."))
   (real-path (cond ((file? pathname) pathname)
+                   ((starts-with pathname "~/")
+                    (append (env "HOME") (1 pathname)))
                    ((regex "^[\\|/]" pathname) pathname)
                    (true (append defaults "/" pathname)))))
 (define (user-homedir-pathname) (real-path))
 (define (pwd) (real-path))
 (define (namestring pathname) (real-path pathname))
 (define set-default-directory change-dir)
-(define cd change-dir)
+;; (define cd change-dir)
+(define (cd path)
+  (change-dir (or path (env "HOME") ".")))
 (define cat read-file)
 (define (file-exist-p pathname)
   (or (file? pathname)
@@ -137,6 +143,9 @@
 (define (probe-file pathname)
   (and (file? pathname)
        (real-path pathname)))
+
+(define (file-length pathname)
+  (nth 0 (file-info pathname)))
 
 ;; (define (getenv variable) (env variable))
 ;; (define (setenv variable value) (env variable value))
@@ -146,6 +155,7 @@
 ;;; @@number
 (constant 'most-positive-fixnum 0x7fffffffffffffff)
 (constant 'most-negative-fixnum 0x8000000000000000)
+;; (mul (acos 0) 2)
 (defconstant pi (mul (atan 1) 4))       ; 3.141592654
 (define equal =)
 (define incf inc)
@@ -161,8 +171,8 @@
 (define (/= number)
   "全ての数が異なればtrue."
   (for-all (lambda (x) (not (= x number))) (args)))
-;; 引数2つしか見てないんじゃないの？
-;; (!= 2 3 4 2)                    ; true
+;; (/= 1 2 3 1)                            ; nil
+;; (!= 1 2 3 1)                            ; true
 
 ;;; @@list
 (define intersection intersect)
@@ -230,7 +240,8 @@
 ;; 大文字小文字の区別をしない文字列比較
 (define (string-equal string1 string2)
   (let ((PCRE_CASELESS 1))
-    (if (regex (string "^" (regex-quote string1) "$") string2 PCRE_CASELESS)
+    (if (regex (string "^" (regex-quote string1) "$")
+               string2 PCRE_CASELESS)
         true nil)))
 
 (define (string-left-trim char-bag str)
@@ -260,9 +271,8 @@
 (define (trim-whitespace str)
   (string-trim " \t\r\n" str))
 
-;; (char seq idx)
 (define (elt seq idx)
-  (cond ((string? seq) (char (seq idx)))
+  (cond ((string? seq) (char seq idx))
         (true (seq idx))))
 
 ;;; @@error
@@ -296,6 +306,13 @@
 (define curl-I curl--head)
 ;; (curl--head "http://www.newlisp.org/")
 
+(define *html-manual*
+  (or (exists file?
+              (list
+               (string (env "NEWLISPDIR") "/newlisp_manual.html")
+               "/usr/share/doc/newlisp/newlisp_manual.html"))
+      "http://www.newlisp.org/newlisp_manual.html"))
+
 (define (arglist fname)
   (let ((def (eval fname)))
     (cond ((primitive? def)
@@ -306,13 +323,10 @@
            (replace "&" fname "&amp;")
            (replace "<" fname "&lt;")
            (replace ">" fname "&gt;")
-           (letn ((manfile (real-path (string (env "NEWLISPDIR") "/newlisp_manual.html"))
-                           ;; "http://www.newlisp.org/newlisp_manual.html"
-                           )
-                  ;; 複数行だと見つからないな(xml-type-tags)
-                  (html (join (find-all (format "<b>(syntax: \\(%s[\\) ].*?)</b>" fname)
-                                        (read-file manfile))
-                              "\n")))
+           ;; 複数行だと見つからないな(xml-type-tags)
+           (let ((html (join (find-all (format {<b>(syntax: \(%s[\) ].*?)</b>} fname)
+                                       (read-file *html-manual*))
+                             "\n")))
              (replace "<.*?>" html "" 0)
              (replace "&lt;" html "<")
              (replace "&gt;" html ">")
@@ -323,32 +337,44 @@
           ((or (lambda? def)
                (macro? def))
            ;; ユーザ定義の関数、マクロ
-           ;; (args)が使われていて、引数が少ない可能性もあるので注意
-           ;; 特にマクロ
+           ;; (args)が使われていて、引数が少ない可能性もあるので注意。特にマクロ
            (cons fname (first def))))))
 
+(constant 'PCRE_CASELESS        1)
+(constant 'PCRE_MULTILINE       2)
+(constant 'PCRE_DOTALL          4)
+(constant 'PCRE_EXTENDED        8)
+(constant 'PCRE_ANCHORED       16)
+(constant 'PCRE_DOLLAR_ENDONLY 32)
+(constant 'PCRE_EXTRA          64)
+(constant 'PCRE_NOTBOL        128)
+(constant 'PCRE_NOTEOL        256)
+(constant 'PCRE_UNGREEDY      512)
+(constant 'PCRE_NOTEMPTY     1024)
+(constant 'PCRE_UTF8         2048)
+(constant 'REPLACE_ONCE    0x8000)
+(constant 'PRECOMPILED    0x10000)
+
+
+
 (when (= ostype "Win32")
 
+  (import "user32.dll" "MessageBoxA")
   (define (message-box text (title "newLISP"))
-    (import "user32" "MessageBoxA")
     (let ((MB_OK 0))
       (MessageBoxA 0 text title MB_OK 1)))
 
+  (import "kernel32.dll" "GetShortPathNameA")
   (define (get-short-path-name pathname)
     (unless (file-exist-p pathname)
       (throw-error (format "Pathname not found: %s" pathname)))
     (setq pathname (real-path pathname)) ; フルパスに正規化
-    (import "kernel32.dll" "GetShortPathNameA")
-    (letn ((len 512)
-           (strBuff (dup "\000" len)))
+    (letn ((len 512) (buf (dup "\000" len)))
       ;; 戻り値を有効活用するならこれ (ただし評価順序を間違えると落ちるので注意)
-      ;; (0 (GetShortPathNameA pathname strBuff len) strBuff)
-      (GetShortPathNameA pathname strBuff len)
-      (trim strBuff)
-      ))
-  )                             ; end of (when (= ostype "Win32")
-
-(define (one-line str) (replace "[\r|\n]" str " " 0))
+      ;; (0 (GetShortPathNameA pathname buf len) buf)
+      (GetShortPathNameA pathname buf len)
+      (trim buf)))
+  )                                     ; end of (when (= ostype "Win32")
 
 
 ;; (prompt-event (fn (ctx) (string ctx ":" (real-path) "> ")))

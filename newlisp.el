@@ -1,8 +1,6 @@
-;;; -*- mode:emacs-lisp; coding:utf-8 -*-
-;;;
-;;; newlisp.el --- newLISP editing mode for Emacs
+;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
 
-;;; Time-stamp: <2009-06- 9T07:17:51>
+;;; Time-stamp: <2009-07-11T06:34:35>
 
 ;; Author: Shigeru Kobayashi <shigeru.kb@gmail.com>
 ;; Version: 0.1a
@@ -25,6 +23,9 @@
 ;; (newlisp-mode-setup)
 
 ;;; ChangeLog:
+;; 2009-07-05T20:16:05 version ???
+;; - キーワードをnewLISP v10.1.0に追従
+;; - *variable* -> variable (Emacsの命名規則に従って変数名変更)
 ;; 2009-06-05 version 0.1a
 ;; - font-lock 若干修正
 ;; - newlisp-mode-syntax-table 追加
@@ -33,8 +34,10 @@
 ;; 2008-12-15 version 0.01
 ;; - 初版作成 (newlisp-mode)
 
-;;; Known bugs/problems:
-;; - 初回起動時の評価が表示されずに溜まることがある(ubuntu)
+;;; Known Bugs:
+;; - 初回起動時の評価が表示されずに溜まってしまう場合がある
+;; - ２バイト文字を含むパスから起動することができない
+;;   e.g. "c:/Documents and Settings/User/デスクトップ/"
 
 ;;; Todo:
 ;; - シンボル補完 (etags, complete-symbol, [d]abbrev)
@@ -45,27 +48,29 @@
 ;; - 全ては気の赴くままに
 
 ;;; Code:
-(eval-when-compile (require 'cl))
+(eval-when-compile
+  (require 'cl))
 (require 'comint)                       ; comint-send-string
-;; (require 'inf-lisp)
 
-(defvar *newlisp-command* "newlisp"
+;; (executable-find "newlisp")
+(defvar newlisp-command "newlisp"
   "newLISP execute binary filename.")
 
-;; (defvar *newlisp-command-option* "")
+;; (defvar newlisp-command-option "")
 
-(defvar *newlisp-process-coding-system* '(utf-8 . utf-8)
+(defvar newlisp-process-coding-system '(utf-8 . utf-8)
   "Cons of coding systems used for process newLISP (input . output).
 If you use newLISP version UTF-8 support, Its value is '(utf-8 . utf-8).
 Otherwise maybe '(sjis . sjis).")
 
 (defun newlisp-process ()
-  (let ((default-process-coding-system *newlisp-process-coding-system*))
+  (let ((default-process-coding-system newlisp-process-coding-system))
     (get-buffer-process
-     (make-comint "newlisp" *newlisp-command* nil
+     (make-comint "newlisp" newlisp-command nil
                   ;; newlisp側では`~/'をホームディレクトリとして認識しないので
                   ;; emacs側で展開しておく
-                  "-C" "-w" (expand-file-name default-directory)))))
+                  "-C" "-w" (expand-file-name default-directory)
+                  ))))
 
 (defun newlisp-show-repl (&optional no-focus)
   (interactive "P")
@@ -75,26 +80,26 @@ Otherwise maybe '(sjis . sjis).")
 
 (defalias 'run-newlisp 'newlisp-show-repl)
 
+;; 評価の遅延はおそらく[cmd]~[/cmd]側の問題
+;; [cmd]使わないように改行をまとめようとしたらコメント文|で引っかかる...
 (defun newlisp-eval (str-sexp)
   "Eval newlisp s-expression."
   (interactive "snewLISP eval: ")
   (let ((proc (newlisp-process)))
-    ;; (sit-for 0.2)                   ; 同期のやり方がわからないので適当に誤魔化す
-    '(with-current-buffer (process-buffer proc)
-      (goto-char (point-max))
-      (insert str-sexp ?\n)
-;;       (set-marker comint-last-input-start (point))
-;;       (set-marker comint-last-input-end (point))
-;;       (set-marker comint-last-output-start (point))
-;;       (set-marker comint-accum-marker nil)
-      (set-marker (process-mark proc) (point))
-      ;; (goto-char (point-max))
-      )
+;;     '(progn
+;;       (princ (concat str-sexp "\n") (process-buffer proc))
+;;       (set-marker (process-mark proc) (point-max))
+;;       (with-current-buffer (process-buffer proc)
+;;         (goto-char (point-max)))
+;;       )
     (labels ((sendln (str)
                (comint-send-string proc (concat str "\n"))))
-      (sendln "[cmd]")
-      (sendln str-sexp)
-      (sendln "[/cmd]"))
+      (cond ((string-match "\n" str-sexp)
+             (sendln "[cmd]")
+             (sendln str-sexp)
+             (sendln "[/cmd]"))
+            (:else
+             (sendln str-sexp))))
     (newlisp-show-repl t)))
 
 (defun newlisp-eval-region (from to)
@@ -121,16 +126,22 @@ Otherwise maybe '(sjis . sjis).")
     (mark-defun)
     (newlisp-eval-region (region-beginning) (region-end))))
 
+(defun newlisp-load-file (file)
+  (interactive (list
+                (read-file-name "Load file: " (buffer-file-name))))
+  (newlisp-eval (format "(load {%s})" (expand-file-name file))))
+
 (defun newlisp-kill-process ()
   (interactive)
-  (newlisp-eval "(exit)"))              ; or (kill-process (newlisp-process))
+  ;; (kill-process (newlisp-process))
+  (newlisp-eval "(exit)"))
 
 ;; eval sync
 (defun newlisp-eval-buffer (arg)
   (interactive "P")
   (setq arg (if arg (read-string "newLISP args: ") ""))
   (shell-command (format "%s \"%s\" %s"
-                         *newlisp-command*
+                         newlisp-command
                          (buffer-file-name)
                          arg)
                  "*newLISP output*"))
@@ -143,21 +154,22 @@ Otherwise maybe '(sjis . sjis).")
   ;; (setq arg (if arg (read-string "args: ") ""))
   (lexical-let ((outbuf (get-buffer-create "*newLISP output*")))
     (with-current-buffer outbuf (erase-buffer))
-    (set-process-sentinel (start-process-shell-command "newlisp" outbuf
-                                                       *newlisp-command*
-                                                       (buffer-file-name)
-                                                       cmd-args)
-                          #'(lambda (process event)
-                              (cond ((zerop (buffer-size outbuf))
-                                     (kill-buffer outbuf)
-                                     (message "(no output)"))
-                                    (t
-                                     (with-current-buffer outbuf
-                                       (goto-char (point-min))
-                                       (if (< (line-number-at-pos (point-max)) 5)
-                                           (message "%s" (replace-regexp-in-string
-                                                          "\n+$" "" (buffer-string)))
-                                           (pop-to-buffer (process-buffer process))))))))
+    (set-process-sentinel
+     (start-process-shell-command "newlisp" outbuf
+                                  newlisp-command
+                                  (buffer-file-name)
+                                  cmd-args)
+     (lambda (process event)
+       (cond ((zerop (buffer-size outbuf))
+              (kill-buffer outbuf)
+              (message "(no output)"))
+             (t
+              (with-current-buffer outbuf
+                (goto-char (point-min))
+                (if (< (line-number-at-pos (point-max)) 5)
+                    (message "%s" (replace-regexp-in-string
+                                   "\n+$" "" (buffer-string)))
+                    (pop-to-buffer (process-buffer process))))))))
     ))
 
 ;; lisp.el:571
@@ -166,66 +178,93 @@ Otherwise maybe '(sjis . sjis).")
   (interactive)
   (error "Undefined"))
 
+(defun newlisp-begin-cmd ()
+  (interactive)
+  ;; 今までの入力があればついでに消したいところ
+  (insert "[cmd]")
+  (comint-send-input))
+
+(defun newlisp-end-cmd ()
+  (interactive)
+  (insert "[/cmd]")
+  (comint-send-input))
+
+;; (define-key inferior-newlisp-mode-map "\C-c[" 'newlisp-begin-cmd)
+;; (define-key inferior-newlisp-mode-map "\C-c]" 'newlisp-end-cmd)
+
+;; Keyword List
 (eval-when (compile load eval)
-  (defvar *newlisp-primitives*
-    ;; newLISP v.10.0.0 on Win32 IPv4 UTF-8
-    '("!" "!=" "$" "%" "&" "*" "+" "-" "/" ":" "<" "<<" "<=" "=" ">" ">=" ">>" "NaN?" 
-      "^" "abort" "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file" 
-      "apply" "args" "array" "array-list" "array?" "asin" "asinh" "assoc" "atan" "atan2" 
-      "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query" "bayes-train" "begin" "beta" 
-      "betai" "bind" "binomial" "bits" "butlast" "callback" "car" "case" "cat" "catch" 
-      "cd" "cdr" "ceil" "change-dir" "char" "char-code" "chop" "clean" "close" "code-char" 
-      "command-event" "compile-regexp" "concat" "cond" "cons" "constant" "context" "context?" 
-      "copy" "copy-file" "copy-seq" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" 
-      "crit-z" "current-line" "curry" "date" "date-value" "debug" "dec" "decf" "def-new" 
-      "default" "delete" "delete-file" "delete-url" "destroy" 
-      "det" "device" "difference" "directory" "directory?" "div" "do-until" "do-while" 
-      "doargs" "dolist" "dostring" "dotimes" "dotree" "dump" "dup" "empty?" "encrypt" 
-      "ends-with" "env" "equal" "erf" "error" "error-event" "error-number" "error-text" 
-      "eval" "eval-string" "every" "exec" "exists" "exit" "exp" "expand" "explode" "export" 
-      "expt" "factor" "fft" "file-info" "file?" "filter" "find" "find-all" "find-if" "first" 
-      "flat" "float" "float?" "floor" "flt" "for" "for-all" "format" "fv" "gammai" "gammaln" 
-      "gcd" "get-char" "get-float" "get-int" "get-long" "get-string" "get-url" "getenv" 
-      "global" "global?" "if" "if-not" "ifft" "import" "inc" "incf" "index" "int" "integer" 
-      "integer?" "intern" "intersect" "intersection" "invert" "irr" "join" "lambda?" "last" 
-      "legal?" "length" "let" "let*" "letex" "letn" "lexical-let" "list" "list?" "load" 
-      "local" "log" "logand" "logior" "lognot" "logxor" "lookup" "lower-case" "macro?" 
-      "main-args" "make-dir" "map" "mat" "match" "max" "member" "min" "mod" "mul" "multiply" 
-      "name" "net-accept" "net-close" "net-connect" "net-error" "net-eval" "net-interface" 
-      "net-listen" "net-local" "net-lookup" "net-peek" "net-peer" "net-receive" "net-receive-from" 
-      "net-receive-udp" "net-select" "net-send" "net-send-to" "net-send-udp" "net-service" 
-      "net-sessions" "new" "nil?" "normal" "not" "now" "nper" "npv" "nth" "null?" "number?" 
-      "open" "or" "pack" "parse" "pipe" "pmt" "pop" "pop-assoc" "position" "post-url" 
-      "pow" "pretty-print" "primitive?" "print" "println" "prob-chi2" "prob-z" "process" 
-      "progn" "prompt-event" "protected?" "push" "put-url" "pv" "quote" "quote?" "rand" 
-      "random" "randomize" "read-buffer" "read-char" "read-expr" "read-file" "read-from-string" 
-      "read-key" "read-line" "real-path" "ref" "ref-all" "regex" "regex-comp" "remove-dir" 
-      "remove-duplicates" "remove-if-not" "rename-file" "replace" "reset" "rest" "reverse" 
-      "rotate" "rotatef" "round" "save" "search" "seed" "seek" "select" "semaphore" "sequence" 
-      "series" "set" "set-default-directory" "set-difference" "set-locale" "set-ref" "set-ref-all" 
-      "setenv" "setf" "setq" "sgn" "share" "signal" "silent" "sin" "sinh" "sleep" "slice" 
-      "sort" "source" "spawn" "split-string" "sqrt" "starts-with" "string" "string-capitalize" 
-      "string-downcase" "string-upcase" "string?" "sub" "swap" "sym" "symbol-name" "symbol?" 
-      "symbols" "sync" "sys-error" "sys-info" "tan" "tanh" "throw" "throw-error" "time" 
-      "time-of-day" "timer" "title-case" "trace" "trace-highlight" "transpose" "trim" 
-      "true?" "unicode" "unify" "unique" "unless" "unpack" "until" "upper-case" "utf8" 
-      "utf8len" "uuid" "when" "while" "write-buffer" "write-char" "write-file" "write-line" 
-      "xml-error" "xml-parse" "xml-type-tags" "zero?" "|" "~")
+  ;; newlisp-font-lock-keywords (lisp-font-lock-keywords)
+  (defvar newlisp-primitive-keywords
+    ;; newLISP v.10.1.0 on Linux IPv4 UTF-8
+    ;; > (map name (filter (lambda (s) (primitive? (eval s))) (symbols MAIN)))
+    ;; - define define-macro
+    '("!" "!=" "$" "%" "&" "*" "+" "-" "/" ":" "<" "<<" "<=" "=" ">" ">=" ">>" "NaN?"
+      "^" "abort" "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file"
+      "apply" "args" "array" "array-list" "array?" "asin" "asinh" "assoc" "atan" "atan2"
+      "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query" "bayes-train" "begin" "beta"
+      "betai" "bind" "binomial" "bits" "callback" "case" "catch" "ceil" "change-dir" "char"
+      "chop" "clean" "close" "command-event" "cond" "cons" "constant" "context" "context?"
+      "copy" "copy-file" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-z" "current-line"
+      "curry" "date" "date-value" "debug" "dec" "def-new" "default" ;; "define" "define-macro"
+      "delete" "delete-file" "delete-url" "destroy" "det" "device" "difference" "directory"
+      "directory?" "div" "do-until" "do-while" "doargs" "dolist" "dostring" "dotimes"
+      "dotree" "dump" "dup" "empty?" "encrypt" "ends-with" "env" "erf" "error-event" "estack"
+      "eval" "eval-string" "exec" "exists" "exit" "exp" "expand" "explode" "factor" "fft"
+      "file-info" "file?" "filter" "find" "find-all" "first" "flat" "float" "float?" "floor"
+      "flt" "for" "for-all" "fork" "format" "fv" "gammai" "gammaln" "gcd" "get-char" "get-float"
+      "get-int" "get-long" "get-string" "get-url" "global" "global?" "if" "if-not" "ifft"
+      "import" "inc" "index" "inf?" "int" "integer" "integer?" "intersect" "invert" "irr"
+      "join" "lambda?" "last" "last-error" "legal?" "length" "let" "letex" "letn" "list"
+      "list?" "load" "local" "log" "lookup" "lower-case" "macro?" "main-args" "make-dir"
+      "map" "mat" "match" "max" "member" "min" "mod" "mul" "multiply" "name" "net-accept"
+      "net-close" "net-connect" "net-error" "net-eval" "net-interface" "net-listen" "net-local"
+      "net-lookup" "net-peek" "net-peer" "net-ping" "net-receive" "net-receive-from" "net-receive-udp"
+      "net-select" "net-send" "net-send-to" "net-send-udp" "net-service" "net-sessions"
+      "new" "nil?" "normal" "not" "now" "nper" "npv" "nth" "null?" "number?" "open" "or"
+      "pack" "parse" "parse-date" "peek" "pipe" "pmt" "pop" "pop-assoc" "post-url" "pow"
+      "pretty-print" "primitive?" "print" "println" "prob-chi2" "prob-z" "process" "prompt-event"
+      "protected?" "push" "put-url" "pv" "quote" "quote?" "rand" "random" "randomize"
+      "read-buffer" "read-char" "read-expr" "read-file" "read-key" "read-line" "read-utf8"
+      "real-path" "receive" "ref" "ref-all" "regex" "regex-comp" "remove-dir" "rename-file"
+      "replace" "reset" "rest" "reverse" "rotate" "round" "save" "search" "seed" "seek"
+      "select" "semaphore" "send" "sequence" "series" "set" "set-locale" "set-ref" "set-ref-all"
+      "setf" "setq" "sgn" "share" "signal" "silent" "sin" "sinh" "sleep" "slice" "sort"
+      "source" "spawn" "sqrt" "starts-with" "string" "string?" "sub" "swap" "sym" "symbol?"
+      "symbols" "sync" "sys-error" "sys-info" "tan" "tanh" "throw" "throw-error" "time"
+      "time-of-day" "timer" "title-case" "trace" "trace-highlight" "transpose" "trim"
+      "true?" "unicode" "unify" "unique" "unless" "unpack" "until" "upper-case" "utf8"
+      "utf8len" "uuid" "wait-pid" "when" "while" "write-buffer" "write-char" "write-file"
+      "write-line" "xfer-event" "xml-error" "xml-parse" "xml-type-tags" "zero?" "|" "~")
     "newLISP primitive keyword list.")
-  )                                     ; eval-when
+  (defvar newlisp-lambda-keywords
+    '("define" "lambda" "fn" "define-macro" "lambda-macro"))
+  (defvar newlisp-variable-keyword
+    '("nil" "true" "ostype"
+      "$args" "$idx" "$it" "$main-args" "$prompt-event"
+      "$0" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
+      "$10" "$11" "$12" "$13" "$14" "$15"))
+  (defvar newlisp-context-keyowrds
+    '("Class" "MAIN" "Tree"))
+  (defvar newlisp-tag-keywords
+    '("[text]" "[/text]" "[cmd]" "[/cmd]"))
+  (defvar newlisp-un*x-based-function-keywords
+    '("peek" "fork" "wait-pid" "net-ping" "parse-date"))
+  )
 
 (defun newlisp-mode-setup ()
-  (setq *newlisp-process-coding-system*
+  (setq newlisp-process-coding-system
         (let ((res (shell-command-to-string
-                    (format "%s -n -e \"%s\"" *newlisp-command* '(primitive? MAIN:utf8)))))
+                    (format "%s -n -e \"%s\"" newlisp-command
+                            '(primitive? MAIN:utf8)))))
           (if (string-match "true" res)
               '(utf-8 . utf-8)
               '(shift_jis . shift_jis)))) ; or 'sjis ?
-  (setq *newlisp-primitives*
+  (setq newlisp-primitive-keywords
         (car (read-from-string
               (shell-command-to-string
-               (format "%s -n -e \"%s\"" *newlisp-command*
-                       '(map name (filter (fn (s) (primitive? (eval s)))
+               (format "%s -n -e \"%s\"" newlisp-command
+                       '(map name (filter (lambda (s) (primitive? (eval s)))
                                           (symbols MAIN))))))))
   t)
 
@@ -252,6 +291,7 @@ Otherwise maybe '(sjis . sjis).")
 (define-key newlisp-mode-map "\e\C-x" 'newlisp-eval-defun)
 (define-key newlisp-mode-map "\C-x\C-e" 'newlisp-eval-last-sexp)
 (define-key newlisp-mode-map "\C-c\C-r" 'newlisp-eval-region)
+(define-key newlisp-mode-map "\C-c\C-l" 'newlisp-load-file)
 (define-key newlisp-mode-map "\C-c\C-z" 'newlisp-show-repl)
 (define-key newlisp-mode-map "\e\t" 'newlisp-complete-symbol) ; ESC TAB
 (define-key newlisp-mode-map [f5] 'newlisp-execute-file)
@@ -290,62 +330,66 @@ Otherwise maybe '(sjis . sjis).")
   (run-mode-hooks 'newlisp-mode-hook))
 
 ;; $ html2txt $NEWLISPDIR/newlisp_manual.html -o newlisp_manual.txt
-(defvar *newlisp-manual-text* "newlisp_manual.txt")
+;; もしくはブラウザの「ページを保存（テキスト）」
+(defvar newlisp-manual-text "newlisp_manual.txt")
 
-(defun newlisp-manual-from-text (str)
+(defvar newlisp-manual-html
+  (or (dolist (path (list "/usr/share/doc/newlisp/manual_frame.html"
+                          ;; When $ make install_home
+                          "~/share/doc/newlisp/manual_frame.html"
+                          "C:/Program Files/newlisp/manual_frame.html"))
+        (and (file-exists-p path)
+             (return path)))
+      "http://www.newlisp.org/downloads/manual_frame.html"))
+
+(defun newlisp-browse-manual ()
+  (interactive)
+  (browse-url-of-file newlisp-manual-html))
+
+(defun newlisp-browse-manual-from-text (str)
   (interactive
+   ;; FIXME: "lambda?" が選択できない
    (list (completing-read "newLISP manual: "
-                          #1=*newlisp-primitives* nil t
+                          #1=(append newlisp-primitive-keywords
+                                     newlisp-lambda-keywords
+                                     newlisp-un*x-based-function-keywords)
+                          nil t
                           (car (member (thing-at-point 'symbol) #1#)))))
   (let ((obuf (current-buffer)))
-    (pop-to-buffer (find-file-noselect *newlisp-manual-text*))
+    (pop-to-buffer (find-file-noselect newlisp-manual-text))
     (toggle-read-only t)
     (let ((opoint (point)))
       (goto-char (point-min))
-      (unless (search-forward (concat "*syntax: (" str) nil 'noerror)
+      (unless (search-forward-regexp
+               ;; (foo)
+               ;; (foo arg1 arg2 ...)
+               ;; (foo-bar-baz) is no-need
+               (concat "^\\*syntax: (" (regexp-quote str) "\s?")
+               nil 'noerror)
         (goto-char opoint)
         (pop-to-buffer obuf)
         (message "Function Not Found: %s" str)))))
 
-(define-key newlisp-mode-map "\C-ch" 'newlisp-manual-from-text)
-
-(defun newlisp-browse-manual ()
-  (interactive)
-  (browse-url (cond ((file-exists-p #1="/usr/share/doc/newlisp/manual_frame.html")
-                     #1#)
-                    (:else
-                     "http://www.newlisp.org/downloads/manual_frame.html"))))
+(define-key newlisp-mode-map "\C-ch" 'newlisp-browse-manual-from-text)
 
 ;; (put 'font-lock-add-keywords 'lisp-indent-function 1)
 ;; lisp-mode.el:91
 (font-lock-add-keywords 'newlisp-mode
   (list
    ;; (list "\\<\\(FIXME\\):" 1 font-lock-warning-face 'prepend)
-   (cons (eval-when-compile
-           (regexp-opt *newlisp-primitives* 'words))
+   (cons (eval-when-compile (regexp-opt newlisp-primitive-keywords 'words))
          font-lock-keyword-face)
-   (cons (eval-when-compile
-           (regexp-opt '("define" "lambda" "fn" "define-macro" "lambda-macro") 'words))
+   (cons (eval-when-compile (regexp-opt newlisp-lambda-keywords 'words))
          font-lock-function-name-face)
-   (cons (eval-when-compile
-           (regexp-opt '("nil" "true" "ostype"
-                         "$args" "$idx" "$it" "$main-args" "$prompt-event"
-                         "$" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
-                         "$10" "$11" "$12" "$13" "$14" "$15") 'words))
+   (cons (eval-when-compile (regexp-opt newlisp-variable-keyword 'words))
          font-lock-constant-face)
-   (cons (eval-when-compile
-           (regexp-opt '("Class" "MAIN" "Tree") 'words))
+   (cons (eval-when-compile (regexp-opt newlisp-context-keyowrds 'words))
          font-lock-type-face)
-   (cons (eval-when-compile
-           (regexp-opt '("[text]" "[/text]" "[cmd]" "[/cmd]")))
+   (cons (eval-when-compile (regexp-opt newlisp-tag-keywords)) ; not 'words
          font-lock-preprocessor-face)
-   (cons (eval-when-compile
-           (regexp-opt '("peek" "fork" "wait-pid" "net-ping" "parse-date") 'words))
-         font-lock-warning-face)
-   )
+   (cons (eval-when-compile (regexp-opt newlisp-un*x-based-function-keywords 'words))
+         font-lock-warning-face))
   )
-
-;; (defun newlisp-make-regexp-opt (&rest strings) (eval-when-compile (regexp-opt strings 'words)))
 
 (provide 'newlisp)
 

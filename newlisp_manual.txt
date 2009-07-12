@@ -6,7 +6,7 @@ newLISP®
 *For Mac OS X, GNU Linux, Unix and Win32*
 
 
-    Users Manual and Reference v.10.0.1 rev 5
+    Users Manual and Reference v.10.1.0 rev 4
 
 
 
@@ -244,7 +244,7 @@ newLISP's HTTP, TCP/IP, and UDP socket interfaces make it easy to write
 distributed networked applications. Its built-in XML interface, along
 with its text-processing features — Perl Compatible Regular Expressions
 (PCRE) and text-parsing functions — make newLISP a useful tool for CGI
-processing. the source distribution includes examples of HTML forms
+processing. The source distribution includes examples of HTML forms
 processing. newLISP can be run a as a CGI capable web server using its
 built-in http mode option.
 
@@ -286,8 +286,17 @@ Documentation License <#GNUFDL>.
 
     2. Deprecated functions and future changes
 
-Release version 10.0 contains many changes, please consult the version
-10.0 release notes for the details of removed and changed functions.
+The function swap <#swap> has a new syntax since 10.0.3. Any two places
+referenced by a symbol, an indexed expression or an association
+reference using assoc <#assoc> or lookup <#lookup> can be swapped.
+Before this was possible only with symbols. The old syntax using three
+parameters has been removed in version 10.0.5.
+
+The functions error-number and error-text have been replaced by the
+function last-error <#last-error> which returns the error number and
+text together in a list. This is consisten with the behavior of the
+other two error reporting functions net-error <#net-error> and sys-error
+<#sys-error>.
 
 
 ( § )
@@ -319,6 +328,12 @@ switches:
     -p <port-number>
     -d <port-number>
     -http HTTP only
+
+Before or after the command-line switches, files to load and execute can
+be specified. If a newLISP executable program is followed by parameters
+the program must finish with and (exit) statement, else newLISP will
+take command-line parameters as additional newLISP scripts to be loaded
+and executed.
 
 On Linux and other Unix systems, a newlisp /man page/ can be found:
 
@@ -398,7 +413,7 @@ In any mode, newLISP can write a log when started with the -l or -L
 option. Depending on the mode newLISP is running, different output is
 written to the log file. Both options always must specify the path of a
 log-file. The path may be a relative path and can be either attached or
-detached to the -l or -L option.
+detached to the -l or -L option. The file must exist.
 
     newlisp -l./logfile.txt -c
 
@@ -408,7 +423,6 @@ logging mode	command-line and net-eval with -c	HTTP server with -http
 newlisp -l 	log only input and network connections 	log only network
 connections
 newlisp -L 	log also newLISP output (w/o prompts) 	log also HTTP requests
-
 
 All logging output is written to the file specified after the -l or -L
 option.
@@ -593,6 +607,12 @@ the -d or -p server modes.
 
     newlisp -c -d /tmp/mysocket &
 
+Test the server using another newLISP process:
+
+    newlisp -e '(net-eval "/tmp/mysocket" 0 "(symbols)")'
+
+A list of all built-in symbols will be printed to the terminal
+
 This mode will work together with local domain socket modes of
 net-connect <#net-connect>, net-listen <#net-listen>, and net-eval
 <#net-eval>. Local domain sockets opened with net-connect and net-listen
@@ -722,9 +742,9 @@ the module was not loaded previously:
     ;; include:modules => ("zlib.lsp" "sqlite3.lsp")
 
     (define (include:include module)
-      (unless (find module include:modules)
-        (load (append (env "NEWLISPDIR") "/modules/" module))
-        (push module include:modules -1)))
+    	(unless (find module include:modules)
+    		(load (append (env "NEWLISPDIR") "/modules/" module))
+    		(push module include:modules -1)))
 
 
       The initialization file init.lsp
@@ -748,6 +768,9 @@ the library module.
 
 Although newLISP does not require init.lsp to run, it is convenient for
 defining functions and system-wide variables.
+
+Note that neither one of the initialization files init.lsp nor .init.lsp
+is loaded during startup of linked programs.
 
 
       Directories on Linux, BSD, Mac OS X and other Unix
@@ -1370,8 +1393,8 @@ Implicit indexing is faster than the explicit forms, but the explicit
 forms may be more readable depending on context.
 
 Note that in the UTF-8–enabled version of newLISP, implicit indexing of
-strings using the nth <#nth> function works on character rather than
-byte boundaries.
+strings or using the nth <#nth> function work on character rather than
+single-byte boundaries.
 
 
       Implicit indexing and the default functor
@@ -1433,10 +1456,13 @@ length is negative it counts from the end of the list or string:
     (-3 2 str)   → "ef"
     (2 -2 str)   → "cde"
 
-Implicit indexing for rest <#rest> works on character rather than byte
-boundaries when using the UTF-8–enabled version of newLISP, whereas
-implicit indexing for slice <#slice> will always work on byte boundaries
-and can be used for binary content.
+The functions rest <#rest>, first <#first> and last <#last> work on
+multi-byte character boundaries in UTF-8 enabled versions of newLISP.
+But the implicit indexing forms for slicing and resting will always work
+on single-byte boundaries and can be used for binary content. Ofset and
+length results from the regular expression functions find <#find> and
+regex <#regex> are also in single-byte counts and can be further
+processed with slice <#slice> or it's implicit form.
 
 
       Modify references in lists, arrays and strings
@@ -1504,6 +1530,7 @@ pop <#pop> 	pops an element from a list or string
 pop-assoc <#pop-assoc> 	removes an association from an association list
 push <#push> 	pushes a new element onto a list or string
 read-buffer <#read-buffer> 	reads into a buffer variable
+receive <#receive> 	receives a message from a parent or child process
 replace <#replace> 	replaces elements in a list or string
 reverse <#reverse> 	reverses a list or string
 rotate <#rotate> 	rotates the elements of a list or characters of a string
@@ -2319,7 +2346,7 @@ An association list can be generated from the contents of the namespace:
 
 Entries in the dictionary can also be created from a list:
 
-    (Foo '(("#1234" "hello world") ("John Doe" 123) ("var" (a b c d))) → Foo
+    (Foo '(("#1234" "hello world") ("John Doe" 123) ("var" (a b c d)))) → Foo
 
 The list can also be used to iterate through the sorted key -> value pairs:
 
@@ -2395,7 +2422,7 @@ reference to the data:
     ;; the default functor for holding data
 
     (define Mylist:Mylist '(a b c d e f g))
-
+    
     (Mylist 3) → d 
 
     (setf (Mylist 3) 'D) → D
@@ -2499,24 +2526,16 @@ symbol of that namespace (context).
 Any object-oriented programming (OOP) system built in newLISP is based
 on the following four principles:
 
-    *
-
-      Class attributes and methods are stored in the namespace of the
+    * Class attributes and methods are stored in the namespace of the
       object class.
 
-    *
-
-      The namespace default functor is used to hold the object
+    * The namespace default functor is used to hold the object
       constructor method.
 
-    *
-
-      An object is constructed using a list, the first element of which
+    * An object is constructed using a list, the first element of which
       is the context symbol describing the class of the object.
 
-    *
-
-      Polymorphism is implemented using the : (colon) operator, which
+    * Polymorphism is implemented using the : (colon) operator, which
       selects the appropriate class from the object.
 
 The following paragraphs are a short introduction to FOOP: Functional
@@ -2547,6 +2566,17 @@ constructors when creating new object classes with new:
 The generic FOOP constructor is already built-in, and FOOP code can
 start with (new Class ...) statements right away.
 
+New classes can only be created in the MAIN context. If creating a new
+class while in a different namespace, the new class name should be
+prefixed with MAIN:
+
+    (context 'Geometry)
+
+    (new Class 'MAIN:Rectangle)
+    (new Class 'MAIN:Circle)
+
+    ...
+
 Creating the namespace classes using new <#new> reserves the class name
 as a context in newLISP and facilitates forward references. At the same
 time, a simple constructor is defined for the new class for
@@ -2565,6 +2595,8 @@ A constructor can also specify defaults:
     ; constructor with defaults
     (define (Circle:Circle (x 10) (y 10) (radius 3))
         (list Circle x y radius))
+
+    (Circle) → (Circle 10 10 3)
 
 In many cases the constructor as created when using new is sufficient
 and overwriting it is not necessary.
@@ -2717,6 +2749,12 @@ single core CPUs, the Cilk API makes concurrent processing much easier
 for the programmer and may speed up processing if subtasks include
 waiting for I/O or sleeping.
 
+Since version 10.1 send <#send> and receive <#receive> message functions
+are available for communications between parent and child processes. The
+functions can be used in blocking and non blocking communications and
+can transfer any kind of newLISP data or expressions. Transmitted
+expressions can be evaluated in the recipients environment.
+
 Internally, newLISP uses the lower level fork <#fork>, wait-pid
 <#wait-pid>, destroy <#destroy>, and share <#share> functionalities to
 control processes and synchronize the passing of computed results via a
@@ -2773,18 +2811,19 @@ element data.
 *Parsing without options:*
 
     (xml-parse (read-file "example.xml"))
-    →  (("ELEMENT" "DATABASE" (("name" "example.xml")) (("TEXT" "\r\n")
-    ("COMMENT" "This is a database of fruits")
-    ("TEXT" "\r\n        ")
-    ("ELEMENT" "FRUIT" () (
-    	("TEXT" "\r\n\t        ")
-    	("ELEMENT" "NAME" () (("TEXT" "apple")))
-    	("TEXT" "\r\n\t\t")
-    	("ELEMENT" "COLOR" () (("TEXT" "red")))
-    	("TEXT" "\r\n\t\t")
-    	("ELEMENT" "PRICE" () (("TEXT" "0.80")))
-    	("TEXT" "\r\n\t")))
-    ("TEXT" "\r\n"))))
+    →  (("ELEMENT" "DATABASE" (("name" "example.xml"))
+                    (("TEXT" "\r\n")
+                     "COMMENT" "This is a database of fruits")
+                    ("TEXT" "\r\n        ")
+                    ("ELEMENT" "FRUIT" ()
+                               (("TEXT" "\r\n\t        ")
+                                ("ELEMENT" "NAME" () (("TEXT" "apple")))
+                                ("TEXT" "\r\n\t\t")
+                                ("ELEMENT" "COLOR" () (("TEXT" "red")))
+                                ("TEXT" "\r\n\t\t")
+                                ("ELEMENT" "PRICE" () (("TEXT" "0.80")))
+                                ("TEXT" "\r\n\t")))
+                    ("TEXT" "\r\n"))))
 
 S-XML can be generated directly from XML using xml-type-tags
 <#xml-type-tags> and the special option parameters of the xml-parse
@@ -2796,10 +2835,10 @@ S-XML can be generated directly from XML using xml-type-tags
     (xml-type-tags nil nil nil nil)
     (xml-parse (read-file "example.xml") (+ 1 2 4 8 16))
     →  ((DATABASE (@ (name "example.xml"))
-      (FRUIT (NAME "apple")
-    	  (COLOR "red")
-    	  (PRICE "0.80"))))
-    	
+                   (FRUIT (NAME "apple")
+                          (COLOR "red")
+                          (PRICE "0.80"))))
+
 
 S-XML is XML reformatted as newLISP /S-expressions/. The @ (at symbol)
 denotes an XML attribute specification.
@@ -2844,7 +2883,7 @@ In the modules directory of the source distribution, the file
 xmlrpc-client.lsp implements a specific client interface for all of the
 above methods.
 
-    (load "xmlrpc-client.lsp")  ; load XML-RPC client routines						 
+    (load "xmlrpc-client.lsp")  ; load XML-RPC client routines
 
     (XMLRPC:newLISP.evalString
     "http://localhost:8080/xmlrpc.cgi"
@@ -2892,8 +2931,12 @@ Using the same mechanism, the names of built-in functions can be
 translated into languages other than English:
 
     (constant 'wurzel sqrt)    ; German for 'square-root'
-    (constant 'imprime print)  ; Spanish for 'print'
+
+    ; make the new symbol global at the same time
+    (constant (global 'imprime) print)  ; Spanish for 'print'
     …
+
+The new symbol can be made global at the same time using global <#global>.
 
 
       Switching the locale
@@ -3024,40 +3067,44 @@ two bytes necessary to encode the omega character.
       Functions working on UTF-8 characters
 
 When UTF-8–enabled newLISP is used, the following string functions work
-on character rather than byte boundaries:
+on one- or multi-byte characters rather than one 8-bit byte boundaries:
 
 
-function		description
-char <#char> 		translates between characters and ASCII/Unicode
-chop <#chop> 		chops characters from the end of a string
-date <#date> 		converts date number to string (when used with the third argument)
-explode <#explode>	transforms a string into a list of characters
-first <#first> 		gets first element in a list (car, head) or string
-last <#last> 		returns the last element of a list or string
+function	description
+char <#char> 	translates between characters and ASCII/Unicode
+chop <#chop> 	chops characters from the end of a string
+date <#date> 	converts date number to string (when used with the third argument)
+dostring <#dostring> 	evaluates once for each character in a string
+explode <#explode> 	transforms a string into a list of characters
+first <#first> 	gets first element in a list (car, head) or string
+last <#last> 	returns the last element of a list or string
 lower-case <#lower-case> 	converts a string to lowercase characters
-nth <#nth> 		gets the /nth/ element of a list or string
-pop <#pop> 		deletes an element from a list or string
-push <#push> 		inserts a new element in a list or string
-rest <#rest> 		gets all but the first element of a list (cdr, tail) or string
+nth <#nth> 	gets the /nth/ element of a list or string
+pop <#pop> 	deletes an element from a list or string
+push <#push> 	inserts a new element in a list or string
+rest <#rest> 	gets all but the first element of a list (cdr, tail) or string
 select <#select> 	selects and permutes elements from a list or string
 title-case <#title-case> 	converts the first character of a string to uppercase
-trim <#trim> 		trims a string from both sides
+trim <#trim> 	trims a string from both sides
 upper-case <#upper-case> 	converts a string to uppercase characters
 
 
-All other string functions work on bytes. When positions are returned,
-as in find <#find> or regex <#regex>, they are byte positions rather
-than character positions. The slice <#slice> function takes not
-character offset, but byte offsets. The reverse <#reverse> function
-reverses a byte vector, not a character vector. The last two functions
-can still be used to manipulate binary non-textual data in the
-UTF-8–enabled version of newLISP.
+All other string functions work on 8-bit bytes. When positions are
+returned, as in find <#find> or regex <#regex>, they are single 8-bit
+byte positions rather than character positions which may be multi-byte.
+The get-char <#get-char> and slice <#slice> functions do not take
+multi-byte character offsets, but single-byte offsets, even in UTF-8
+enabled versions of newLISP. The reverse <#reverse> function reverses a
+byte vector, not a character vector. The last three functions can still
+be used to manipulate binary non-textual data in the UTF-8–enabled
+version of newLISP.
 
 To enable UTF-8 in Perl Compatible Regular Expressions (PCRE) — used by
 directory <#directory>, find <#find>, member <#member>, parse <#parse>,
 regex <#regex>, regex-comp <#regex-comp> and replace <#replace> — set
-the option number accordingly (2048). See the regex <#regex>
-documentation for details.
+the option number accordingly (2048). Note that offset and lengths in
+regex <#regex> results are always in single byte counts. See the regex
+<#regex> documentation for details.
 
 Use explode <#explode> to obtain an array of UTF-8 characters and to
 manipulate characters rather than bytes when a UTF-8–enabled function is
@@ -3073,7 +3120,7 @@ such as ISO 8859 — is one byte long. When working exclusively within
 these code pages, UTF-8–enabled newLISP is not required. The set-locale
 <#set-locale> function alone is sufficient for localized behavior.
 
-Two new functions are available for converting between four-byte Unicode
+Two functions are available for converting between four-byte Unicode
 (UCS-4) and multi-byte UTF-8 code. The UTF-8 <#utf8> function converts
 UCS-4 to UTF-8, and the unicode <#unicode> function converts UTF-8 or
 ASCII strings into USC-4 Unicode.
@@ -3086,6 +3133,7 @@ integer characters). Unicode can be displayed directly when using the
 For further details on UTF-8 and Unicode, consult /UTF-8 and Unicode FAQ
 for Unix/Linux/ <http://www.cl.cam.ac.uk/~mgk25/unicode.html> by /Markus
 Kuhn/.
+
 
 ( § )
 
@@ -3138,8 +3186,7 @@ steps:
 newLISP executable; (b) newlisp (or newlisp.exe on Win32); (c) link.lsp;
 and (d) the program to link with (uppercase.lsp in this example).
 
-(2) In a shell, go to the directory referred to in step 1 and load
-link.lsp:
+(2) In a shell, go to the directory referred to in step 1 and load link.lsp:
 
     newlisp link.lsp
 
@@ -3163,6 +3210,9 @@ operating system to recognize it:
 
 This gives the file executable permission (this step is unnecessary on
 Win32).
+
+Note that neither one of the initialization files init.lsp nor .init.lsp
+is loaded during startup of linked programs.
 
 
 
@@ -3307,6 +3357,9 @@ Arguments are represented by symbols formed by the argument's type and
 name, separated by a - (hyphen). Here, /str-format/ (a string) and
 /exp-data-1/ (an expression) are named "format" and "data-1", respectively.
 
+Arguments enclosed in brackets [ and ] are optional. When arguments are
+separated by a vertical | then one of them must be chosen.
+
 
       array
 
@@ -3403,8 +3456,8 @@ but some other data type.
 
       place
 
-A place defined in list, array or string by indexing into it via nth
-<#nth> or implicit indexing <#indexing>.
+A place referenced a symbol or a place defined in list, array or string
+by indexing into it via nth <#nth> or implicit indexing <#indexing>.
 
 
       str
@@ -3495,8 +3548,7 @@ Some functions appear in more than one group.
     <=, >=, != <#logical> 	compares any data type: less-equal, greater-equal, not-equal
     : <#colon> 	constructs a context symbol and applies it to an object
     and <#and> 	logical and
-    append <#append> 	appends lists ,arrays or strings to form a new
-    list, array or string
+    append <#append> 	appends lists ,arrays or strings to form a new list, array or string
     apply <#apply> 	applies a function or primitive to a list of arguments
     args <#args> 	retrieves the argument list of a function or macro expression
     assoc <#assoc> 	searches for keyword associations in a list
@@ -3567,8 +3619,7 @@ Some functions appear in more than one group.
     setf setq <#setf> 	sets contents of a symbol or list, array or
     string reference
     set-ref <#set-ref> 	searches for an element in a nested list and replaces it
-    set-ref-all <#set-ref-all> 	searches for an element in a nested list
-    and replaces all instances
+    set-ref-all <#set-ref-all> 	searches for an element in a nested list and replaces all instances
     silent <#silent> 	works like begin <#begin> but suppresses console output of the return value
     slice <#slice> 	extracts a sublist or substring
     sort <#sort> 	sorts the members of a list
@@ -3585,8 +3636,7 @@ Some functions appear in more than one group.
       String and conversion functions
 
     address <#address> 	gets the memory address of a number or string
-    append <#append> 	appends lists, arrays or strings to form a new
-    list, array or string
+    append <#append> 	appends lists, arrays or strings to form a new list, array or string
     bits <#bits> 	translates a number into binary representation
     char <#char> 	translates between characters and ASCII codes
     chop <#chop> 	chops off characters from the end of a string
@@ -3597,16 +3647,14 @@ Some functions appear in more than one group.
     eval-string <#eval-string> 	compiles, then evaluates a string
     explode <#explode> 	transforms a string into a list of characters
     find <#find> 	searches for an element in a list or string
-    find-all <#find-all> 	returns a list of all pattern matches found in
-    string
+    find-all <#find-all> 	returns a list of all pattern matches found in string
     first <#first> 	gets the first element in a list or string
     float <#float> 	translates a string or integer into a floating point number
     format <#format> 	formats numbers and strings as in the C language
     get-char <#get-char> 	gets a character from a memory address
     get-float <#get-float> 	gets a double float from a memory address
     get-int <#get-int>   	gets a 32-bit integer from a memory address
-    get-long <#get-long>   	gets a long 64-bit integer from a memory
-    address
+    get-long <#get-long>   	gets a long 64-bit integer from a memory address
     get-string <#get-string> 	gets a string from a memory address
     int <#int> 	translates a string or float into an integer
     join <#join> 	joins a list of strings
@@ -3628,8 +3676,7 @@ Some functions appear in more than one group.
     select <#select> 	selects and permutes elements from a list or string
     setf setq <#setf> 	sets contents of a string reference
     slice <#slice> 	extracts a substring or sublist
-    source <#source> 	returns the source required to bind a symbol as a
-    string
+    source <#source> 	returns the source required to bind a symbol as a string
     starts-with <#starts-with> 	checks the start of the string or list against a key string or list
     string <#string> 	transforms anything into a string
     sym <#sym> 	translates a string into a symbol
@@ -3677,11 +3724,13 @@ Some functions appear in more than one group.
     gcd <#gcd> 	calculates the greatest common divisor of a group of integers
     ifft <#ifft> 	performs an inverse fast Fourier transform (IFFT)
     inc <#inc> 	increments a number in a variable, list or array
+    inf? <#infp> 	checks if a floating point value is infinite
     log <#log> 	calculates the natural or other logarithm of a number
     min <#min> 	finds the smallest value in a series of values
     max <#max> 	finds the largest value in a series of values
     mod <#mod> 	calculates the modulo of two numbers
     mul <#mul> 	multiplies floating point or integer numbers
+    NaN? <#NaNp> 	checks if a float is NaN (not a number)
     round <#round> 	rounds a number
     pow <#pow> 	calculates /x/ to the power of /y/
     sequence <#sequence> 	generates a list sequence of numbers
@@ -3742,6 +3791,7 @@ Some functions appear in more than one group.
     file? <#filep> 	checks if a file exists
     float? <#floatp> 	checks if an expression is a float
     global? <#globalp> 	checks if a symbol is global
+    inf? <#infp> 	checks if a floating point value is infinite
     integer? <#integerp> 	checks if an expression is an integer
     lambda? <#lambdap> 	checks if an expression is a lambda expression
     legal? <#legalp> 	checks if a string contains a legal symbol
@@ -3763,11 +3813,15 @@ Some functions appear in more than one group.
       Time and date functions
 
     date <#date> 	converts a date-time value to a string
-    date-value <#date-value> 	calculates the time in seconds since January 1, 1970 for a date and time
-    parse-date <#parse-date> 	parses a date string and returns the number of seconds passed since January 1, 1900
+    date-value <#date-value> 	calculates the time in seconds since
+    January 1, 1970 for a date and time
+    parse-date <#parse-date> 	parses a date string and returns the
+    number of seconds passed since January 1, 1900
     now <#now> 	returns a list of current date-time information
-    time <#time> 	calculates the time it takes to evaluate an expression in milliseconds
-    time-of-day <#time-of-day> 	calculates the number of milliseconds elapsed since the day started
+    time <#time> 	calculates the time it takes to evaluate an expression
+    in milliseconds
+    time-of-day <#time-of-day> 	calculates the number of milliseconds
+    elapsed since the day started
 
 
       Simulation and modeling functions
@@ -3825,6 +3879,7 @@ Some functions appear in more than one group.
     read-file <#read-file> 	reads a whole file in one operation
     read-key <#read-key> 	reads a keyboard key
     read-line <#read-line> 	reads a line from the console or file
+    read-utf8 <#read-utf8> 	reads UTF-8 character from a file
     save <#save> 	saves a workspace, context, or symbol to a file
     search <#search> 	searches a file for a string
     seek <#seek> 	sets or reads a file position
@@ -3842,8 +3897,11 @@ Some functions appear in more than one group.
     exec <#exec> 	runs a process, then reads from or writes to it
     fork <#fork> 	launches a newLISP child process
     pipe <#pipe> 	creates a pipe for interprocess communication
-    process <#process> 	launches a child process, remapping standard I/O and standard error
+    process <#process> 	launches a child process, remapping standard I/O
+    and standard error
+    receive <#receive> 	receive a message from another process
     semaphore <#semaphore> 	creates and controls semaphores
+    send <#send> 	send a message to another process
     share <#share> 	shares memory with other processes
     spawn <#spawn> 	launches a child process for Cilk process management
     sync <#sync> 	waits for child processes launched with spawn and collects results
@@ -3871,6 +3929,7 @@ Some functions appear in more than one group.
     get-url <#get-url> 	reads a file or page from the web
     post-url <#post-url> 	posts info to a URL address
     put-url <#put-url> 	uploads a page to a URL address
+    xfer-event <#xfer-event> 	registers an event handler for HTTP byte transfers
     xml-error <#xml-error> 	returns last XML parse error
     xml-parse <#xml-parse> 	parses an XML document
     xml-type-tags <#xml-type-tags>  	shows or modifies XML type tags
@@ -3921,11 +3980,10 @@ Some functions appear in more than one group.
     default <#default> 	returns the contents of a default functor from a context
     env <#env> 	gets or sets the operating system's environment
     error-event <#error-event> 	defines an error handler
-    error-number <#error-number> 	gets the last error number
-    error-text <#error-text> 	gets the error text for an error number
     exit <#exit> 	exits newLISP, setting the exit value
     global <#global> 	makes a symbol accessible outside MAIN
     import <#import> 	imports a function from a shared library
+    last-error <#last-error> 	report the last error number and text
     main-args <#main-args> 	gets command-line arguments
     new <#new> 	creates a copy of a context
     ostype <#ostype> 	contains a string describing the OS platform
@@ -3964,8 +4022,7 @@ Some functions appear in more than one group.
 
     cpymem <#cpymem> 	copies memory between addresses
     dump <#dump> 	shows memory address and contents of newLISP cells
-    read-expr <#read-expr> 	reads and optionally translates
-    s-expressions from source
+    read-expr <#read-expr> 	reads and optionally translates s-expressions from source
 
 
 ( § )
@@ -3976,7 +4033,7 @@ Some functions appear in more than one group.
 
     !
 
-*syntax: (! /str-command/)*
+*syntax: (! /str-shell-command/)*
 
 Executes the command in /str-command/ by shelling out to the operating
 system and executing. This function returns a different value depending
@@ -4257,21 +4314,21 @@ between the colon and the symbol following it.
         (mul (pow (c 3) 2) (acos 0) 2))
 
     (define (Rectangle:move p dx dy)
-        (list 'Rectangle (add (p 1) dx) (add (p 2) dy) (p 3) (p 4)))
+        (list rectangle (add (p 1) dx) (add (p 2) dy) (p 3) (p 4))) 
 
     (define (Circle:move p dx dy)
-        (list 'Circle (add (p 1) dx) (add (p 2) dy) (p 3)))
+        (list circle (add (p 1) dx) (add (p 2) dy) (p 3))) 
 
     (set 'myrect '(Rectangle 5 5 10 20)) ; x y width height
-    (set 'mycircle '(Circle 1 2 10))     ; x y radius
+    (set 'mycircle '(Circle 1 2 10)) ; x y radius
 
     ;; explicit naming of the context methods
 
     (Rectangle:area myrect)   → 200
     (Circle:area mycircle)    → 314.1592654
 
-    (set 'myrect (Rectangle:move myrect 2 3))
-    (set 'mycircle (Circle:move mycircle 4 5))
+    (set 'myrect (Rectangle:move myrect 2 3)) 
+    (set 'mycircle ((Circle:move mycircle 4 5))
 
     ;; using the : (colon) operator to polymorphically 
     ;; resolve to a specific context
@@ -5426,9 +5483,13 @@ named parameters:
     *>* (foo (width (+ 15 5)) (height 30) (len 10))
     *len:10 width:20 height:30*
 
-    *>*
+    *>* (foo (width (+ 15 5)) (height (* width 2)) (len 10))
+    *len:10 width:20 height:40*
 
-Arguments are evaluated and assigned to the local variables.
+    `*>*
+
+Arguments are evaluated incrementally in the local environment and
+assigned to the local variables.
 
 
 
@@ -5530,7 +5591,7 @@ the examples/ directory of the source distribution of newLISP.
 
     case
 
-*syntax: (case exp-switch (/exp-1/ /body-1/) [(/exp-2/ /body-2/) ... ])*
+*syntax: (case /exp-switch/ (/exp-1/ /body-1/) [(/exp-2/ /body-2/) ... ])*
 
 The result of evaluating /exp-switch/ is compared to each of the
 /unevaluated/ expressions /exp-1, exp-2,/ —. If a match is found, the
@@ -5808,7 +5869,7 @@ newLISP's init.lsp startup file:
     (command-event (fn (s) 
         (if 
             (starts-with s "cd") 
-            (begin (string " " (true? (change-dir (last (parse s " "))))))
+            (string " " (true? (change-dir (last (parse s " ")))))
 
             (starts-with s "[a-zA-Z]" 0)
             (append "!" s)
@@ -6501,21 +6562,17 @@ format	description
 %j	day of the year as a decimal number (range 001–366)
 %m	month as a decimal number (range 01–12)
 %M	minute as a decimal number
-%p	either 'am' or 'pm' according to the given time value or the
-corresponding strings for the current locale
-%S	second as a decimal number 0–61 (60 and 61 to account for occasional
-leap seconds)
-%U	week number of the current year as a decimal number, starting with
-the first Sunday as the first day of the first week
+%p	either 'am' or 'pm' according to the given time value or the corresponding strings for the current locale
+%S	second as a decimal number 0–61 (60 and 61 to account for occasional leap seconds)
+%U	week number of the current year as a decimal number, starting with the first Sunday as the first day of the first week
 %w	day of the week as a decimal, Sunday being 0
-%W	week number of the current year as a decimal number, starting with
-the first Monday as the first day of the first week
+%W	week number of the current year as a decimal number, starting with the first Monday as the first day of the first week
 %x	preferred date representation for the current locale without the time
 %X	preferred time representation for the current locale without the date
 %y	year as a decimal number without a century (range 00–99)
 %Y	year as a decimal number including the century
-%z	time zone or name or abbreviation (same as %Z on Win32, different on Linux/Unix)
-%Z	time zone or name or abbreviation (same as %z on Win32, different on Linux/Unix)
+%z	time zone or name or abbreviation (same as %Z on Win32, different on Unix)
+%Z	time zone or name or abbreviation (same as %z on Win32, different on Unix)
 %%	a literal '%' character
 
 
@@ -6791,21 +6848,28 @@ Trying to redefine a protected symbol will cause an error message.
 *syntax: (define-macro (/sym-name/ [/sym-param-1/ ... ]) /body/)*
 *syntax: (define-macro (/sym-name/ [(/sym-param-1/ /expr-default/) ... ]) /body/)*
 
-Defines the new macro /sym-name/, with optional arguments
-/sym-param-1/—. define-macro is equivalent to assigning a lambda-macro
-expression to a symbol. When a macro-defined function is called,
-arguments are assigned to the variables in /sym-param-1/— without
-evaluating the arguments first. Then the /body/ expressions are
-evaluated. When evaluating the define-macro function, the lambda-macro
-expression is returned.
+Functions defined using define-macro are called /fexpr/s in other LISPs
+as they don't do variable expansion. In newLISP they are still called
+macros, because they are written with the same purpose of creating
+special syntax forms with non-standard evaluation patterns of arguments.
+Functions created using define-macro can be combined with template
+expansion using expand <#expand> or letex <#letex>.
+
+Defines the new macro /sym-name/, with optional arguments /sym-param-1/
+—. define-macro is equivalent to assigning a lambda-macro expression to
+a symbol. When a macro-defined function is called, arguments are
+assigned to the variables in /sym-param-1/— without evaluating the
+arguments first. Then the /body/ expressions are evaluated. When
+evaluating the define-macro function, the lambda-macro expression is
+returned.
 
 *example:*
 
-    ;; use underscores on symbols
-    (define-macro (my-setq _x _y) (set _x (eval _y))) 
-    → (lambda-macro (_x _y) (set _x (eval _y)))
+    (define-macro (my-setq p1 p2) (set p1 (eval p2))) 
+    → (lambda-macro (p1 p2) (set p1 (eval p2)))
 
     (my-setq x 123)  → 123
+    x                → 123
 
 Macros in newLISP are similar to define functions, but they do /not/
 evaluate their arguments. New functions can be created to behave like
@@ -6853,13 +6917,11 @@ intended value:
 There are several methods that can be used to avoid this problem, known
 as /variable capture/, by writing /hygienic/ macros:
 
-    * Prefix all macro variable names with an underscore character.
-      Using this or a similar convention, the danger of symbol name
-      clashes can be avoided.
     * Put the macro into its own lexically closed namespace context. If
       the function has the same name as the context, it can be called by
       using the context name alone. A function with this characteristic
-      is called a /default function/ <#default_function>.
+      is called a /default function/ <#default_function>. This is the
+      preferred method in newLISP to write macros (/fexpr/s).
     * Use args <#args> to access arguments passed by the function.
 
 *example:*
@@ -7042,7 +7104,7 @@ second syntax is not available on Win32.
 
 *example:*
 
-    (set 'pid (process "/usr/bin/bc" bcin bcout)) 
+    (set 'pid (process "/usr/bin/bc" bcin bcout))
     (destroy pid)
 
     (set 'pid (fork (dotimes (i 1000) (println i) (sleep 10))))
@@ -7199,7 +7261,7 @@ When /num-1/ is the only argument, div calculates the inverse of /num-1/.
 
     do-until
 
-*syntax: (do-until /exp-condition body/)*
+*syntax: (do-until /exp-condition/ [/body/])*
 
 The expressions in /body/ are evaluated before /exp-condition/ is
 evaluated. If the evaluation of /exp-condition/ is not nil, then the
@@ -7208,7 +7270,8 @@ get evaluated again. Note that do-until evaluates the conditional
 expression /after/ evaluating the body expressions, whereas until
 <#until> checks the condition /before/ evaluating the body. The return
 value of the do-until expression is the last evaluation of the /body/
-expression.
+expression. If /body/ is empty, the last result of /exp-condition/ is
+returned.
 
 do-until also updates the system iterator symbol $idx.
 
@@ -7355,7 +7418,7 @@ changed by the user.
 
 
 
-    dostring
+    dostring utf8 <#utf8_capable>
 
 *syntax: (dostring (/sym/ /string/ [/exp-break/]) /body/)*
 
@@ -7434,7 +7497,7 @@ This prints 0123456789 to the console window.
 
     dotree
 
-*syntax: (dotree (/sym/ /sym-context/) /body/)*
+*syntax: (dotree (/sym/ /sym-context/ [/bool/]) /body/)*
 
 The expressions in /body/ are evaluated for all symbols in
 /sym-context/. The symbols are accessed in a sorted order. Before each
@@ -7442,6 +7505,11 @@ evaluation of the body expression(s), the variable in /sym/ is set to
 the next symbol from /sym-context/. The variable used as the loop index
 is local to the dotree expression and behaves according the rules of
 dynamic scoping.
+
+When the optional /bool/ expression evaluates to not nil, only symbols
+starting with an underscore character _ are accessed. Symbol names
+starting with an _ underscore are used for hash keys <#hash> and symbols
+created by bayes-train <#bayes-train>.
 
 dotree also updates the system iterator symbol $idx.
 
@@ -7600,7 +7668,7 @@ a regular expression pattern. See regex <#regex> for valid numbers for
     (ends-with "newLISP" "lisp")         → nil
     (ends-with "newLISP" "lisp" nil)     → true
     ;; use regular expressions
-    (ends-with "newLISP" "lisp\|york" 1)  → true
+    (ends-with "newLISP" "lisp|york" 1)  → true
 
 In the second syntax, ends-with checks if a list ends with the list
 element in /exp/. true or nil is returned depending on outcome.
@@ -7682,13 +7750,13 @@ function is defined as:
 /sym/ contains a user-defined function for handling errors. Whenever an
 error occurs, the system performs a reset <#reset> and executes the
 user-defined error handler. The error handler can use the built-in
-function error-number <#error-number> to retrieve the number of the error.
+function last-error <#last-error> to retrieve the number and text of the
+error.
 
 *example:*
 
     (define (my-handler)    
-      (print "error # " (error-number) " has occurred\n")
-      (restart-program))
+      (print "error # " (first (last-error)) " has occurred\n") )
 
     (error-event 'my-handler)  → my-handler
 
@@ -7697,50 +7765,12 @@ function error-number <#error-number> to retrieve the number of the error.
     (error-event my-handler)  → $error-event
 
     (error-event 
-      (fn () (print "error # " (error-number) " has occurred\n")))
+      (fn () (print "error # " (first (last-error)) " has occurred\n")))
 
     (error-event exit)  → $error-event
 
 For a different way of handling errors, see the catch <#catch> function.
 Use throw-error <#throw-error> to throw user-defined errors.
-
-
-
-    error-number
-
-*syntax: (error-number)*
-
-Returns the number of the last error.
-
-*example:*
-
-    (define (my-handler)    
-      (print "error # " (error-number) " has occurred\n")
-      (restart-program))
-
-    (error-event 'my-handler)
-
-See also the functions sys-error <#sys-error>, throw-error
-<#throw-error>, error-event <#error-event>, and error codes
-<#error_codes> in the appendix.
-
-
-
-    error-text
-
-*syntax: (error-text [/int-error/])*
-
-Returns a descriptive text for the error number in /int-error/:
-
-*example:*
-
-    (error-text 5)  → "Not an expression"
-
-If no /int-error/ is given, the last error is assumed.
-
-See also the list of error codes <#error_codes> in the appendix and the
-functions error-event <#error-event>, catch <#catch>, sys-error
-<#sys-error>, and throw-error <#throw-error>.
 
 
 
@@ -7825,7 +7855,7 @@ start evaluation.
 
     (define (repl) ; read print eval loop
       (while true
-        (println "=> " (eval-string (read-line) MAIN (error-text)))
+        (println "=> " (eval-string (read-line) MAIN (last-error)))
       )
     )
 
@@ -7903,6 +7933,9 @@ If no element meets the condition, nil is returned.
 
     (exists (fn (x) (= x 10)) '(3 4 2 -7 3 0))  → nil 
 
+If /func-condition/ is nil?, the result nil is ambiguous. In this case
+index <#index> or find <#find> are the better method when looking for nil.
+
 Use the for-all <#for-all> function to check if a condition is met for
 all elements in a list.
 
@@ -7940,18 +7973,20 @@ calculated based on the result. exp is the inverse function of log.
 
     expand
 
-*syntax: (expand /list/ /sym-1/ [/sym-2/ ... ])*
-*syntax: (expand /list/ /list-assoc/)*
-*syntax: (expand /list/)*
+*syntax: (expand /expr/ /sym-1/ [/sym-2/ ... ])*
+*syntax: (expand /expr/ /list-assoc/ [/bool/])*
+*syntax: (expand /expr/)*
 
 In the first syntax, one symbol in /sym/ (or more in /sym-2/ through
-/sym-n/) is looked up in a simple or nested /list/. They are then
-expanded to the current binding of the symbol and the expanded list is
-returned. The original list remains unchanged.
+/sym-n/) is looked up in a simple or nested expression /expr/. They are
+then expanded to the current binding of the symbol and the expanded
+expression is returned. The original list remains unchanged.
 
 *example:*
 
     (set 'x 2 'a '(d e))
+    (set 'foo 'a)
+    (expand 'foo 'a)               → (d e)
     (expand '(a x b) 'x)           → (a 2 b)
     (expand '(a x (b c x)) 'x)     → (a 2 (b c 2))
     (expand '(a x (b c x)) 'x 'a)  → ((d e) 2 (b c 2))
@@ -7979,15 +8014,20 @@ fashion:
 Like the apply <#apply> function, expand /reduces/ its argument list.
 
 
-*syntax: (expand /list/ /list-assoc/)*
+*syntax: (expand /list/ /list-assoc/ [/bool/])*
 
 The second syntax of expand allows expansion bindings to be specified on
 the fly, without performing a set <#set> on the participating variables:
 
+If the /bool/ evaluates to true, the value parts in the association list
+are evaluated.
+
 *example:*
 
-    (expand '(a b c) '((a 1) (b 2)))              → (1 2 c)
-    (expand '(a b c) '((a 1) (b 2) (c (x y z))))  → (1 2 (x y z))
+    (expand '(a b c) '((a 1) (b 2)))                → (1 2 c)
+    (expand '(a b c) '((a 1) (b 2) (c (x y z))))    → (1 2 (x y z))
+    (expand '(a b) '((a (+ 1 2)) (b (+ 3 4))))      → ((+ 1 2) (+ 3 4))
+    (expand '(a b) '((a (+ 1 2)) (b (+ 3 4))) true) → (3 7)
 
 Note that the contents of the variables in the association list will not
 change. This is different from the letex <#letex> function, where
@@ -8226,7 +8266,6 @@ negated predicate.
     (filter big? '(1 10 3 6 4 5 11))  → (10 6 11)
 
     ; filter with comparison functor
-
     (set 'L '((a 10 2 7) (b 5) (a 8 3) (c 8) (a 9)))
 
     (filter (curry match '(a *)) L)   → ((a 10 2 7) (a 8 3) (a 9))
@@ -8254,7 +8293,7 @@ of a list for which a predicate is false.
 *syntax: (find /str-key str-data/ [/int-option/])*
 
 
-        Find an expression in a list
+      Find an expression in a list
 
 If the second argument evaluates to a /list/, then find returns the
 index position (offset) of the element derived from evaluating /exp-key/.
@@ -8304,12 +8343,14 @@ Using match <#match> and unify <#unify>, list searches can be formulated
 which are as powerful as regular expression searches are for strings.
 
 
-        Find a string in a string
+      Find a string in a string
 
 If the second argument, /str-data/, evaluates to a string, then the
 offset position of the string /str-key/ (found in the first argument,
 /str-data/) is returned. In this case, find also works on binary
-/str-data/.
+/str-data/. The offset position returned is always based on counting
+single byte characters even when running the UTF-8 enabled version of
+newLISP.
 
 The presence of a third parameter specifies a search using the regular
 expression pattern specified in /str-pattern/, as well as an option
@@ -8491,7 +8532,7 @@ the functions last <#last> and rest <#rest>.
 
 *syntax: (flat /list/)*
 
-Returns the flattened form of a list:
+Returns a flattened list from a list:
 
 *example:*
 
@@ -8869,8 +8910,8 @@ Below are the types in f:
 Formatting 64-bit numbers using 32-bit format specifiers will truncate
 and format the lower 32 bits of the number.
 
-For 64-bit numbers (since version 8.9.7) use the following format
-strings on Unix-like operating systems:
+For 64-bit numbers use the following format strings on Unix-like
+operating systems:
 
     lld     decimal (64-bit)
     llu     unsigned decimal (64-bit)
@@ -9277,7 +9318,8 @@ the example, this can be added using the env <#env> function.
 The /int-timeout/ can be followed by an optional custom header in
 /str-header/:
 
-*Custom header*
+
+      Custom header
 
 The custom header may contain options for browser cookies or other
 directives to the server. When no /str-header/ is specified, newLISP
@@ -9653,6 +9695,24 @@ Use the filter <#filter> function to return the elements themselves.
 
 
 
+    inf?
+
+*syntax: (inf? /float/)*
+
+If the value in /float/ is infinite the function returns true else nil.
+
+*example:*
+
+    (inf? (div 1 0)) → true
+
+    (div 0 0) → NaN
+
+Note that an integer division by zero e.g. (/ 1 0) will throw an
+"division by zero" error and not yield infinity. See also NaN? <#NaNp>
+to check is a floating point number is valid.
+
+
+
     int
 
 *syntax: (int /exp/ [/exp-default/ [/int-base/]])*
@@ -9704,6 +9764,10 @@ converted to 0 (zero).
 
     (print "Enter a num:")
     (set 'num (int (read-line)))
+
+    (int (bits 12345) 0 2) → 12345
+
+The inverse function to int with base 2 is bits <#bits>.
 
 Use the float <#float> function to convert arguments to floating point
 numbers.
@@ -9878,7 +9942,9 @@ otherwise, returns nil.
 
 *example:*
 
-    (define (square x) (* x x))
+    (define (square x) (* x x)) → (lambda (x) (* x x))
+
+    square → (lambda (x) (* x x))
 
     (lambda? square)  → true
 
@@ -9916,6 +9982,46 @@ as a string.
 Note that last <#last> works on character boundaries rather than byte
 boundaries when the UTF-8–enabled version of newLISP is used. See also
 first <#first>, rest <#rest> and nth <#nth>.
+
+
+    last-error
+
+*syntax: (last-error)*
+*syntax: (last-error /int-error/)*
+
+Reports the last error generated by newLISP due to syntax errors or
+exhaustion of some resource. For a summary of all possible errors see
+the chapter Error codes <#error_codes> in the appendix.
+
+If no error has occurred since the newLISP session was started, nil is
+returned.
+
+When /int-error/ is specified, a list of the number and the error text
+is returned.
+
+*example:*
+
+    (last-error)  → nil
+
+    (abc)
+
+    ERR: invalid function : (abc)
+
+    (last-error) → (24 "ERR: invalid function : (abc)")
+
+    (last-error 24) → (24 "invalid function")
+    (last-error 1) → (1 "not enough memory")
+    (last-error 12345) → (12345 "Unknown error")
+
+For error numbers out of range the string "Unknown error" is given for
+the error text.
+
+Erros can be trapped by error-event <#error-event> and userdefined error
+handlers.
+
+See also net-error <#net-error> for errors generated by networking
+conditions and sys-error <#sys-error> for errors generated by the
+operating system.
 
 
 
@@ -10037,34 +10143,13 @@ parentheses around the initializers can be omitted:
 
     (letex (x 1 y 2 z 3) '(x y z))    → (1 2 3)
 
+    (letex ( (x 1) (y '(a b c)) (z "hello") ) '(x y z)) 
+
+    → (1 (a b c) "hello")
+
 Before the expression '(x y z) gets evaluated, x, y and z are literally
 replaced with the initializers from the letex initializer list. The
 final expression which gets evaluated is '(1 2 3).
-
-The following is a more complex realistic example. letex and
-define-macro <#define-macro> are used together to define a dolist-while,
-which loops through a list while a certain condition is true:
-
-*example:*
-
-    (define-macro (dolist-while)
-        (letex (var (args 0 0)
-                lst (args 0 1)
-                cnd (args 0 2)
-                body (cons 'begin (1 (args))))
-            (let (res)
-              (catch (dolist (var lst)
-              (if (set 'res cnd) body (throw res)))))))
-
-    > (dolist-while (x '(a b c d e f) (!= x 'd)) (println x))
-    a
-    b
-    c
-    nil
-    >
-
-The args <#args> function is used to access the unevaluated argument
-list from define-macro <#define-macro>.
 
 
 
@@ -10254,17 +10339,19 @@ extracting a specific element found in the list.
 
 *example:*
 
-    (set 'params '((name "John Doe") 
-                   (age 35) 
-                   (gender "M") 
-                   (balance 12.34)
-                   ))
+    (set 'params '(
+        (name "John Doe") 
+        (age 35) 
+        (gender "M") 
+        (balance 12.34)
+    ))
 
     (lookup 'age params)    → 35
 
-    (set 'persons '(("John Doe" 35 "M" 12.34) 
-                    ("Mickey Mouse" 65 "N" 12345678)
-                    ))
+    (set 'persons '(
+        ("John Doe" 35 "M" 12.34) 
+        ("Mickey Mouse" 65 "N" 12345678)
+    ))
 
     (lookup "Mickey Mouse" persons 2)    → "N"
     (lookup "Mickey Mouse" persons -3)   → 65
@@ -10731,7 +10818,7 @@ When /context/ is supplied, then name returns the name of the context.
 
     NaN?
 
-*syntax: (NaN? /number/)*
+*syntax: (NaN? /float/)*
 
 Tests if the result of a floating point math operation is a NaN. Certain
 floating point operations return a special IEEE 754 number format called
@@ -10739,24 +10826,30 @@ a NaN for 'Not a Number'.
 
 *example:*
 
+    ; floating point operation on NaN yield NaN
     (set 'x (sqrt -1))  → NaN
+    (NaN? x)            → true
     (add x 123)         → NaN
     (mul x 123)         → NaN
 
+    ; integer operations treat NaN as zero
     (+ x 123)  → 123
     (* x 123)  → 0
 
+    ; comparisons with NaN values yield nil
     (> x 0)   → nil
     (<= x 0)  → nil
-    (= x x)   → true
-    (NaN? x)  → true
+    (= x x)   → nil
+
+    (set 'infinity (mul 1.0e200 1.0e200)) → inf
+    (NaN? (sub infinity infinity)) → true
 
 Note that all floating point arithmetic operations with a NaN yield a
 NaN. All comparisons with NaN return nil, but true when comparing to
 itself. Comparison with itself, however, would result in /not/ true when
-using ANSI C.
+using ANSI C. Integer operations treat NaN as 0 (zero) values.
 
-Integer operations treat NaN as 0 (zero) values.
+See also inf? <#infp> for testing a floating point value for infinity.
 
 
 
@@ -10776,9 +10869,8 @@ this connection.
 Note that for ports less than 1024, newLISP must be started in superuser
 mode on Unix-like operating systems.
 
-See also the server <#example_server_tcp> and client
-<#example_client_tcp> examples in the examples/ directory of the source
-distribution.
+See also the files server and client examples in the examples/ directory
+of the source distribution.
 
 
 
@@ -10801,7 +10893,7 @@ waiting for pending data transmissions to finish.
 
     net-connect
 
-*syntax: (net-connect /str-remote-host/ /int-port/ [/str-mode/[/int-ttl/]])*
+*syntax: (net-connect /str-remote-host/ /int-port/ [/str-mode/ [/int-ttl/]])*
 *syntax: (net-connect /str-file-path/)*
 
 In the first syntax, connects to a remote host computer specified in
@@ -10974,19 +11066,22 @@ used to check for incoming communications in a non-blocking fashion.
     net-error
 
 *syntax: (net-error)*
+*syntax: (net-error /int-error/)*
 
-Retrieves the last error that occurred when calling a net-*
-<#socket_tcpip> function. When any of the following functions return
-nil, net-error can be called to get more information: net-accept
-<#net-accept>, net-connect <#net-connect>, net-eval <#net-eval>,
-net-listen <#net-listen>, net-lookup <#net-lookup>, net-receive
-<#net-receive>, net-receive-udp <#net-receive-udp>, net-select
-<#net-select>, net-send <#net-send>, net-send-udp <#net-send-udp>, and
-net-service <#net-service>. Functions that communicate using sockets
-close the socket automatically and remove it from the net-sessions
-<#net-sessions> list. This makes for a very robust API in situations of
-unreliable net connections. Calling any of these functions successfully
-clears the last error.
+Retrieves the last error that occurred when calling a any of the
+following functions: net-accept <#net-accept>, net-connect
+<#net-connect>, net-eval <#net-eval>, net-listen <#net-listen>,
+net-lookup <#net-lookup>, net-receive <#net-receive>, net-receive-udp
+<#net-receive-udp>, net-select <#net-select>, net-send <#net-send>,
+net-send-udp <#net-send-udp>, and net-service <#net-service>. Whenever
+one of these functions fails, it returns nil and net-error can be used
+to retrieve more imformation.
+
+Functions that communicate using sockets close the socket automatically
+and remove it from the net-sessions <#net-sessions> list.
+
+Each successful termination of a net-* <#socket_tcpip> function clears
+the error number.
 
 The following messages are returned:
 
@@ -11009,9 +11104,18 @@ The following messages are returned:
 
 *example:*
 
+    (net-error) → nil
+
     (net-connect "jhghjgkjhg" 80)  →  nil
 
     (net-error)  →  (2 "ERR: Host name not known") 
+
+When /int-error/ is specified the number and error text for that error
+number is returned.
+
+    (net-error 10) → (10 "Cannot bind socket")
+
+See also last-error <#last-error> and sys-error <#sys-error>.
 
 
 
@@ -11346,9 +11450,9 @@ with net-receive-from <#net-receive-from>, use net-send-to <#net-send-to>.
 Note that net-peer <#net-peer> will not work, as UDP communications do
 not maintain a connected socket with address information.
 
-    (net-listen 1002 "192.168.1.120" "udp") 
+    (net-listen 10002 "192.168.1.120" "udp") 
 
-    (net-listen 1002 "" "udp") 
+    (net-listen 10002 "" "udp") 
 
 The first example listens on a specific network adapter, while the
 second example listens on the default adapter. Both calls return a
@@ -11689,7 +11793,7 @@ For blocking short UDP transactions, see the net-send-udp
 
     net-receive-udp
 
-*syntax: (net-receive-udp /int-port/ /int-maxsize/ [/int-microsec/[/str-addr-if/]])*
+*syntax: (net-receive-udp /int-port/ /int-maxsize/ [/int-microsec/ [/str-addr-if/]])*
 
 Receives a User Datagram Protocol (UDP) packet on port /int-port/,
 reading /int-maxsize/ bytes. If more than /int-maxsize/ bytes are
@@ -11707,10 +11811,10 @@ followed by a string containing the sender's IP number and the port used.
 *example:*
 
     ;; wait for datagram with maximum 20 bytes 
-    (net-receive-udp 1001 20) 
+    (net-receive-udp 10001 20) 
 
     ;; or
-    (net-receive-udp 1001 20 5000000)  ; wait for max 5 seconds
+    (net-receive-udp 10001 20 5000000)  ; wait for max 5 seconds
     		  
     ;; executed on remote computer
     (net-send-udp "nuevatec.com" 1001 "Hello")  → 4 
@@ -11785,7 +11889,7 @@ time out.
     (while (not (net-select connection "read" 1000))
         (do-something)) 
 
-    (net-receive connection 'buff 1024)
+    (net-receive connection buff 1024)
 
 When net-select is used, several listen and connection sockets can be
 watched, and multiple connections can be handled. When used with a list
@@ -12459,7 +12563,7 @@ operating system newLISP is running on.
     ostype  → "Win32"
 
 One of the following strings is returned: "Linux", "BSD", "OSX",
-"Tru64Unix", "Solaris", "Win32", or "OS/2".
+"Tru64Unix", "Solaris", "SunOS", "Win32", or "OS/2".
 
 ostype can be used to write platform-independent code:
 
@@ -13156,7 +13260,7 @@ channels remapped. Sometimes only one channel, /in/ or /out/, can be
 remapped. In this case, specify 0 (zero) for the unused channel. The
 following statement uses only the launched application's output:
 
-    (process "app" 0 myout)
+    (process "app" 0 appout)
 
 Normally, two pipes are used: one for communications to the child
 process and the other one for communications from the child process.
@@ -13170,7 +13274,7 @@ starting separate newLISP processes on Linux/Unix.
 
     prompt-event
 
-*syntax: (prompt-event /sym | fun/)*
+*syntax: (prompt-event /sym | func/)*
 
 Refines the prompt as shown in the interactive newLISP shell. /sym |
 fun/ is either a symbol of a user-defined or the lambda function directly:
@@ -13314,8 +13418,7 @@ See also the pop <#pop> function, which is the inverse operation to push.
 
     put-url
 
-*syntax: (put-url /str-url/ /str-content/ [/str-option/] [/int-timeout/
-[/str-header/]])*
+*syntax: (put-url /str-url/ /str-content/ [/str-option/] [/int-timeout/ [/str-header/]])*
 
 The HTTP PUT protocol is used to transfer information in /str-content/
 to a file specified in /str-url/. The lesser-known HTTP PUT mode is
@@ -13623,8 +13726,7 @@ See also the write-char <#write-char> function.
 
     read-expr
 
-*syntax: (read-expr /str-source/ [/sym-context/ [/exp-error/
-[/int-offset/]]])*
+*syntax: (read-expr /str-source/ [/sym-context/ [/exp-error/ [/int-offset/]]])*
 
 read-expr parses the first expressions it finds in /str-source/ and an
 returns the translated expression without evaluating it. An optional
@@ -13772,6 +13874,30 @@ buffer.
 
 
 
+    read-utf8
+
+*syntax: (read-utf8 /int-file/)*
+
+Reads an UTF-8 character from a file specified by the file handle in
+/int-file/. The file handle is obtained from a previous open <#open>
+operation. Each read-utf8 advances the file pointer by the number of
+bytes contained in the UTF-8 character. Once the end of the file is
+reached, nil is returned.
+
+The fucntion returns and integer value which can be converted to a
+displayable UTF-8 character string using the char <#char> function.
+
+*example:*
+
+    (set 'fle (open "utf8text.txt" "read"))
+    (while (setq chr (read-utf8 fle))
+    	(print (char chr)))
+
+The example reads a file containing UTF-8 encoded text and displays it
+to the terminal screen.
+
+
+
     real-path
 
 *syntax: (real-path [/str-path/])*
@@ -13787,6 +13913,30 @@ If a path is not given, "." (the current directory) is assumed.
 
 The output length is limited by the OS's maximum allowed path length. If
 real-path fails (e.g., because of a nonexistent path), nil is returned.
+
+
+
+    receive  ! <#destructive>
+
+*syntax: (receive /int-pid/ /sym-message/)*
+
+The function is used for message exchange between child processes
+launched with spawn <#spawn> and their parent process. The message
+received replaces the contents in /sym-message./
+
+The function returns nil if no message is pending to be read.
+
+*example:*
+
+    ; sending process
+    (send spid "hello")  → true
+
+    ; receiving process
+    (receive rpid msg)   → true
+    msg                  → "hello"
+
+For a more detailed discussion of this function and examples, see the
+send <#send> function.
 
 
 
@@ -14012,6 +14162,9 @@ beginning and length of each string inside the text. If no match is
 found, it returns nil. The offset numbers can be used for subsequent
 processing.
 
+The offset and length numbers in the regex results are given based on
+single bytes even when running the UTF-8 enabled version of newLISP.
+
 regex also sets the variables $0, $1, and $2— to the expression and
 subexpressions found. Just like any other symbol in newLISP, these
 variables or their equivalent expressions ($ 0), ($ 1), and ($ 2)— can
@@ -14196,7 +14349,7 @@ the operation's success.
 *syntax: (replace /str-pattern/ /str-data/ /exp-replacement/ /int-option/)*
 
 
-        List replacement
+      List replacement
 
 If the second argument is a list, replace replaces all elements in the
 list /list/ that are equal to the expression in /exp-key/. The element
@@ -14262,7 +14415,7 @@ be formulated that are as powerful as regular expression string searches:
      
 
 
-        List removal
+      List removal
 
 The last form of replace has only two arguments: the expression /expr/
 and /list/. This form removes all /expr/s found in /list/.
@@ -14278,7 +14431,7 @@ and /list/. This form removes all /expr/s found in /list/.
     $0  → 4
 
 
-        String replacement without regular expression
+      String replacement without regular expression
 
 If all arguments are strings, replace replaces all occurrences of
 /str-key/ in /str-data/ with the evaluated /exp-replacement/, returning
@@ -14294,7 +14447,7 @@ system variable $0. This form of replace can also process binary 0s
     (replace "isa" str "is a")  → "this is a sentence"
 
 
-        Regular expression replacement
+      Regular expression replacement
 
 The presence of a fourth parameter indicates that a regular expression
 search should be performed with a regular expression pattern specified
@@ -14596,9 +14749,9 @@ file. After the search, the file pointer is positioned at the beginning
 or the end of the searched string or at the end of the file if nothing
 is found.
 
-By default, the file pointer is positioned at the end of the searched
-string. If /bool-flag/ evaluates to true, then the file pointer is
-positioned at the beginning of the searched string.
+By default, the file pointer is positioned at the beginning of the
+searched string. If /bool-flag/ evaluates to true, then the file pointer
+is positioned at the end of the searched string.
 
 In /int-options/, the options flags can be specified to perform a PCRE
 regular expression search. See the function regex <#regex> for details.
@@ -14865,9 +15018,187 @@ operating systems.
 Use the fork <#fork> function to start a new process and the share
 <#share> function to share information between processes. For a more
 comprehensive example of using semaphore to synchronize processes, see
-the prodcons.lsp <#example_prodcons> example in the examples/ directory
-in the source distribution, as well as the examples and modules
-distributed with newLISP.
+the file prodcons.lsp example in the examples directory in the source
+distribution, as well as the examples and modules distributed with newLISP.
+
+
+
+    send
+
+*syntax: (send /int-pid/ /expr/)*
+
+The send function enables communication between parent and child
+processes started with spawn <#spawn>. Parent processes can send an
+receive messages to and from their child processes. A proxy technique –
+shown further down – is employed to communicate between process peers.
+send and receive <#receive> do not require locks or semaphores.
+
+Processes started using fork <#fork> or process <#process> can not use
+send and receive message functions, but should use share <#share> instead.
+
+The content of a message may be any newLISP expression: atomic
+expressions like boolean constants, numbers or strings, or any list
+expression in valid newLISP syntax. The size of data is unlimited. For
+sizes less then the shared memory pagesize, transfer is fastest and
+handled by a shared memory interface. For data sizes exceeding the page
+size, files are used internally as the medium of transfer.
+
+The /expr/ parameter specifies the data to be sent to the recipient in
+/int-pid/. The recipient can be either a spawned child process of the
+current process or the parent process. If a previous message to the same
+/int-pid/ has not been read yet by the targeted recipient, then nil will
+be returned trying to send a new message. If the mssage could be sent
+succesfully then true is returned.
+
+    ; child process dispatching message
+
+    (set 'ppid (sys-info -4)) ; get parent pid
+
+    (send ppid "hello") ; send message
+
+The targeted recipient of the message is the parent process:
+
+    ; parent process receiving message
+
+    (receive child-pid msg) → true
+    msg                     → "hello"
+
+A second message sent by the child process would fail by returning nil
+if sent before the first was retrieved. Trying to pick up the message
+before it was delivered would fail too and return nil.
+
+Using the until <#until> looping function, the message statement can be
+repeated until it returns a value not nil. This way the non-blocking
+message function can be made blocking until it succeeds:
+
+    ; blocking sender
+    (until (send pid msg)) ; returns true afer delivery
+
+    ; blocking receiver
+    (until (receive pid msg)) ; returns true after pickup
+
+The sender statement blocks until the message could be deposited in the
+recipients mailbox.
+
+The receive statement blocks until a new message could be read.
+
+As the until statements in this example lack body expressions, the last
+value of the evaluated conditional expression is returned.
+
+
+      Listening for messages and retrying send
+
+The following code shows how a recipient can listen for incoming
+messages, and in turn how a sender can retry to deposit a message into a
+mailbox not picked up yet by the recipient. The example shows 5 child
+processes constantly delivering status data to a parent process which
+will display the data:
+
+*example:*
+
+    ; child process transmits random numbers
+
+    (define (child-process)
+        (set 'ppid (sys-info -4)) ; get parent pid
+        (while true
+            (until (send ppid (rand 100))))
+    )
+
+    ; parent starts 5  child processes, listens and displays
+
+    (dotimes (i 5) (spawn 'result (child-process)))
+
+    (for (i 1 3)
+        (dolist (cpid (sync)) ; iterate thru child pids
+    		(until (receive cpid msg))
+            (print "pid:" cpid "->" (format "%-2d  " msg)))
+        (println)
+    )
+
+    (abort) ; cancel child-processes
+
+    (exit)
+
+Running above example produces the following output:
+
+    *pid:53181->47  pid:53180->61  pid:53179->75  pid:53178->39  pid:53177->3   
+    pid:53181->59  pid:53180->12  pid:53179->20  pid:53178->77  pid:53177->47  
+    pid:53181->6   pid:53180->56  pid:53179->96  pid:53178->78  pid:53177->18
+    *
+
+Message exchange is synchronous in above code. The sender blocks until a
+message can be deposited in an empty mailbox. For an asynchronous
+message transfer example see the Code Patterns
+<http://www.newlisp.org/CodePatterns.html> document.
+
+A timeout mechanism could be part of an until or while loop to stop
+waiting after certain time has exspired.
+
+The examples show messages flowing from a child processes to a parent
+process, in the same fashion messages could flow into the other
+direction from parent to child processes.
+
+
+      Messages containing code for evaluation
+
+The most powerful feature of the message functions is the ability to
+send code pieces, which are evaluated by the recipient. Because messages
+can contain any expression, they can be transmitted and evaluated by the
+recipient using eval <#eval>.
+
+The following example shows how a parent process acts like a message
+proxy receiving messages from a child process routing them to another
+child process. In effect this implements messages between peer child
+processes. The implementarion relies on the fact that the recipient can
+evaluate expressions contained in messages received. These expressions
+can in turn be statements:
+
+*example:*
+
+    ; sender process of the message
+    (set 'pidA (spawn 'result
+        (begin 
+            (dotimes (i 3)
+                (set 'ppid (sys-info -4))
+                (set 'pid (sys-info -3))
+                (set 'msg '(until (send pidB (string "greetings from " pidA))))
+                (until (send ppid msg))) ; send expression in msg
+            ; make parent exit until loop
+            (until (send ppid '(set 'finished true)))
+    )))
+
+    ; final message recipient
+    (set 'pidB (spawn 'result
+        (begin
+            (set 'ppid (sys-info -4))
+            (set 'pid (sys-info -3))
+            (while true
+                (until (receive ppid msg))
+                (println pid " received " msg))
+    )))
+
+    ; receive and evaluate messages from pidA
+    (until finished (if (receive pidA msg) (eval msg)))
+
+    (abort) (sleep 100)
+    (exit)
+
+Child process pidA sends three messages to pidB. As this cannot be done
+directly pidA sends message statements to the parent for evaluation. The
+statement:
+
+    (until (send pidB (string "greetings from " pidA)))
+
+will be evaluated in the environment of the parent process. Even so the
+variable pidA and pidB are bound to nil in thr sender process pidA, in
+the parent process they will be bound to the correct pid numbers.
+
+After sending the three messages the statement:
+
+    (set 'finished true))
+
+is sent to the parent process and once evaluated, it will cause the
+until loop to finish.
 
 
 
@@ -14958,10 +15289,10 @@ Use the sequence <#sequence> function to generate arithmetic sequences.
 Evaluates both arguments and then assigns the result of /exp/ to the
 symbol found in /sym/. The set expression returns the result of the
 assignment. The assignment is performed by copying the contents of the
-right side into the symbol. The old contents of the symbol are
-deleted.An error message results when trying to change the contents of
-the symbols nil, true, or a context symbol. set can take multiple
-argument pairs.
+right side into the symbol. The old contents of the symbol are deleted.
+An error message results when trying to change the contents of the
+symbols nil, true, or a context symbol. set can take multiple argument
+pairs.
 
 *example:*
 
@@ -15151,14 +15482,14 @@ See also set-ref <#set-ref> which replaces only the first element found.
 
     setq setf  ! <#destructive>
 
-*syntax: (setq /sym-1/ /exp-1/ [/sym-2/ /exp-2/ ... ])*
+*syntax: (setq /place-1/ /exp-1/ [/place-2/ /exp-2/ ... ])*
 
 setq and setf work alike in newLISP and set the contents of a symbol,
-list, array or string or of a list, array or string reference. Like set
-<#set>, setq and setf can take multiple argument pairs. Although both
-setq and setf point to the same built-in function internally, throughout
-this manual setq is used when setting a symbol reference and setf is
-used when setting list or array references.
+list, array or string or of a list, array or string place reference.
+Like set <#set>, setq and setf can take multiple argument pairs.
+Although both setq and setf point to the same built-in function
+internally, throughout this manual setq is used when setting a symbol
+reference and setf is used when setting list or array references.
 
 *example:*
 
@@ -15288,21 +15619,21 @@ Any expression or constant can be used for /expr-1/, /expr-2/, or /expr-3/.
 
 Accesses shared memory for communicating between several newLISP
 processes. When called without arguments, share requests a page of
-shared memory (the page is 4k on Win32 but may differ on Linux/Unix)
-from the operating system. This returns a memory address on Linux/Unix
-and a handle on Win32, which can then be assigned to a variable for
-later reference. This function is not available on OS/2.
+shared memory from the operating system. This returns a memory address
+on Linux/Unix and a handle on Win32, which can then be assigned to a
+variable for later reference. This function is not available on OS/2.
 
 To set the contents of shared memory, use the third syntax of share.
 Supply a shared memory address on Linux/Unix or a handle on Win32 in
-/int-address-or-handle/, along with an integer, float, or string
-expression in /exp-value/. Using this syntax, the value supplied in
-/exp-value/ is also the return value.
+/int-address-or-handle/, along with an integer, float, string expression
+or any other expression (since v.10.1.0) supplied in /exp-value/. Using
+this syntax, the value supplied in /exp-value/ is also the return value.
 
 To access the contents of shared memory, use the second syntax of share,
-supplying only the shared memory address or handle. The return value
-will be an integer or floating point number, a string, or nil or true.
-If the memory has not been previously set to a value, nil will be returned.
+supplying only the shared memory address or handle. the return value
+will be any constant or expression (since v.10.1.0) written into the
+memory previusly. If the memory has not been previously set to a value,
+nil will be returned.
 
 Only available on Unix-like operating systems, the last syntax unmaps a
 shared memory address. Note that using a shared address after unmapping
@@ -15311,93 +15642,44 @@ it will crash the system.
 Memory can be shared between parent and child processes, but not between
 independent processes.
 
+Since v.10.1.0 size of share objects can exceed the shared memory
+pagesize of the operating system. For objects bigger than the pagesize,
+newLISP internally uses files for sharing. This requires a /tmp
+directory on Unix-like operating system and a temp in the root of the
+current disk drive on Win32 systems. On Unix-like systems this directory
+is present, on Win32 it may have to be created.
+
 *example:*
 
-    (set 'num (share))
-    (set 'str (share))
+    (set 'mem (share))
 
-    (share num 123)  → 123
+    (share mem 123)  → 123
+    (share mem)      → 123
 
-    (share str "hello world") → "hello world"
-    (share str)               → "hello world"
+    (share mem "hello world") → "hello world"
+    (share mem)               → "hello world"
 
-    (share mVar 123)  → 123
-    (share mVar)      → 123
+    (share mem true)  → true
+    (share mem)       → true
 
-    (share mVar true)  → true
-    (share mVar)       → true
+    (share mem '(+ 1 2 3 4))  → (+ 1 2 3 4)
+    (share mem)               → (+ 1 2 3 4)
 
-    (share nil mVar)  → true  ; unmap only on Unix
+    ; expressions received can be evaluated (since v.10.1.0)
+    (eval (share mmem))       → 10 
 
-For a more comprehensive example of using shared memory in a multi
-process Linux/Unix application, see the file example/prodcons.lsp in the
-newLISP source distribution.
+    (share nil mem)   → true  ; unmap only on Unix
+
+Expression read from shared memory and evaluated, will be evaluated in
+the recipient's process environment.
 
 Note that shared memory access between different processes should be
 synchronized using a semaphore <#semaphore>. Simultaneous access to
 shared memory can crash the running process.
 
-To find out the maximum length of a string buffer that could be stored
-in a shared memory address, execute the following:
-
-    (length (share (share) (dup " " 1000000))) 
-    → 4087
-
-The statement above tries to initialize a shared memory address to
-100,000 bytes, but only 4087 will be initialized as a string buffer. The
-page size of this platform is 4096 bytes—4087 plus 8 bytes of header
-information for type and size, as well as 1 terminating byte for
-displayable strings.
-
-On Linux/Unix systems, more than one number or string can be stored in
-one memory page by using offsets added to the main segment address:
-
-*example:*
-
-    ;; Linux/Unix only
-
-    (set 'num-1 (share))
-    (set 'num-2 (+ num-1 12))
-    (set 'num-3 (+ num-2 12))
-    (set 'str-1 (+ num-3 12))
-
-    (share num-1 123)
-    (share num-2 123.456)
-     …
-
-    (share num-1)  → 123
-    (share num-3)  → 123.456
-     …
-
-    ;; etc.
-
-For numbers, reserve 12 bytes; for strings, reserve 12 bytes, plus the
-length of the string, as well as 1 for the terminating zero-byte. For
-the Boolean values nil and true, 4 bytes should be reserved.
-
-Note that a shorter string could accidentally be overwritten with a
-longer one. Therefore, shared strings should be stored after other
-shared number fields or should reside on their own shared memory page.
-
-The functions get-int <#get-int>, get-float <#get-float>, get-string
-<#get-string>, and get-char <#get-char>—as well as pack <#pack> and
-unpack <#unpack>—could also be used to access contents from a shared
-memory page. This low-level address requires precise knowledge of the
-type of information stored, but it allows for very compact storage of
-information without type/header information in a string buffer.
-
-*example:*
-
-    ;; Linux/Unix and Win32
-
-    (set 'mem (share))
-
-    (mem share (pack "s5 ld lf" "hello" 123 123.456))
-    (unpack "s10 ls lf" (mem share))
-    → ("hello" 123 123.456)
-
-On Linux/Unix, supplying a wrong or unmapped share address can cause
-newLISP to crash.
+For a more comprehensive example of using shared memory in a multi
+process Linux/Unix application, see the file example/prodcons.lsp in the
+newLISP source distribution.
 
 
 
@@ -15561,14 +15843,15 @@ inf may occur if /num-radians/ is too large.
 
     sleep
 
-*syntax: (sleep /int-milliseconds/)*
+*syntax: (sleep /num-milliseconds/)*
 
 Gives up CPU time to other processes for the amount of milliseconds
-specified in /int-milli-seconds/.
+specified in /num-milli-seconds/.
 
 *example:*
 
     (sleep 1000)  ; sleeps 1 second
+    (sleep 0.5)   ; sleeps 500 micro seconds
 
 On some platforms, sleep is only available with a resolution of one
 second. In this case, the parameter /int-milli-seconds/ will be rounded
@@ -15608,6 +15891,9 @@ the end of the string is extracted. slice also works on string buffers
 containing binary data like 0's (zeroes). It operates on byte boundaries
 rather than character boundaries. See also Indexing elements of strings
 and lists <#indexing>.
+
+Note that slice always works on single 8-bit byte boundaries for offset
+and length numbers, even when running the UTF-8 enabled version of newLISP.
 
 *example:*
 
@@ -15711,10 +15997,10 @@ or tabs can be controlled using the pretty-print <#pretty-print> function.
 
 Launches the evaluation of /expr/ as a child process and immediately
 returns. The symbol in /sym/ is quoted and receives the result of the
-evaluation when the function sync <#sync> is executed. spawn is normally
-used to start the evaluation of several expressions at the same time. If
+evaluation when the function sync <#sync> is executed. spawn is used to
+start parallel evaluation of expressions in concurrent processes. If
 newLISP is running on a multi-core CPU, the underlying operating system
-will distribute spawned child processes onto different cores, thereby
+will distribute spawned processes onto different cores, thereby
 evaluating expressions in parallel and speeding up overall processing.
 
 Note that on Win32, spawn cannot launch child processes and will work
@@ -15723,12 +16009,11 @@ just like a set <#set> assigning the evaluation result of /expr/ to /sym/.
 After successfully starting a child process, the spawn expression
 returns the process id of the forked process. The following examples
 shows how the calculation of a range of prime numbers can be split up in
-three sub ranges to speed up the calculation of the whole range:
+four sub ranges to speed up the calculation of the whole range:
 
 *example:*
 
     ; calculate primes in a range
-
     (define (primes from to)
       (local (plist)
           (for (i from to)
@@ -15737,42 +16022,49 @@ three sub ranges to speed up the calculation of the whole range:
           plist))
 
     ; start child processes
+    (set 'start (time-of-day))
 
     (spawn 'p1 (primes 1 1000000))
-    (spawn 'p2 (primes 1000000 2000000))
-    (spawn 'p3 (primes 2000000 3000000))
+    (spawn 'p2 (primes 1000001 2000000))
+    (spawn 'p3 (primes 2000001 3000000))
+    (spawn 'p4 (primes 3000001 4000000))
 
     ; wait for a maximum of 60 seconds for all tasks to finish
-
     (sync 60000) ; returns true if all finished in time
+    ; p1, p2, p3 and p4 now each contain a lists of primes
 
-    ; p1, p2 and p3 now contain lists of primes
+    (println "time spawn: " (- (time-of-day) start))
+    (println "time simple: " (time  (primes 1 4000000)))
+
+    (exit)
 
 On a 1.83 Intel Core 2 Duo processor, the above example will finish
-after about 12 seconds. Calculating all primes using (primes 1 3000000)
-would take about 17 seconds.
+after about 13 seconds. Calculating all primes using (primes 1 4000000)
+would take about 20 seconds.
 
 The sync <#sync> function will wait for all child processes to finish
-and receive the evaluation results in the symbols p1, p2 and p3. When
-all results are collected, sync will stop waiting and return true. When
-the time specified was not enough, the sync will return nil and another
-sync statement could be given to further wait and collect results. A
-short timeout time can be used to do other processing during waiting:
+and receive the evaluation results in the symbols p1 to p4. When all
+results are collected, sync will stop waiting and return true. When the
+time specified was nsufficient , sync will return nil and another sync
+statement could be given to further wait and collect results. A short
+timeout time can be used to do other processing during waiting:
 
     (spawn 'p1 (primes 1 1000000))
-    (spawn 'p2 (primes 1000000 2000000))
-    (spawn 'p3 (primes 2000000 3000000))
+    (spawn 'p2 (primes 1000001 2000000))
+    (spawn 'p3 (primes 2000001 3000000))
+    (spawn 'p4 (primes 3000001 4000000))
 
     ; print a dot after each 2 seconds of waiting
     (until (sync 2000) (println "."))
 
 sync when used without any parameters, will not wait but immediately
 return a list of pending child processes. For the primes example, the
-following syn expression could be used to watch the progress:
+following sync expression could be used to watch the progress:
 
     (spawn 'p1 (primes 1 1000000))
-    (spawn 'p2 (primes 1000000 2000000))
-    (spawn 'p3 (primes 2000000 3000000))
+    (spawn 'p2 (primes 1000001 2000000))
+    (spawn 'p3 (primes 2000001 3000000))
+    (spawn 'p4 (primes 3000001 4000000))
 
     ; show a list of pending process ids after each three-tenths of a second
     (until (sync 300) (println (sync)))
@@ -15782,8 +16074,9 @@ hours). A better solution would be to wait for a maximum time, then
 abort <#abort> all pending child processes:
 
     (spawn 'p1 (primes 1 1000000))
-    (spawn 'p2 (primes 1000000 2000000))
-    (spawn 'p3 (primes 2000000 3000000))
+    (spawn 'p2 (primes 1000001 2000000))
+    (spawn 'p3 (primes 2000001 3000000))
+    (spawn 'p4 (primes 3000001 4000000))
 
     ; wait for one minute, then abort and
     ; report unfinished PIDs
@@ -15797,14 +16090,12 @@ abort <#abort> all pending child processes:
 
 The three functions spawn, sync and abort are part of the Cilk
 <http://supertech.csail.mit.edu/cilk/> API. The original implementation
-also does sophisticated scheduling and allocation of tasks to multiple
-CPU cores. The newLISP implementation of the Cilk API lets the operating
-system of the underlying platform handle process management. Internally,
-the API is implemented using the Unix libc functions fork(), waitpid()
-and kill(). Intercommunications between processes and child processes is
-done via shared memory and files in the /tmp directory when data passed
-are bigger than the page size of the OSes memory manager. newLISP's
-implementation does not require semaphores.
+also does sophisticated scheduling and allocation of threaded tasks to
+multiple CPU cores. The newLISP implementation of the Cilk API lets the
+operating system of the underlying platform handle process management.
+Internally, the API is implemented using the Unix libc functions fork(),
+waitpid() and kill(). Intercommunications between processes and child
+processes is done using the sendM <#send> and receive <#receive> functions.
 
 spawn can be called recursively from spawned subtasks:
 
@@ -15826,6 +16117,12 @@ higher than the time saved through parallelization. The example also
 shows how code written for the Cilk API will work under Win32, too, with
 spawn simply working as a set <#set> and sync <#sync> just returning an
 empty list.
+
+Since version 10.1 a send <#send> and receive <#receive> message
+functions are available for communications between parent and child
+processes. Using these functions any data or expression of any size can
+be transferred. Additionally messaged expressions can be evaluated in
+the recipient's environment.
 
 
 
@@ -15943,42 +16240,49 @@ NaN also returns NaN.
 
     swap  ! <#destructive>
 
-*syntax: (swap /num-1/ /num-2/ /list/)*
-*syntax: (swap /num-1/ /num-2/ /str/)*
-*syntax: (swap /sym-1/ /sym-2/)*
+*syntax: (swap /place-1/ /place-2/)*
 
-In the first form, swap switches the elements in /list/ at indices
-/num-1 and num-2/ and returns the changed list.
+The contents of the two places /place-1 and place-2/ are swapped. A
+/place/ can be the contents of an unquoted symbol or any list or array
+references expressed with nth <#nth>, first <#first>, last <#lst> or
+implicit indexing <#indexing> or places referenced by assoc <#assoc> or
+lookup <#lookup>.
 
-In the second form, the characters in /str/ at indices /num-1 and num-2/
-are swapped and the changed string is returned. swap works on bytes
-rather than characters. The function is not usable to swap UTF8
-characters longer than one byte.
-
-In the third form, the contents of the two unquoted symbols in /sym-1
-and sym-2/ are swapped.
-
-swap is a destructive operation that changes the contents of the list,
-string, or symbols involved.
+swap is a destructive operation that changes the contents of the lists,
+arrays, or symbols involved.
 
 *example:*
 
     (set 'lst '(a b c d e f))
 
-    (swap 0 5 lst)  → '(f b c d e a)
-    lst             → '(f b c d e a)
+    (swap (first lst) (last lst)) → a
+    lst                           → (f b c d e a)
 
-    (swap 0 -1 lst)  → '(a b c d e f)
-    lst              → '(a b c d e f)
+    (set 'lst-b '(x y z))
 
-    (swap 3 4 "abcdef")  → "abcedf"
+    (swap (lst 0) (lst-b -1)) → f
+    lst                       → (z b c d e a)
+    lst-b                     → (x y f)
+
+    (set 'A (array 2 3 (sequence 1 6)) → ((1 2 3) (4 5 6))
+
+    (swap (A 0) (A 1)) → (1 2 3)
+    A                  → ((4 5 6) (1 2 3))
 
     (set 'x 1 'y 2)
 
     (swap x y)  → 1
-
     x  → 2
     y  → 1
+
+    (set 'lst '((a 1 2 3) (b 10 20 30)))
+    (swap (lookup 'a lst -1) (lookup 'b lst 1))
+    lst → ((a 1 2 10) (b 3 20 30))
+
+    (swap (assoc 'a lst) (assoc 'b lst))
+    lst →  ((b 3 20 30) (a 1 2 10))
+
+Any two places can be swept in the same or different objects.
 
 
 
@@ -16170,10 +16474,18 @@ The quote can be omitted because contexts evaluate to themselves.
 *syntax: (sys-error /int-error/)*
 *syntax: (sys-error 0)*
 
-Reports error numbers generated by the underlying OS newLISP is running
-on. The error numbers reported may differ on the platforms newLISP has
+Reports the last error generated by the underlying OS which newLISP is
+running on. The error reported may differ on the platforms newLISP has
 been compiled for. Consult the platform's C library information. The
-second syntax form can be used to retrieve the error text.
+error is reported as a list of errror number and error text.
+
+If no error has occurred or the system error number has been reset nil
+is returned.
+
+When /int-error/ is greater 0 (zero) a list of the number and the error
+text is returned.
+
+To reset the error specify 0 as the error number.
 
 Whenever a function in newLISP within the system resources area returns
 nil, sys-error can be checked for the underlying reason. For file
@@ -16181,23 +16493,17 @@ operations, sys-error may be set for nonexistent files or wrong
 permissions when accessing the resource. Another cause of error could be
 the exhaustion of certain system resources like file handles or semaphores.
 
-
-
 *example:*
 
     ;; trying to open a nonexistent file
     (open "xyz" "r")  → nil
 
-    (sys-error)    → 2
+    (sys-error)       → (2 "No such file or directory")
 
-    ;; retrieve the error text
-    (sys-error 2)  → "No such file or directory"
+    ;; reset errno
+    (sys-error 0)     → (0 "Unknown error: 0")
 
-    ;; reset errno with 0
-    (sys-error 0)  → 0 
-
-The error number can be cleared by giving a 0 (zero) for the optional
-argument.
+See also last-error <#last-error> and net-error <#net-error>.
 
 
 
@@ -16214,35 +16520,37 @@ statistics. Eight integers report the following status:
   3 - Evaluation/recursion level
   4 - Environment stack level
   5 - Maximum call stack constant
-  6 - Pid of running newLISP process
-  7 - Version number as an integer constant
-  8 - Operating system constant:
+  6 - Pid of the parent process or 0
+  7 - Pid of running newLISP process
+  8 - Version number as an integer constant
+  9 - Operating system constant:
       linux=1, bsd=2, osx=3, solaris=4, cygwin=5, win32=6,
       os/2=7, tru64unix=9 
 	  
-      but 8 will be set for IPv6 versions (add 256)
-      bit 7 will be set for UTF-8 versions (add 128)
-      bit 6 will be added for library versions (add 64)
+      bit 9 will be set for IPv6 versions (add 256)
+      bit 8 will be set for UTF-8 versions (add 128)
+      bit 7 will be added for library versions (add 64)
 
-The numbers from 0 to 7 indicate the optional offset in the returned list.
+The numbers from 0 to 9 indicate the optional offset in the returned list.
+
+It is recommended to use offsets 0 to 5 to address up and including
+"Maximum call stack constant" and to use negative offsets -1 to -4 to
+access the last four entries in the system info list. Future new entries
+will be inserted after offset 5. This way older source code does not
+need to change.
 
 When using /int-idx/, one element of the list will be returned.
 
 *example:*
 
-    (sys-info)     → (348 268435456 269 1 0 1024 8404 6)
+    (sys-info)     → (401 268435456 376 1 0 2048 39220 10002 131)
     (sys-info 3)   → 1 
-    (sys-info -2)  → 8404
+    (sys-info -2)  → 10002
 
 The number for the maximum of Lisp cells can be changed via the -m
 command-line switch. For each megabyte of Lisp cell memory, 64k memory
 cells can be allocated. The maximum call stack depth can be changed
 using the -s command-line switch.
-
-Future additions to sys-info will always be made before the last two
-fields of version number and compile flavor. This way, using (sys-info
--2) will always give the version number in past and future
-implementations of sys-info.
 
 
 
@@ -16372,16 +16680,14 @@ now <#now> functions.
 
     timer
 
-*syntax: (timer /sym-event-handler/ /num-seconds/ [/int-option/])*
-*syntax: (timer /func-event-handler/ /num-seconds/ [/int-option/])*
-*syntax: (timer /sym-event-handler/)*
-*syntax: (timer /func-event-handler/)*
+*syntax: (timer /sym | func-event-handler/ /num-seconds/ [/int-option/])*
+*syntax: (timer /sym | func-event-handler/)*
 *syntax: (timer)*
 
 Starts a one-shot timer firing off the Unix signal SIGALRM, SIGVTALRM,
 or SIGPROF after the time in seconds (specified in /num-seconds/) has
 elapsed. When the timer fires, it calls the user-defined function in
-/sym-event-handler/.
+/sym-/ or /func-event-handler/.
 
 On Linux/Unix, an optional 0, 1, or 2 can be specified to control how
 the timer counts. With default option 0, real time is measured. Option 1
@@ -16397,8 +16703,9 @@ milliseconds).
 Defining 0 (zero) as time shuts the running timer down and prevents it
 from firing.
 
-When called with /sym-event-handler/, timer returns the elapsed time of
-the timer in progress. This can be used to program timelines or schedules.
+When called with /sym-/ for /func-event-handler/, timer returns the
+elapsed time of the timer in progress. This can be used to program
+timelines or schedules.
 
 timer called without arguments returns the symbol of the current event
 handler.
@@ -16415,10 +16722,7 @@ handler.
     > *Tue Apr 12 20:44:49 2005*	; first timer event
     *Tue Apr 12 20:44:50 2005*	; second timer event ...
     *Tue Apr 12 20:44:51 2005
-    Tue Apr 12 20:44:52 2005
-    Tue Apr 12 20:44:53 2005
-    Tue Apr 12 20:44:54 2005
-    Tue Apr 12 20:44:55 2005*
+    Tue Apr 12 20:44:52 2005*
 
 The example shows an event handler, ticker, which starts the timer again
 after each event.
@@ -16539,8 +16843,7 @@ during trace <#trace>. By default, the # (number sign) is used to
 enclose the expression highlighted in trace <#trace> mode. This can be
 changed to different characters or strings of up to seven characters. If
 the console window accepts terminal control characters, this can be used
-to display the expression in a different color, bold, reverse, and so
-forth.
+to display the expression in a different color, bold, reverse, and so forth.
 
 Two more strings can optionally be specified for /str-header and
 str-footer/, which control the separator and prompt. A maximum of 15
@@ -16653,7 +16956,7 @@ Since version 9.1, true? behaves like if <#if> and rejects the empty list ()
 
     unicode
 
-*syntax: (unicode /str/)*
+*syntax: (unicode /str-utf8/)*
 
 Converts ASCII/UTF-8 character strings in /str/ to UCS-4–encoded Unicode
 of 4-byte integers per character. This function is only available on
@@ -16986,14 +17289,15 @@ See also the address <#address>, get-int <#get-int>, get-long
 
     until
 
-*syntax: (until /exp-condition/ /body/)*
+*syntax: (until /exp-condition/ [/body/])*
 
 Evaluates the condition in /exp-condition body/. If the result is nil or
 the empty list (), the expressions in /body/ are evaluated. Evaluation
 is repeated until the exp-condition results in a value other than nil or
 the empty list. The result of the last expression evaluated in /body/ is
-the return value of the until expression. until works like (while
-<#while> (not <#not> …)).
+the return value of the until expression. If /body/ is empty, the result
+of last /exp-condition/ is returned. until works like (while <#while>
+(not <#not> …)).
 
 until also updates the system iterator symbol $idx.
 
@@ -17028,7 +17332,7 @@ functions.
 
     utf8
 
-*syntax: (utf8 /str/)*
+*syntax: (utf8 /str-unicode/)*
 
 Converts a UCS-4, 4-byte, Unicode-encoded string (/str/) into UTF-8.
 This function is only available on UTF-8–enabled versions of newLISP.
@@ -17350,6 +17654,47 @@ with /str/ and the line termination character(s).
 
 
 
+    xfer-event
+
+*syntax: (xfer-event /sym | func/)*
+
+Registers a function in symbol /sym/ or in lambda function /func/ to
+monitor HTTP byte transfers initiated by get-url <#get-url>, post-url
+<#post-url> or put-url <#put-url> or initiated by file functions which
+can take URLs like load <#load>, save <#save>, read-file <#read-file>,
+write-file <#write-file> and append-file <#append-file>.
+
+E.g. whenever a block of data requested with get-url <#get-url> arrives
+the function in /sym/ or /func/ will be called with the accumulated
+number of bytes transferred. Likewise when sending data with post-url
+<#post-url> or any of the other data sending functions, /sym/ or /func/
+will be called with the number of bytes already transferred.
+
+*example:*
+
+    (xfer-event (fn (n) (println "->" n)))
+    (length (get-url "http://yahoo.com"))
+
+    *->3779*
+    *->5219*
+    *->6659*
+    *->8099*
+    *->9490*
+    *9490*
+
+The computer output is shown in bold. Whenever a block of data is
+received the accumulated byte size is printed. Insteead of defining the
+handler function directoy with a lambda function in /func/, a symbol
+containing a function definition could have been used:
+
+    (define (report n) (println "->" n))
+    (xfer-event 'report)
+
+This can be used to monitor the progress of longer lasting byte
+transfers in HTTP uploads or downloads.
+
+
+
     xml-error
 
 *syntax: (xml-error)*
@@ -17394,7 +17739,7 @@ access error information.
         (("TEXT" "nice guy"))))
 
 
-*Modifying the translation process.*
+      Modifying the translation process.
 
 Optionally, the /int-options/ parameter can be specified to suppress
 whitespace, empty attribute lists, and comments. It can also be used to
@@ -17409,7 +17754,6 @@ following option numbers can be used:
     4	suppress comment tags
     8	translate string tags into symbols
     16	add SXML (S-expression XML) attribute tags
-
 
 Options can be combined by adding the numbers (e.g., 3 would combine the
 options for suppressing whitespace text tags/info and empty attribute
@@ -17443,7 +17787,7 @@ The following examples show how the different options can be used:
     </DATABASE>
 
 
-*Parsing without any options:*
+      Parsing without any options:
 
     (xml-parse (read-file "example.xml"))
     → (("ELEMENT" "DATABASE" (("name" "example.xml")) (("TEXT" "\r\n\t") 
@@ -17479,7 +17823,7 @@ confusing. As the database in example.xml only contains data, we can
 suppress whitespace and comments with option (+ 1 3):
 
 
-*Filtering whitespace TEXT, COMMENT tags, and empty attribute lists:*
+      Filtering whitespace TEXT, COMMENT tags, and empty attribute lists:
 
     (xml-parse (read-file "example.xml") (+ 1 2 4))
     → (("ELEMENT" "DATABASE" (("name" "example.xml")) ( 
@@ -17503,8 +17847,8 @@ tags "ELEMENT" and "TEXT" completely using the xml-type-tags
 <#xml-type-tags> directive.
 
 
-*Suppressing XML type tags with xml-type-tags <#xml-type-tags> and
-translating string tags into symbol tags:*
+      Suppressing XML type tags with xml-type-tags <#xml-type-tags> and
+      translating string tags into symbol tags:
 
     ;; suppress all XML type tags for TEXT and ELEMENT
     ;; instead of "CDATA", use cdata and instead of "COMMENT", use !--
@@ -17536,7 +17880,7 @@ with the tag symbol translated from the string tags "FRUIT", "NAME",
 etcetera.
 
 
-*Parsing into SXML (S-expressions XML) format:*
+      Parsing into SXML (S-expressions XML) format:
 
 Using xml-type-tags <#xml-type-tags> to suppress all XML-type tags—along
 with the option numbers 1, 4, 8, and 16—SXML formatted output can be
@@ -17556,7 +17900,7 @@ See also the xml-type-tags <#xml-type-tags> function for further
 information on XML parsing.
 
 
-*Parsing into a specified context*
+      Parsing into a specified context
 
 When parsing XML expressions, XML tags are translated into newLISP
 symbols. The /sym-context/ option specifies the target context for the
@@ -17573,7 +17917,7 @@ If the context does not exist, it will be created. If it exists, the
 quote can be omitted or the context can be referred to by a variable.
 
 
-*Using a call back function*
+      Using a call back function
 
 Normally, xml-parse will not return until all parsing has finished.
 Using the /func-callback/ option, xml-parse will call back after each
@@ -17727,7 +18071,8 @@ zero? will return nil on data types other than numbers.
         no symbol reference found         61
         list is empty                     62
         I/O error                         63			
-        
+        working directory not found       64     
+        invalid PID                       65
 
 
 
@@ -17751,6 +18096,10 @@ zero? will return nil on data types other than numbers.
         Select failed                     14
         Peek failed                       15
         Not a valid socket                16
+        Operation timed out               17
+        HTTP bad formed URL               18
+        HTTP file operation failed        19
+        HTTP transfer failed              20
 
 
 
@@ -17781,13 +18130,15 @@ iteration counter starting with 0 (zero) for the first iteration.
 expression, i.e. in self referential assignments. In some functions $0
 servers the same purpose and both carry the same value. $it is only
 available inside the function expression setting it, and is set to nil
-on exit of that expression. 	 cannot write	 no
+on exit of that expression. The following functions use it: hashes
+<#hash>, find-all <#find-all>, replace <#replace>, set-ref <#set-ref>,
+set-ref-all <#set-ref-all> and setf setq <#setf>. 	 cannot write	 no
  $main-args	Contains the list of command line arguments passed by the OS
 to newLISP when it was started. Normally the function main-args
 <#main-args> is used to retrieve the contents. 	 cannot write	 n/a
 
 
-      Preset variables with constant values
+      Predefined variables and functions.
 
 These are preset symbol constants. Two of them are used as namespace
 templates, one two write platform independent code.
@@ -17805,6 +18156,9 @@ details <#ostype> 	 cannot write	 n/a
 Instead of writing (define Foo:Foo) to create a Foo dictionary, the
 expression (new Tree 'Foo) can be used as well. See the chapter Hash
 functions and dictionaries <#hash> foe details. 	 no	 n/a
+ module	Is a predefined function to load modules. Instead of using load
+together with the NEWLISPDIR environment variable, the module function
+loads automatically from $NEWLISPDIR/modules/. 	 no	 n/a
 
 
 
@@ -18860,5 +19214,4 @@ functions and dictionaries <#hash> foe details. 	 no	 n/a
 
 ( ∂ )
 
-
-
+;;; [EOF]
