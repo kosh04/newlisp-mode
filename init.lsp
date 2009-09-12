@@ -313,17 +313,16 @@
 (define-macro (ignore-errors)
   (eval-string (prin1-to-string (args 0)) (context) nil))
 
-;; (context 'unwind-protect)
-;; (define-macro (unwind-protect:unwind-protect)
-;;   "syntax: (unwind-protext protected-form cleanup-form*)"
-;;   (letex ((body (first (args)))
-;;           (cleanup-form* (cons 'begin (rest (args)))))
-;;     (local (*result*)
-;;       (if (catch body '*result*)
-;;           (begin cleanup-form* *result*)
-;;           (begin cleanup-form* (print "\n" *result* "\n") nil))))) ; ? throw-error
-;; (context MAIN)
-;; (global 'unwind-protext)
+(context 'unwind-protect)
+(define-macro (unwind-protect:unwind-protect)
+  "syntax: (unwind-protext protected-form cleanup-form*)"
+  (letex ((body (first (args)))
+          (cleanup-form* (cons 'begin (rest (args)))))
+    (local (*result*)
+      (if (catch body '*result*)
+          (begin cleanup-form* *result*)
+          (begin cleanup-form* (print "\n" *result* "\n") nil))))) ; ? throw-error
+(context MAIN)
 
 (define (pathname? str)
   (or (file? str)
