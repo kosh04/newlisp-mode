@@ -1,15 +1,17 @@
 newLISP utility files
 =====================
 
-Lisp-like な軽量スクリプト言語 newLISP 用のユーティリティファイル群です。
-ただし、あまり実用的ではありません。
+LISP風軽量スクリプト言語newLISP用のユーティリティファイル群です。
 
-newLISP Home - http://www.newlisp.org/
+newLISP Home - <http://www.newlisp.org/>
 
- newLISP is a Lisp-like, general-purpose scripting language. It has all
+> newLISP is a Lisp-like, general-purpose scripting language. It has all
 the magic of traditional Lisp but is easier to learn and use. newLISP is
 friendly, fast, and small. Most of the functions you will ever need are
 already built in. newLISP runs on most OS platforms.
+
+------------------------
+
 
 init.lsp
 --------
@@ -18,30 +20,29 @@ init.lsp
 
 newlisp.el
 ----------
-Emacs 用の編集メジャーモード。
+Emacsで編集するための簡易メジャーモード。
 
-.何が出来るのか
+何が出来るのか
+
 - newlispファイルの編集
 - newlisp プロセスの起動、操作
-- 指定したリージョンをEval (eval-region, eval-last-sexp)
+- リージョンのEval (eval-region, eval-last-sexp)
 - シンタックスハイライト
 
 
 newlisp_manual.txt (v.10.1.0 rev 4)
 -----------------------------------
-HTML マニュアルをテキストに変換したもの。
+HTMLマニュアルをテキストに変換したもの。
 
-newLISP Manual and Reference - http://www.newlisp.org/downloads/newlisp_manual.html
+newLISP Manual and Reference - <http://www.newlisp.org/downloads/newlisp_manual.html>
 
 * newlisp_manual.txt.tar.gz - 上記のファイルを圧縮したもの
 
 
 swank-newlisp.lsp
 -----------------
-Emacs と通信するための swank サーバファイル。
+Emacsと通信するためのSwankサーバファイル。今のところ最低限の機能のみ。
 
-最低限の機能しか持たないので、こちらより newlisp.el の方がまだマシです。
-
-SLIME  - http://common-lisp.net/project/slime/
+SLIME - <http://common-lisp.net/project/slime/>
 
 * swank-newlisp.sh - swankサーバ起動用 wrapper
