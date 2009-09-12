@@ -1,59 +1,68 @@
-﻿;;; -*- encoding: utf-8 -*-
+;;; -*- encoding: utf-8 -*-
 ;;;
 ;;; init.lsp --- newLISP initialization file
 ;;;
 
 (let ((e (env "NEWLISPDIR")))
   (when (and e (not (directory? e)))
-    (println (format "warning: directory %s not found." e))))
+    (println "warning: directory " e " not found.")))
+
+(constant 'stdin 0 'stdout 1 'stderr 2)
 
 (define (find-symbol str (cxt (context)))
   (sym str cxt nil))
 
 ;; (protected? 'define) => true
-;; (primitive? define) => true
+;; (primitive? 'define) => nil
 (define (builtin? symbol)
   (or (primitive? (eval symbol))
       (starts-with (string symbol) "$") ; $0 ... $15
       ;; or more symbols
       (member symbol '(nil true ostype MAIN Tree Class @))
       ))
+;; (define builtin? protected?)
 
 (define (user-symbols)
   (filter (lambda (s) (not (builtin? s)))
           (symbols)))
 
-(define (apropos str (do-print? nil))
-  "指定した正規表現STRに一致するシンボルを返します. "
+(define (apropos str (do-print nil))
+  "Return symbols that matches the regexp."
   (let (acc)
     (dolist (symbol (symbols))
       (if (find str (string symbol) 1)
           (push symbol acc -1)))
-    (if (and acc do-print?)
+    (if (and acc do-print)
         (silent (dolist (i acc)
                   (println i)))
         acc)))
 
+(define top-level reset)
+(define restart reset)
+
 (define (utf8?)
-  "Non-nil means current newLISP is UTF-8 eoncoding are supported."
+  "Non-nil means newLISP is UTF-8 eoncoding are supported."
   (primitive? MAIN:utf8))
 
 (define (newlisp-version)
+  "Return newLISP version as integer."
   (sys-info -2))
 
-;; v10.1.0 で若干使用変更
-(define (newlisp-pid)
-  "Return the Process ID of newLISP."
-  (sys-info -3))
-(define getpid newlisp-pid)
+(define (getpid) (sys-info -3))        ; Return the Process ID of newLISP.
 (define (getppid) (sys-info -4))
+(define newlisp-pid getpid)
+;; (import "libc.so.6" "getpid")
+;; こちらは[parent]newlisp->[child]newlispではなくbash(emacs)->newlisp
+;; (import "libc.so.6" "getppid")
 
-;; newlisp.h 参照
+;; see newlisp.h
+(define COMPARE_TYPE_MASK 0x000F)
+(define Cell:types
+  '("bool" "bool" "integer" "float" "string"
+    "symbol" "context" "primitive" "cdecl" "stdcall"
+    "quote" "list" "lambda" "macro" "array"))
 (define (type-of x)
-  (let (types '("bool" "bool" "integer" "float" "string"
-                "symbol" "context" "primitive" "cdecl" "stdcall"
-                "quote" "list" "lambda" "macro" "array"))
-    (types (& 0xf ((dump x) 1)))))
+  (Cell:types (& COMPARE_TYPE_MASK ((dump x) 1))))
 
 (define (load-guiserver)
   (silent
@@ -62,7 +71,7 @@
     (gs:init)
     (print "done.")))
 
-(define (load-init.lsp)
+(define (load-init)
   (load (real-path (string (env "NEWLISPDIR") "/init.lsp"))))
 
 (define declare (lambda-macro () nil))
@@ -76,17 +85,24 @@
           (begin (apply xml-type-tags tags) e)
           (begin (apply xml-type-tags tags) (throw-error e))))))
 
+;; (define (xml-parse-file file parse-dtd parse-ns)
+;;   (let ((tags (xml-type-tags)))
+;;     (unwind-protect
+;;          (xml-parse (read-file file) (+ 1 2 8))
+;;       (apply xml-type-tags tags))))
+
 (setq default-xml-type-tags (xml-type-tags))
 ;; ファイルから読み込むと効かない？
 ;; (xml-type-tags nil 'cdata '!-- nil)
 
-; (global 'progn 't 'null)
 ; (constant (global 'cdr) rest)   ; 全ての名前空間で使えるように
 (define-macro (define-cl-function)
   (constant (global (args 0)) (eval (args 1))))
 (define (null x) (not (true? x)))
-(define t true)                 ; or (constant 't true)
-(define car first)
+;; (constant (global 't) true)
+;; (define car first)
+(define (car seq)
+  (if (member seq '(nil ())) nil (first seq)))
 (define cdr rest)
 (define defconstant
   (lambda-macro ()
@@ -104,7 +120,6 @@
   (lambda-macro ()
     (setf (first (eval (args 0))) (eval (args 1)))
     (eval (args 0))))
-;; (subseq nil 0) => nil [CL]
 (define rotatef swap)
 (define complement
   (lambda-macro ()
@@ -117,10 +132,13 @@
 
 (define read-from-string read-expr)
 
-;; simple-loop
+;; Simple LOOP
 (define-macro (loop)
   (let ((return throw))
-    (catch (while true (map eval (args))))))
+    (catch (while true
+             (map eval (args))))))
+
+(define printf format)
 
 ;;; @@filesystem, pathname
 (define (merge-pathnames pathname (defaults "."))
@@ -131,11 +149,11 @@
                    (true (append defaults "/" pathname)))))
 (define (user-homedir-pathname) (real-path))
 (define (pwd) (real-path))
-(define (namestring pathname) (real-path pathname))
+(define (namestring pathname) (merge-pathnames pathname))
 (define set-default-directory change-dir)
 ;; (define cd change-dir)
 (define (cd path)
-  (change-dir (or path (env "HOME") ".")))
+  (change-dir (or path (env "HOME") "/")))
 (define cat read-file)
 (define (file-exist-p pathname)
   (or (file? pathname)
@@ -145,18 +163,18 @@
        (real-path pathname)))
 
 (define (file-length pathname)
+  "Retun PATHNAMEs file size as byte."
   (nth 0 (file-info pathname)))
 
-;; (define (getenv variable) (env variable))
-;; (define (setenv variable value) (env variable value))
-(define getenv env)
-(define setenv env)
+(define (getenv variable) (env variable))
+(define (setenv variable value) (env variable value))
+;; (define getenv env)
+;; (define setenv env)
 
 ;;; @@number
 (constant 'most-positive-fixnum 0x7fffffffffffffff)
 (constant 'most-negative-fixnum 0x8000000000000000)
-;; (mul (acos 0) 2)
-(defconstant pi (mul (atan 1) 4))       ; 3.141592654
+(defconstant pi (mul (atan 1) 4))       ; 3.141592654 (mul (acos 0) 2)
 (define equal =)
 (define incf inc)
 (define decf dec)
@@ -168,11 +186,15 @@
 (define logior |)
 (define lognot ~)
 (define expt pow)
+;; 全ての数が異なればtrue.
 (define (/= number)
-  "全ての数が異なればtrue."
+  "true if NUMBER and rest numbers are different all. otherwise nil."
   (for-all (lambda (x) (not (= x number))) (args)))
 ;; (/= 1 2 3 1)                            ; nil
-;; (!= 1 2 3 1)                            ; true
+;; (!= 1 2 3 1)                            ; true ?
+
+;; treat integer operators (+-*/) as float operators (add sub mul div).
+;; (constant '+ add '- sub '* mul '/ div)
 
 ;;; @@list
 (define intersection intersect)
@@ -191,15 +213,16 @@
   (if (string? seq)
       (replace item seq "")
       (replace item seq)))
-(define (remove-if f seq)
-  (filter (lambda (x) (not (f x))) seq))
+;; (define (remove-if f seq) (filter (lambda (x) (not (f x))) seq))
+(define remove-if clean)
 (define remove-if-not filter)
 (define common-lisp:delete              ; 破壊的な意味で
   (lambda-macro ()
     (if (string? (eval (args 1)))
         (replace (eval (args 0)) (eval (args 1)) "")
         (replace (eval (args 0)) (eval (args 1))))))
-(define (mapcar f lst)          ; (mapcar function list &rest more-lists)
+(define (mapcar f lst)
+  "syntax: (mapcar function list &rest more-lists)"
   (letn ((lists (cons lst (args)))
          (minlength (apply min (map length lists))))
     (apply map (cons f (map (lambda (x)
@@ -219,6 +242,7 @@
 (define string-capitalize title-case)
 (define compile-regexp regex-comp)
 
+;; (subseq nil 0) => nil [CL]
 (define (subseq seq start end)
   (cond (end (slice seq start (- end start)))
         (true (slice seq start))))
@@ -229,20 +253,21 @@
 (define (substitute-string str pattern replacement)
   (replace pattern str replacement))
 
-(define (regex-quote regexp (extended nil)) ; regexp-quote
+(define (regex-quote regexp (extended nil))
   (let (acc)
     (dolist (x (explode regexp))
       (if (member x '("$" "^" "." "*" "[" "]" "\\" "+" "?"))
           (push "\\" acc -1))
       (push x acc -1))
     (apply string acc)))
+(define regexp-quote regex-quote)
 
-;; 大文字小文字の区別をしない文字列比較
 (define (string-equal string1 string2)
+  "Compare two strings ignore case."
   (let ((PCRE_CASELESS 1))
-    (if (regex (string "^" (regex-quote string1) "$")
-               string2 PCRE_CASELESS)
-        true nil)))
+    (list? (regex (string "^" (regex-quote string1) "$")
+                  string2
+                  PCRE_CASELESS))))
 
 (define (string-left-trim char-bag str)
   (if (string? char-bag)
@@ -267,10 +292,6 @@
 ;; (define (string-left-trim char-bag str) (trim str char-bag ""))
 ;; (define (string-right-trim char-bag str) (trim str "" char-bag))
 
-(define (trim-space str) (trim str))
-(define (trim-whitespace str)
-  (string-trim " \t\r\n" str))
-
 (define (elt seq idx)
   (cond ((string? seq) (char seq idx))
         (true (seq idx))))
@@ -278,39 +299,45 @@
 ;;; @@error
 (define error throw-error)
 
-(context 'ignore-errors)
-(define-macro (ignore-errors:ignore-errors)
-  (letex ((body (cons 'begin (args))))
-    (let (result)
-      (if (catch body 'result) result nil))))
-(context MAIN)
+;; (context 'ignore-errors)
+;; (define-macro (ignore-errors:ignore-errors)
+;;   (letex ((body (cons 'begin (args))))
+;;     (local (result)
+;;       (if (catch body 'result) result nil))))
+;; (context MAIN)
 
-;; 再度エラーを投げるとユーザ定義のエラーになってしまうな
-;; (error-number) の値も変わってしまう
-(context 'unwind-protect)
-(define-macro (unwind-protect:unwind-protect)
-  (letex ((body (first (args)))
-          (cleanup-form* (cons 'begin (rest (args)))))
-    (local (*result*)           ; letと何が違う？
-      (if (catch body '*result*)
-          (begin cleanup-form* *result*)
-          (begin cleanup-form* (throw-error *result*))))))
-(context MAIN)
+(define (prin1-to-string obj)
+  (cond ((string? obj) (format"\"%s\"" (replace "\\" obj "\\\\")))
+        ("else" (string obj))))
+
+(define-macro (ignore-errors)
+  (eval-string (prin1-to-string (args 0)) (context) nil))
+
+;; (context 'unwind-protect)
+;; (define-macro (unwind-protect:unwind-protect)
+;;   "syntax: (unwind-protext protected-form cleanup-form*)"
+;;   (letex ((body (first (args)))
+;;           (cleanup-form* (cons 'begin (rest (args)))))
+;;     (local (*result*)
+;;       (if (catch body '*result*)
+;;           (begin cleanup-form* *result*)
+;;           (begin cleanup-form* (print "\n" *result* "\n") nil))))) ; ? throw-error
+;; (context MAIN)
+;; (global 'unwind-protext)
 
 (define (pathname? str)
-  (or (file? str) (directory? str)))
+  (or (file? str)
+      (directory? str)))
 
-(define (curl--head url)
-  (silent
-    (print (get-url url "header"))))
+(define (curl url) (silent) (print (get-url url)))
+(define (curl--head url) (print (get-url url "header")) (silent))
 (define curl-I curl--head)
 ;; (curl--head "http://www.newlisp.org/")
 
 (define *html-manual*
   (or (exists file?
-              (list
-               (string (env "NEWLISPDIR") "/newlisp_manual.html")
-               "/usr/share/doc/newlisp/newlisp_manual.html"))
+              (list (string (env "NEWLISPDIR") "/newlisp_manual.html")
+                    "/usr/share/doc/newlisp/newlisp_manual.html"))
       "http://www.newlisp.org/newlisp_manual.html"))
 
 (define (arglist fname)
@@ -340,21 +367,34 @@
            ;; (args)が使われていて、引数が少ない可能性もあるので注意。特にマクロ
            (cons fname (first def))))))
 
-(constant 'PCRE_CASELESS        1)
-(constant 'PCRE_MULTILINE       2)
-(constant 'PCRE_DOTALL          4)
-(constant 'PCRE_EXTENDED        8)
-(constant 'PCRE_ANCHORED       16)
-(constant 'PCRE_DOLLAR_ENDONLY 32)
-(constant 'PCRE_EXTRA          64)
-(constant 'PCRE_NOTBOL        128)
-(constant 'PCRE_NOTEOL        256)
-(constant 'PCRE_UNGREEDY      512)
-(constant 'PCRE_NOTEMPTY     1024)
-(constant 'PCRE_UTF8         2048)
-(constant 'REPLACE_ONCE    0x8000)
-(constant 'PRECOMPILED    0x10000)
+;; (setq
+;;  PCRE_CASELESS        1
+;;  PCRE_MULTILINE       2
+;;  PCRE_DOTALL          4
+;;  PCRE_EXTENDED        8
+;;  PCRE_ANCHORED       16
+;;  PCRE_DOLLAR_ENDONLY 32
+;;  PCRE_EXTRA          64
+;;  PCRE_NOTBOL        128
+;;  PCRE_NOTEOL        256
+;;  PCRE_UNGREEDY      512
+;;  PCRE_NOTEMPTY     1024
+;;  PCRE_UTF8         2048
+;;  REPLACE_ONCE    0x8000
+;;  PRECOMPILED    0x10000
+;;  )
 
+(define (shell-command-to-string str-process)
+  (join (exec str-process) "\n"))
+
+(define nslookup net-lookup)
+
+(define (getopt optstring (has-arg nil))
+  "オプション引数の解析."
+  (let ((pos (find optstring $main-args)))
+    (if (and pos has-arg)
+        (main-args (+ pos 1))
+        (integer? pos))))
 
 
 (when (= ostype "Win32")
@@ -378,6 +418,8 @@
 
 
 ;; (prompt-event (fn (ctx) (string ctx ":" (real-path) "> ")))
+
+(println "init.lsp loading...done")
 
 (context MAIN)
 ;;; init.lsp ends here

@@ -1,6 +1,6 @@
 ;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
 
-;;; Time-stamp: <2009-07-13T01:33:09>
+;;; Time-stamp: <2009-09-12T17:19:28JST>
 
 ;; Author: Shigeru Kobayashi <shigeru.kb@gmail.com>
 ;; Version: 0.1b
@@ -14,7 +14,7 @@
 ;; 
 ;; newLISP Home - http://www.newlisp.org/
 ;; 
-;; 最新バージョンはこちらにあります:
+;; このファイルの最新バージョンはこちらにあります:
 ;; http://github.com/kosh04/newlisp-files/tree/master
 
 ;;; Usage:
@@ -38,6 +38,14 @@
 ;; - 初回起動時の評価が表示されずに溜まってしまう場合がある
 ;; - ２バイト文字を含むパスから起動することができない
 ;;   e.g. "c:/Documents and Settings/User/デスクトップ/"
+;; - newlisp.exeが$PATHにないとshell-command-to-stringを実行できない
+
+;; export PATH="$HOME/bin:$PATH"
+;; - emacsのシェルからの起動に必要
+;; (or (string-match #1=(expand-file-name "~/bin") #2=(getenv "PATH"))
+;;     (setenv "PATH" (concat #1# ":" #2#)))
+;; - emacsからの起動に必要
+;; (add-to-list 'exec-path "~/bin")
 
 ;;; Todo:
 ;; - シンボル補完 (etags, complete-symbol, [d]abbrev)
@@ -56,7 +64,7 @@
 (defvar newlisp-command "newlisp"
   "newLISP execute binary filename.")
 
-;; (defvar newlisp-command-option "")
+;; (defvar newlisp-command-switches "")
 
 (defvar newlisp-process-coding-system '(utf-8 . utf-8)
   "Cons of coding systems used for process newLISP (input . output).
@@ -80,18 +88,10 @@ Otherwise maybe '(sjis . sjis).")
 
 (defalias 'run-newlisp 'newlisp-show-repl)
 
-;; 評価の遅延はおそらく[cmd]~[/cmd]側の問題
-;; [cmd]使わないように改行をまとめようとしたらコメント文|で引っかかる...
 (defun newlisp-eval (str-sexp)
   "Eval newlisp s-expression."
-  (interactive "snewLISP eval: ")
+  (interactive "snewLISP Eval: ")
   (let ((proc (newlisp-process)))
-;;     '(progn
-;;       (princ (concat str-sexp "\n") (process-buffer proc))
-;;       (set-marker (process-mark proc) (point-max))
-;;       (with-current-buffer (process-buffer proc)
-;;         (goto-char (point-max)))
-;;       )
     (labels ((sendln (str)
                (comint-send-string proc (concat str "\n"))))
       (cond ((string-match "\n" str-sexp)
@@ -101,6 +101,8 @@ Otherwise maybe '(sjis . sjis).")
             (:else
              (sendln str-sexp))))
     (newlisp-show-repl t)))
+
+;; (defsetf process-filter set-process-filter)
 
 (defun newlisp-eval-region (from to)
   (interactive "r")
@@ -131,10 +133,17 @@ Otherwise maybe '(sjis . sjis).")
                 (read-file-name "Load file: " (buffer-file-name))))
   (newlisp-eval (format "(load {%s})" (expand-file-name file))))
 
-(defun newlisp-kill-process ()
+(defun newlisp-restart-process ()
+  "Restart a new clean newLISP process with same command-line params.
+This mode is not available on Win32."
   (interactive)
-  ;; (kill-process (newlisp-process))
-  (newlisp-eval "(exit)"))
+  (newlisp-eval "(reset true)"))
+
+(defun newlisp-kill-process (&optional force)
+  (interactive "P")
+  (if force
+      (delete-process (newlisp-process))
+      (newlisp-eval "(exit)")))
 
 ;; eval sync
 (defun newlisp-eval-buffer (arg)
@@ -163,7 +172,7 @@ Otherwise maybe '(sjis . sjis).")
        (cond ((zerop (buffer-size outbuf))
               (kill-buffer outbuf)
               (message "(no output)"))
-             (t
+             (:else
               (with-current-buffer outbuf
                 (goto-char (point-min))
                 (if (< (line-number-at-pos (point-max)) 5)
@@ -178,16 +187,8 @@ Otherwise maybe '(sjis . sjis).")
   (interactive)
   (error "Undefined"))
 
-(defun newlisp-begin-cmd ()
-  (interactive)
-  ;; 今までの入力があればついでに消したいところ
-  (insert "[cmd]")
-  (comint-send-input))
-
-(defun newlisp-end-cmd ()
-  (interactive)
-  (insert "[/cmd]")
-  (comint-send-input))
+(defun newlisp-begin-cmd () (interactive) (insert "[cmd]") (comint-send-input))
+(defun newlisp-end-cmd () (interactive) (insert "[/cmd]") (comint-send-input))
 
 ;; (define-key inferior-newlisp-mode-map "\C-c[" 'newlisp-begin-cmd)
 ;; (define-key inferior-newlisp-mode-map "\C-c]" 'newlisp-end-cmd)
@@ -259,7 +260,7 @@ Otherwise maybe '(sjis . sjis).")
                             '(primitive? MAIN:utf8)))))
           (if (string-match "true" res)
               '(utf-8 . utf-8)
-              '(shift_jis . shift_jis)))) ; or 'sjis ?
+              '(shift_jis . shift_jis))))
   (setq newlisp-primitive-keywords
         (car (read-from-string
               (shell-command-to-string
@@ -288,6 +289,7 @@ Otherwise maybe '(sjis . sjis).")
   (let ((map (make-sparse-keymap "newlisp")))
     (set-keymap-parent map lisp-mode-shared-map)
     map))
+(define-key newlisp-mode-map "\M-:" 'newlisp-eval)
 (define-key newlisp-mode-map "\e\C-x" 'newlisp-eval-defun)
 (define-key newlisp-mode-map "\C-x\C-e" 'newlisp-eval-last-sexp)
 (define-key newlisp-mode-map "\C-c\C-r" 'newlisp-eval-region)
@@ -295,6 +297,7 @@ Otherwise maybe '(sjis . sjis).")
 (define-key newlisp-mode-map "\C-c\C-z" 'newlisp-show-repl)
 (define-key newlisp-mode-map "\e\t" 'newlisp-complete-symbol) ; ESC TAB
 (define-key newlisp-mode-map [f5] 'newlisp-execute-file)
+(define-key newlisp-mode-map [(control c) f4] 'newlisp-kill-process) ; C-c f4
 (define-key newlisp-mode-map "\C-m" 'newline-and-indent)
 
 (defvar newlisp-mode-syntax-table
@@ -330,12 +333,12 @@ Otherwise maybe '(sjis . sjis).")
   (run-mode-hooks 'newlisp-mode-hook))
 
 ;; $ html2txt $NEWLISPDIR/newlisp_manual.html -o newlisp_manual.txt
-;; もしくはブラウザの「ページを保存（テキスト）」
+;; or use www browser [File] -> [Save Page As (Text)]
 (defvar newlisp-manual-text "newlisp_manual.txt")
 
 (defvar newlisp-manual-html
   (or (dolist (path (list "/usr/share/doc/newlisp/manual_frame.html"
-                          ;; When $ make install_home
+                          ;; When build newlisp `make install_home'
                           "~/share/doc/newlisp/manual_frame.html"
                           "C:/Program Files/newlisp/manual_frame.html"))
         (and (file-exists-p path)
@@ -346,15 +349,18 @@ Otherwise maybe '(sjis . sjis).")
   (interactive)
   (browse-url-of-file newlisp-manual-html))
 
+(defsubst newlisp-keywords ()
+  (append newlisp-primitive-keywords
+          newlisp-lambda-keywords
+          newlisp-un*x-based-function-keywords))
+
 (defun newlisp-browse-manual-from-text (str)
   (interactive
-   ;; FIXME: "lambda?" が選択できない
-   (list (completing-read "newLISP manual: "
-                          #1=(append newlisp-primitive-keywords
-                                     newlisp-lambda-keywords
-                                     newlisp-un*x-based-function-keywords)
-                          nil t
-                          (car (member (thing-at-point 'symbol) #1#)))))
+   ;; FIXME: "lambda?" が選択できない => C-q ?
+   ;; 空文字("")いらない: REQUIRE-MATCH
+   (list (completing-read "newLISP manual: " (newlisp-keywords) nil t
+                          (car (member (thing-at-point 'symbol)
+                                       (newlisp-keywords))))))
   (let ((obuf (current-buffer)))
     (pop-to-buffer (find-file-noselect newlisp-manual-text))
     (toggle-read-only t)

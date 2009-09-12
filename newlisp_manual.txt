@@ -114,8 +114,7 @@ newLISP is a registered trademark of Lutz Mueller.
    1. Syntax of symbol variables and numbers <#symbol_names>
    2. Data types and names in the reference <#type_ids>
    3. Functions in groups <#functions>
-          * List processing, flow control, and integer arithmetic
-            <#list_processing>
+          * List processing, flow control, and integer arithmetic <#list_processing>
           * String and conversion functions <#string_operators>
           * Floating point math and special functions <#floating_point>
           * Matrix functions <#matrices>
@@ -137,31 +136,49 @@ newLISP is a registered trademark of Lutz Mueller.
           * newLISP internals API <#internals>
    4. Functions in alphabetical order <#functions_alphabetical>
 
-      * ! <newlisp_manual.html#shell>  +-*/%
-      <newlisp_manual.html#arithmetic>  Ab <newlisp_manual.html#abort> 
-      Ap <newlisp_manual.html#append>  As <newlisp_manual.html#asin>  Ba
-      <newlisp_manual.html#base64-dec>  Ca
-      <newlisp_manual.html#callback>  Cl <newlisp_manual.html#clean>  Co
-      <newlisp_manual.html#command-event>  Cu
-      <newlisp_manual.html#current-line>  De <newlisp_manual.html#dec> 
-      Di <newlisp_manual.html#difference>  Do
-      <newlisp_manual.html#do-until>  En <newlisp_manual.html#encrypt> 
-      Ex <newlisp_manual.html#exec>  Fi <newlisp_manual.html#file-info> 
-      Fl <newlisp_manual.html#flat>  Ga <newlisp_manual.html#gammaln> 
-      Gl <newlisp_manual.html#global>  In <newlisp_manual.html#inc>  La
-      <newlisp_manual.html#lambdap>  Li <newlisp_manual.html#listp>  Ma
-      <newlisp_manual.html#macrop>  Mu <newlisp_manual.html#mul>  Net
-      <newlisp_manual.html#net-accept>  New <newlisp_manual.html#new> 
-      Nt <newlisp_manual.html#nth>  Pa <newlisp_manual.html#pack> 
-      Pr <newlisp_manual.html#pretty-print>  Ra
-      <newlisp_manual.html#randomize>  Rea
-      <newlisp_manual.html#read-buffer>  Reg
-      <newlisp_manual.html#regex>  Sea <newlisp_manual.html#search>  Seq
-      <newlisp_manual.html#sequence>  Sl <newlisp_manual.html#sleep>  St
-      <newlisp_manual.html#starts-with>  Sy <newlisp_manual.html#sync> 
-      Ti <newlisp_manual.html#time-of-day>  Tr
-      <newlisp_manual.html#truep>  Ut <newlisp_manual.html#utf8>  Wr
-      <newlisp_manual.html#write-file>  *
+      *
+      ! <newlisp_manual.html#shell>
+      +-*/% <newlisp_manual.html#arithmetic>
+      Ab <newlisp_manual.html#abort>
+      Ap <newlisp_manual.html#append>
+      As <newlisp_manual.html#asin>
+      Ba <newlisp_manual.html#base64-dec>
+      Ca <newlisp_manual.html#callback>
+      Cl <newlisp_manual.html#clean>
+      Co <newlisp_manual.html#command-event>
+      Cu <newlisp_manual.html#current-line>
+      De <newlisp_manual.html#dec>
+      Di <newlisp_manual.html#difference>
+      Do <newlisp_manual.html#do-until>
+      En <newlisp_manual.html#encrypt>
+      Ex <newlisp_manual.html#exec>
+      Fi <newlisp_manual.html#file-info>
+      Fl <newlisp_manual.html#flat>
+      Ga <newlisp_manual.html#gammaln>
+      Gl <newlisp_manual.html#global>
+      In <newlisp_manual.html#inc>
+      La <newlisp_manual.html#lambdap>
+      Li <newlisp_manual.html#listp>
+      Ma <newlisp_manual.html#macrop>
+      Mu <newlisp_manual.html#mul>
+      Net <newlisp_manual.html#net-accept>
+      New <newlisp_manual.html#new>
+      Nt <newlisp_manual.html#nth>
+      Pa <newlisp_manual.html#pack>
+      Pr <newlisp_manual.html#pretty-print>
+      Ra <newlisp_manual.html#randomize>
+      Rea <newlisp_manual.html#read-buffer>
+      Reg <newlisp_manual.html#regex>
+      Sea <newlisp_manual.html#search>
+      Seq <newlisp_manual.html#sequence>
+      Sl <newlisp_manual.html#sleep>
+      St <newlisp_manual.html#starts-with>
+      Sy <newlisp_manual.html#sync>
+      Ti <newlisp_manual.html#time-of-day>
+      Tr <newlisp_manual.html#truep>
+      Ut <newlisp_manual.html#utf8>
+      Wr <newlisp_manual.html#write-file>
+      *
 
 
       Appendix <#appendix>
@@ -398,7 +415,7 @@ Small pieces of newLISP code can be executed directly from the command-line:
     newlisp -e "(+ 3 4)"
     → 7        ; On Win32 and Unix
 
-    newlisp -e '(append "abc" "def")' 
+    newlisp -e '(append "abc" "def")'
     → "abcdef" ; On Unix
 
 The expression enclosed in quotation marks is evaluated, and the result
@@ -420,8 +437,7 @@ detached to the -l or -L option. The file must exist.
     newlisp -L /usr/home/www/log.txt -http -w /usr/home/www/htpdocs
 
 logging mode	command-line and net-eval with -c	HTTP server with -http
-newlisp -l 	log only input and network connections 	log only network
-connections
+newlisp -l 	log only input and network connections 	log only network connections
 newlisp -L 	log also newLISP output (w/o prompts) 	log also HTTP requests
 
 All logging output is written to the file specified after the -l or -L
@@ -648,9 +664,9 @@ ASCII-editable and can usually be found at /etc/services and
 Put one of the following lines into inetd.conf:
 
     net-eval  stream  tcp  nowait  root  /usr/bin/newlisp -c
-    											 
+
     # as an alternative, a program can also be preloaded
-    											 
+
     net-eval  stream  tcp  nowait  root  /usr/bin/newlisp -c myprog.lsp
 
 Instead of root, another user and optional group can be specified. For
@@ -736,7 +752,7 @@ the module was not loaded previously:
     ;; only loads the file if not already loaded
     ;;
     ;; example:
-    ;; (include "zlib.lsp") 
+    ;; (include "zlib.lsp")
     ;; (include "sqlite3.lsp")
     ;;
     ;; include:modules => ("zlib.lsp" "sqlite3.lsp")
@@ -819,8 +835,8 @@ The second example shows how to import newlisp.so into a program written
 in C:
 
     /* libdemo.c - demo for importing newlisp.so
-     * 
-     * compile using: 
+     *
+     * compile using:
      *    gcc -ldl libdemo.c -o libdemo
      *
      * use:
@@ -831,30 +847,30 @@ in C:
      */
     #include <stdio.h>
     #include <dlfcn.h>
-     
+
     int main(int argc, char * argv[])
     {
     void * hLibrary;
     char * result;
     char * (*func)(char *);
     char * error;
-     
+
     if((hLibrary = dlopen("/usr/lib/newlisp.so",
                            RTLD_GLOBAL | RTLD_LAZY)) == 0)
         {
         printf("cannot import library\n");
         exit(-1);
         }
-     
+
     func = dlsym(hLibrary, "newlispEvalStr");
     if((error = dlerror()) != NULL)
         {
         printf("error: %s\n", error);
         exit(-1);
         }
-     
+
     printf("%s\n", (*func)(argv[1]));
-     
+
     return(0);
     }
 
@@ -952,7 +968,7 @@ redefined to perform the floating point operators add, sub, mul, and div:
     (constant '- sub)
     (constant '* mul)
     (constant '/ div)
-     
+
     ;; or all 4 operators at once
     (constant '+ add '- sub '* mul '/ div)
 
@@ -1033,20 +1049,20 @@ characters for format <#format>.
 *Strings* may contain null characters and can have different delimiters.
 They evaluate to themselves.
 
-    "hello"             →"hello"  
-    "\032\032\065\032"  →"  A " 
+    "hello"             →"hello"
+    "\032\032\065\032"  →"  A "
     "\x20\x20\x41\x20"  →"  A "
-    "\t\r\n"            →"\t\r\n" 
+    "\t\r\n"            →"\t\r\n"
     "\x09\x0d\x0a"      →"\t\r\n"
 
     ;; null characters are legal in strings:
     "\000\001\002"       → "\000\001\002"
     {this "is" a string} → "this \"is\" a string"
-     
+
     ;; use [text] tags for text longer than 2048 bytes:
     [text]this is a string, too[/text]
     → "this is a string, too"
-    			
+
 
 Strings delimited by \" (double quotes) will also process the following
 characters escaped with a \ (backslash):
@@ -1520,30 +1536,28 @@ contents of a variable, list, array, or string.
 
 
 function	description
-bind <#bind> 	binds variable associations in a list
-constant <#constant> 	sets the contents of a variable and protects it
-dec <#dec> 	decrements a number referenced by a variable, list or array
-define <#define> 	sets the contents of a variable
-inc <#inc> 	increments a number referenced by a variable, list or array
-net-receive <#net-receive> 	reads into a buffer variable
-pop <#pop> 	pops an element from a list or string
-pop-assoc <#pop-assoc> 	removes an association from an association list
-push <#push> 	pushes a new element onto a list or string
-read-buffer <#read-buffer> 	reads into a buffer variable
-receive <#receive> 	receives a message from a parent or child process
-replace <#replace> 	replaces elements in a list or string
-reverse <#reverse> 	reverses a list or string
-rotate <#rotate> 	rotates the elements of a list or characters of a string
-set <#set> 	sets the contents of a variable
-setf setq <#setf> 	sets the contents of a variable, list, array or string
-set-ref <#set-ref> 	searches for an element in a nested list and
-replaces it
-set-ref-all <#set-ref-all> 	searches for an element in a nested list and
-replaces all instances
-sort <#sort> 	sorts the elements of a list or array
-swap <#swap> 	swaps two elements inside a list or string
-write-buffer <#write-buffer> 	writes to a string buffer or file
-write-line <#write-line> 	writes to a string buffer or file
+bind  		binds variable associations in a list
+constant  	sets the contents of a variable and protects it
+dec  		decrements a number referenced by a variable, list or array
+define  	sets the contents of a variable
+inc  		increments a number referenced by a variable, list or array
+net-receive  	reads into a buffer variable
+pop  		pops an element from a list or string
+pop-assoc  	removes an association from an association list
+push  		pushes a new element onto a list or string
+read-buffer  	reads into a buffer variable
+receive  	receives a message from a parent or child process
+replace  	replaces elements in a list or string
+reverse  	reverses a list or string
+rotate  	rotates the elements of a list or characters of a string
+set  		sets the contents of a variable
+setf setq  	sets the contents of a variable, list, array or string
+set-ref  	searches for an element in a nested list and replaces it
+set-ref-all  	searches for an element in a nested list and replaces all instances
+sort  		sorts the elements of a list or array
+swap  		swaps two elements inside a list or string
+write-buffer  	writes to a string buffer or file
+write-line  	writes to a string buffer or file
 
 
 Note that the last two functions, write-buffer <#write-buffer> and
@@ -1594,7 +1608,7 @@ text in bold is the output from newLISP:
     > (g 0)
     *0*
     > (f)
-    *1* 
+    *1*
     > _
 
 The variable x is first set to 1. But when (g 0) is called, x is bound
@@ -1664,13 +1678,13 @@ can be exited at any point using the functions catch <#catch> and throw
         ...
         456
     )
-    									 
+
     ;; if condition is true
 
     (catch (foo p))  → 123
-    									 
+
     ;; if condition is not true
-    									 
+
     (catch (foo p))  → 456
 
 Breaking out of loops works in a similar way:
@@ -1765,35 +1779,25 @@ The following rules should simplify the process of understanding
 contexts by identifying to which context the created symbols are being
 assigned.
 
-   1.
-
-      newLISP first parses and translates each top level expression. The
+   1. newLISP first parses and translates each top level expression. The
       symbols are created during this phase. After the expression is
       translated, it gets evaluated.
 
-   2.
-
-      A symbol is created when newLISP first /sees/ it, when calling the
+   2. A symbol is created when newLISP first /sees/ it, when calling the
       load <#load>, sym <#sym>, or eval-string <#eval-string> functions.
       When newLISP reads a source file, symbols are created /before/
       evaluation occurs.
 
-   3.
-
-      When an unknown symbol is encountered during code translation, a
+   3. When an unknown symbol is encountered during code translation, a
       search for its definition begins inside the current context.
       Failing that, the search continues inside MAIN for a built-in
       function, context, or global symbol. If no definition is found,
       the symbol is created locally inside the current context.
 
-   4.
-
-      Once a symbol is created and assigned to a specific context, it
+   4. Once a symbol is created and assigned to a specific context, it
       will belong to that context permanently.
 
-   5.
-
-      When a user-defined function is evaluated, the context is switched
+   5. When a user-defined function is evaluated, the context is switched
       to the parent context of the symbol it is called with.
 
    6. A context switch only influences symbol creation during load
@@ -1858,7 +1862,7 @@ following statements are all executed inside the MAIN context:
 Note that only the symbols prefixed with their context name will be part
 of the context:
 
-    (define (ACTX:foo x y) 
+    (define (ACTX:foo x y)
         (+ x y))
 
 When above code is loaded in MAIN only foo will be part of ACTX. The
@@ -1875,21 +1879,21 @@ definitions:
     ;;
     ;; everything from here on goes into GRAPH
     (context 'GRAPH)
-    				 
+
     (define (draw-triangle x y z)
         (…))
 
     (define (draw-circle)
         (…))
-    									 
+
     ;; show the runtime context, which is GRAPH
     (define (foo)
         (context))
-    									 
+
     ;; switch back to MAIN
     (context 'MAIN)
-    				 
-    ;; end of file					
+
+    ;; end of file
 
 The draw-triangle and draw-circle functions — along with their x, y, and
 z parameters — are now part of the GRAPH context. These symbols are
@@ -1897,7 +1901,7 @@ known only to GRAPH. To call these functions from another context,
 prefix them with GRAPH:
 
     (GRAPH:draw-triangle 1 2 3)
-    (GRAPH:foo)  → GRAPH										
+    (GRAPH:foo)  → GRAPH
 
 The last statement shows how the runtime context has changed to GRAPH
 (function foo's context).
@@ -2065,7 +2069,7 @@ loading contexts being used as modules to build larger applications:
 
     (exit)
 
-    ;; end of file					
+    ;; end of file
 
 Always load the modules required by a context /before/ the module's
 context statement. Always finish by switching back to the MAIN context,
@@ -2186,7 +2190,7 @@ references that can occur before the loading of that context.
 
     (run)
 
-    ;; end of file 
+    ;; end of file
 
 When pre-declaring and loading modules as shown in the example, the
 sequence of declaration or loading can be neglected. All forward
@@ -2241,7 +2245,7 @@ context must already exist or be declared with a /forward declaration/,
 which creates the context and the function symbol:
 
     ;; forward declaration of a default function
-    (define Fubar:Fubar)    
+    (define Fubar:Fubar)
 
     (context 'Foo)
     (define (Foo:Foo a b c)
@@ -2422,8 +2426,8 @@ reference to the data:
     ;; the default functor for holding data
 
     (define Mylist:Mylist '(a b c d e f g))
-    
-    (Mylist 3) → d 
+
+    (Mylist 3) → d
 
     (setf (Mylist 3) 'D) → D
 
@@ -2435,7 +2439,7 @@ reference to the data:
 
     (reverse Mylist) → (g f e D c b a)
 
-    (set 'Str:Str "acdefghijklmnop") 
+    (set 'Str:Str "acdefghijklmnop")
 
     (upper-case Str) → "ACDEFGHIJKLMNOP"
 
@@ -2495,7 +2499,7 @@ used as a function parameter:
 
     ERR: list or string expected : (eval aList)
     called from user defined function change-list
-    > 
+    >
 
 At the beginning of the chapter it was shown how to package data in a
 name-space using a default functor. Not only the default functor but any
@@ -2555,7 +2559,7 @@ object constructor can be used as a template for specific object
 constructors when creating new object classes with new:
 
     ; built-in generic FOOP object constructor
-    (define (Class:Class) 
+    (define (Class:Class)
         (cons (context) (args)))
 
     ; create some new classes
@@ -2586,7 +2590,7 @@ class names in upper-case to signal that the name stands for a namespace.
 In some cases, it may be useful to overwrite the simple constructor,
 that was created during class creation, with new:
 
-    ; overwrite simple constructor 
+    ; overwrite simple constructor
     (define (Circle:Circle x y radius)
         (list Circle x y radius))
 
@@ -2669,7 +2673,7 @@ of no concern.
         (mul (p 3) (p 4)))
 
     (define (Rectangle:move p dx dy)
-    (list Rectangle (add (p 1) dx) (add (p 2) dy) (p 3) (p 4))) 
+    (list Rectangle (add (p 1) dx) (add (p 2) dy) (p 3) (p 4)))
 
     ;; class methods for circles
 
@@ -2677,7 +2681,7 @@ of no concern.
         (mul (pow (c 3) 2) (acos 0) 2))
 
     (define (Circle:move p dx dy)
-        (list Circle (add (p 1) dx) (add (p 2) dy) (p 3))) 
+        (list Circle (add (p 1) dx) (add (p 2) dy) (p 3)))
 
 By prefixing the area or move symbol with the : (colon), we can call
 these functions for each class of object. Although there is no space
@@ -2691,7 +2695,7 @@ distinct entities. The colon works as a function that processes parameters:
 
     (map (curry :area) (map eval '(myrect mycircle))) → (200 314.1592654)
 
-    (map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654) 
+    (map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654)
 
 
     (set 'myrect (:move myrect 2 3))      → (Rectangle 7 8 10 20)
@@ -2991,7 +2995,7 @@ The following countries use a period as a decimal separator:
     India, Ireland, Israel, Japan, Korea (both North and South),
     Malaysia, Mexico, Nicaragua, New Zealand, Panama, Philippines,
     Puerto Rico, Saudi Arabia, Singapore, Switzerland, Thailand, United
-    Kingdom, and United States 
+    Kingdom, and United States
 
 The following countries use a comma as a decimal separator:
 
@@ -3002,7 +3006,7 @@ The following countries use a comma as a decimal separator:
     Iceland, Italy, Latvia, Lithuania, Luxembourg, Macedonia, Moldova,
     Netherlands, Norway, Paraguay, Peru, Poland, Portugal, Romania,
     Russia, Serbia, Slovakia, Slovenia, Spain, South Africa, Sweden,
-    Ukraine, Uruguay, Venezuela, and Zimbabwe 
+    Ukraine, Uruguay, Venezuela, and Zimbabwe
 
 
       Unicode and UTF-8 encoding
@@ -3351,7 +3355,7 @@ e or E and an integer /exponent/.
 To describe the types and names of a function's parameters, the
 following naming convention is used throughout the reference section:
 
-    *syntax: (format /str-format/ /exp-data-1/ [/exp-data-i/ ... ])* 
+    *syntax: (format /str-format/ /exp-data-1/ [/exp-data-i/ ... ])*
 
 Arguments are represented by symbols formed by the argument's type and
 name, separated by a - (hyphen). Here, /str-format/ (a string) and
@@ -3450,7 +3454,7 @@ but some other data type.
     ((1  2  3  4)
     (5  6  7  8)
     (9 10 11 12))        ; 3 rows 4 columns
-    		   
+
     ((1 2) (3 4) (5 6))  ; 3 rows 2 columns
 
 
@@ -3494,7 +3498,7 @@ writing regular expressions or short sections of HTML.
     (print {<A HREF="http://mysite.com">} )   ; the readable way
 
     ;; also possible because the inner brackets are balanced
-    (regex {abc{1,2}} line) 
+    (regex {abc{1,2}} line)
 
     (print [text]
       this could be
@@ -3897,8 +3901,7 @@ Some functions appear in more than one group.
     exec <#exec> 	runs a process, then reads from or writes to it
     fork <#fork> 	launches a newLISP child process
     pipe <#pipe> 	creates a pipe for interprocess communication
-    process <#process> 	launches a child process, remapping standard I/O
-    and standard error
+    process <#process> 	launches a child process, remapping standard I/O and standard error
     receive <#receive> 	receive a message from another process
     semaphore <#semaphore> 	creates and controls semaphores
     send <#send> 	send a message to another process
@@ -4041,7 +4044,7 @@ on the host operating system.
 
 *example:*
 
-    (! "vi")  
+    (! "vi")
     (! "ls -ltr")
 
 Use the exec <#exec> function to execute a shell command and capture the
@@ -4079,11 +4082,11 @@ This method allows indexed access (i.e., ($ i), where i is an integer).
 
     (set 'str  "http://newlisp.org:80")
     (find "http://(.*):(.*)" str 0)  → 0
-                                     
+
     $0  → "http://newlisp.org:80"
     $1  → "newlisp.org"
     $2  → "80"
-                                     
+
     ($ 0)  → "http://newlisp.org:80"
     ($ 1)  → "newlisp.org"
     ($ 2)  → "80"
@@ -4314,10 +4317,10 @@ between the colon and the symbol following it.
         (mul (pow (c 3) 2) (acos 0) 2))
 
     (define (Rectangle:move p dx dy)
-        (list rectangle (add (p 1) dx) (add (p 2) dy) (p 3) (p 4))) 
+        (list rectangle (add (p 1) dx) (add (p 2) dy) (p 3) (p 4)))
 
     (define (Circle:move p dx dy)
-        (list circle (add (p 1) dx) (add (p 2) dy) (p 3))) 
+        (list circle (add (p 1) dx) (add (p 2) dy) (p 3)))
 
     (set 'myrect '(Rectangle 5 5 10 20)) ; x y width height
     (set 'mycircle '(Circle 1 2 10)) ; x y radius
@@ -4327,10 +4330,10 @@ between the colon and the symbol following it.
     (Rectangle:area myrect)   → 200
     (Circle:area mycircle)    → 314.1592654
 
-    (set 'myrect (Rectangle:move myrect 2 3)) 
+    (set 'myrect (Rectangle:move myrect 2 3))
     (set 'mycircle ((Circle:move mycircle 4 5))
 
-    ;; using the : (colon) operator to polymorphically 
+    ;; using the : (colon) operator to polymorphically
     ;; resolve to a specific context
 
     (:area myrect)     → 200
@@ -4340,7 +4343,7 @@ between the colon and the symbol following it.
 
     (map (curry :area) (map eval '(myrect mycircle))) → (200 314.1592654)
 
-    (map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654) 
+    (map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654)
 
     ;; change object attributes using a function and re-assigning
     ;; to the objects name
@@ -4461,7 +4464,7 @@ using the import <#import> function.
 
     (set 'x 12345) ; x is a 64-bit long int
 
-    ; on a big-endian CPU, i.e. PPC or SPARC 
+    ; on a big-endian CPU, i.e. PPC or SPARC
     (get-long (address x))         → 12345
     ; the 32-bit int is in high 32-bit part of the long int
     (get-int (+ (address x) 4))    → 12345
@@ -4593,7 +4596,7 @@ number of bytes written.
 
 *example:*
 
-    (write-file "myfile.txt" "ABC") 
+    (write-file "myfile.txt" "ABC")
     (append-file "myfile.txt" "DEF")
 
     (read-file "myfile.txt")  → "ABCDEF"
@@ -4644,8 +4647,8 @@ left-associative order). For example, if op takes two arguments, then:
 
     (op (op (op (op 1 2) 3) 4) 5)
 
-    ;; find the greatest common divisor 
-    ;; of two or more integers 
+    ;; find the greatest common divisor
+    ;; of two or more integers
     ;; note that newLISP already has a gcd function
 
     (define (gcd_ a b)
@@ -4688,7 +4691,7 @@ variable capture. See define-macro <#define-macro>.
     (define-macro (print-line)
         (dolist (x (args))
             (print x "\n")))
-                            
+
     (print-line "hello" "World")
 
 This example prints a line-feed after each argument. The macro mimics
@@ -4701,8 +4704,8 @@ In the second syntax, args can take one or more indices (/int-idx-n/).
     (define-macro (foo)
         (print (args 2) (args 1) (args 0)))
 
-    (foo x y z) 
-    *zyx* 
+    (foo x y z)
+    *zyx*
 
     (define (bar)
     	(args 0 2 -1))
@@ -4719,9 +4722,9 @@ local variables of the current function or macro:
 *example:*
 
     (define (foo a b) (args))
-      
+
     (foo 1 2)        → ()
-                     
+
     (foo 1 2 3 4 5)  → (3 4 5)
 
 In the first example, an empty list is returned because the arguments
@@ -4780,13 +4783,13 @@ for modifying lists:
     myarray → ((1 2 3 4) (a b c d) (9 10 11 99))
 
     (nth 1 myarray)     → (a b c d)  ; access a whole row
-                        
+
     (myarray 0 -1)      → 4
-                        
+
     ;; use implicit indexing and slicing on arrays
-                        
+
     (myarray 1)     → (a b c d)
-                        
+
     (myarray 0 -1)  → 4
 
     (2 myarray)     → (c d)
@@ -4809,7 +4812,7 @@ The array? <#arrayp> function can be used to check if an expression is
 an array:
 
     (array? myarray)               → true
-                                   
+
     (array? (array-list myarray))  → nil
 
 When serializing arrays using the function source <#source> or save
@@ -4825,8 +4828,8 @@ using source <#source>.
     ;; contents of file arraylsp ;;
 
     (set 'myarray (array 3 4 (flat '(
-      (1 2 3 4) 
-      (5 6 7 8) 
+      (1 2 3 4)
+      (5 6 7 8)
       (9 10 11 12)))))
 
 
@@ -4859,7 +4862,7 @@ Checks if /expr/ is an array:
 
 *example:*
 
-    (set 'M (array 3 4 (sequence 1 4)))   
+    (set 'M (array 3 4 (sequence 1 4)))
     → ((1 2 3 4) (1 2 3 4) (1 2 3 4)))
 
 
@@ -5105,11 +5108,11 @@ Uneven frequencies in categories will skew the results.
 
 For two categories /A/ and /B/, bayes-query uses the following formula:
 
-    */p(A|tkn) = p(tkn|A) * p(A) / p(tkn|A) * p(A) + p(tkn|B) * p(B)/* 
+    */p(A|tkn) = p(tkn|A) * p(A) / p(tkn|A) * p(A) + p(tkn|B) * p(B)/*
 
 For /N/ categories, this formula is used:
 
-    */p(Mc|tkn) = p(tkn|Mc) * p(Mc) / sum-i-N( p(tkn|Mi) * p(Mi) )/* 
+    */p(Mc|tkn) = p(tkn|Mc) * p(Mc) / sum-i-N( p(tkn|Mi) * p(Mi) )/*
 
 The probabilities (/p(Mi)/ or /p(A)/, along with /p(B)/) represent the
 /Bayesian prior probabilities/. /p(Mx|tkn)/ and /p(A|tkn)/ are the
@@ -5159,12 +5162,12 @@ frequently used to differentiate between spam and legitimate email.
     ;; from Project Gutenberg: http://www.gutenberg.org/catalog/
     ;; The Adventures of Sherlock Holmes - Sir Arthur Conan Doyle
 
-    (bayes-train (parse (lower-case (read-file "Doyle.txt")) 
+    (bayes-train (parse (lower-case (read-file "Doyle.txt"))
                         "[^a-z]+" 0) '() 'DoyleDowson)
 
     ;; A Comedy of Masks - Ernest Dowson and Arthur Moore
 
-    (bayes-train '() (parse (lower-case (read-file "Dowson.txt")) 
+    (bayes-train '() (parse (lower-case (read-file "Dowson.txt"))
                         "[^a-z]+" 0) 'DoyleDowson)
 
     (save "DoyleDowson.lsp" 'DoyleDowson)
@@ -5178,13 +5181,13 @@ The following code illustrates how bayes-query is used to classify a
 sentence as /Doyle/ or /Dowson/:
 
     (load "DoyleDowson.lsp")
-    (bayes-query (parse "he was putting the last touches to a picture") 
+    (bayes-query (parse "he was putting the last touches to a picture")
         'DoyleDowson)
-    → (0.03802079132 0.9619792087) 
+    → (0.03802079132 0.9619792087)
 
-    (bayes-query (parse "immense faculties and extraordinary powers of observation") 
+    (bayes-query (parse "immense faculties and extraordinary powers of observation")
         'DoyleDowson)
-    → (0.985108793 0.01489120699) 
+    → (0.985108793 0.01489120699)
 
 The queries correctly identify the first sentence as a /Dowson/
 sentence, and the second one as a /Doyle/ sentence.
@@ -5288,8 +5291,8 @@ categories or models.
     L:total  → (5 6)
 
     (bayes-train '("one" "two" "two" "three")
-                 '("three" "one" "three") 
-                 '("one" "two" "three") 'S)       
+                 '("three" "one" "three")
+                 '("one" "two" "three") 'S)
     → (4 3 3)
 
     S:_one    → (1 1 1)
@@ -5387,7 +5390,7 @@ output on return.
 The /Beta/ function, beta, is derived from the /log Gamma/ gammaln
 function as follows:
 
-    /* beta = exp(gammaln(a) + gammaln(b) - gammaln(a + b)) */ 
+    /* beta = exp(gammaln(a) + gammaln(b) - gammaln(a + b)) */
 
 *example:*
 
@@ -5404,7 +5407,7 @@ of the /Beta/ distribution, betai, at /x/ in /num-x/. The cumulative
 binomial distribution is defined as the probability of an event, /pev/,
 with probability /p/ to occur /k/ or more times in /N/ trials:
 
-    /* pev = Betai(p, k, N - k + 1) */ 
+    /* pev = Betai(p, k, N - k + 1) */
 
 *example:*
 
@@ -5413,9 +5416,9 @@ with probability /p/ to occur /k/ or more times in /N/ trials:
     ;; probability of F ratio for df1/df2
     ;;
     (define (f-prob f df1 df2)
-      (let (prob (mul 2 (betai (div df2 (add df2 (mul df1 f))) 
-                               (mul 0.5 df2) 
-                               (mul 0.5 df1)))) 
+      (let (prob (mul 2 (betai (div df2 (add df2 (mul df1 f)))
+                               (mul 0.5 df2)
+                               (mul 0.5 df1))))
         (div (if (> prob 1) (sub 2 prob) prob) 2)))
 
 The first example calculates the probability for an event with a
@@ -5474,7 +5477,7 @@ unify <#unify> returns an association list and bind binds the associations.
 bind together with args <#args> can be used to write functions with
 named parameters:
 
-    (define-macro (foo) 
+    (define-macro (foo)
         (local (len width height)
             (bind (args) true)
             (println "len:" len " width:" width " height:" height)
@@ -5501,7 +5504,7 @@ The binomial distribution function is defined as the probability for an
 event to occur /int-k/ times in /int-n/ trials if that event has a
 probability of /float-p/ and all trials are independent of one another:
 
-    /*binomial = n! / (k! * (n - k)!) * pow(p, k) * pow(1.0 - p, n - k)*/ 
+    /*binomial = n! / (k! * (n - k)!) * pow(p, k) * pow(1.0 - p, n - k)*/
 
 where /x!/ is the factorial of /x/ and /pow(x, y)/ is /x/ raised to the
 power of /y/.
@@ -5603,7 +5606,7 @@ last match is returned as the result for the entire case expression.
     (define (translate n)
       (case n
         (1 "one")
-        (2 "two")          
+        (2 "two")
         (3 "three")
         (4 "four")
         (true "Can't translate this")))
@@ -5627,7 +5630,7 @@ evaluation of /exp/:
 
 *example:*
 
-    (catch (dotimes (x 1000) 
+    (catch (dotimes (x 1000)
       (if (= x 500) (throw x))))  → 500
 
 This form is useful for breaking out of iteration loops and for forcing
@@ -5656,7 +5659,7 @@ outcome of a function and are dealt with during program execution.
 *example:*
 
     (catch (func 3 4) 'result)  → nil
-    result  
+    result
     → "ERR: invalid function in function catch : (func 3 4)"
 
     (constant 'func +)          → add <4068A6>
@@ -5666,7 +5669,7 @@ outcome of a function and are dealt with during program execution.
 When a throw <#throw> is executed during the evaluation of /expr/, catch
 will return true, and the throw argument will be stored in /symbol/:
 
-    (catch (dotimes (x 100) 
+    (catch (dotimes (x 100)
       (if (= x 50) (throw "fin")) 'result)  → true
 
     result  → "fin"
@@ -5757,17 +5760,17 @@ with /int-elements/ omitted (same as for strings).
 *example:*
 
     (set 'str "newLISP")  → "newLISP"
-                          
+
     (chop str)    → "newLIS"
     (chop str 2)  → "newLI"
-                          
+
     str  → "newLISP"
 
     (set 'lst '(a b (c d) e))
 
     (chop lst)    → (a b (c d))
     (chop lst 2)  → (a b)
-                          
+
     lst  → (a b (c d) e)
 
 
@@ -5851,7 +5854,7 @@ an open parenthesis or a space initiates a newLISP evaluation.
 
 *example:*
 
-    (command-event (fn (s) 
+    (command-event (fn (s)
     	(if (starts-with s "[a-zA-Z]" 0) (append "!" s) s)))
 
 See also the related prompt-event <#prompt-event> which can be used for
@@ -5866,9 +5869,9 @@ newLISP's init.lsp startup file:
     (prompt-event (fn (ctx) (append (real-path) "> ")))
 
     ; pre-process the command-line
-    (command-event (fn (s) 
-        (if 
-            (starts-with s "cd") 
+    (command-event (fn (s)
+        (if
+            (starts-with s "cd")
             (string " " (true? (change-dir (last (parse s " ")))))
 
             (starts-with s "[a-zA-Z]" 0)
@@ -5910,7 +5913,7 @@ request for an error page:
                 (begin
                     (set 'request (first (parse s "?")))
                     ; discover illegal extension in queries
-                    (if (ends-with request ".exe") 
+                    (if (ends-with request ".exe")
                         (set 'request "GET /errorpage.html")
                         (set 'request s)))
                 (set 'request s))
@@ -6027,7 +6030,7 @@ Symbols initialized with set <#set>, define <#define>, or define-macro
 
 
     (constant 'aVar 123)  → 123
-    (set 'aVar 999) 
+    (set 'aVar 999)
     ERR: symbol is protected in function set: aVar
 
     (define (double x) (+ x x))
@@ -6086,7 +6089,7 @@ switch to a different context if that context already exists.
 
     (define (foo-draw x y z)  ; function resides in GRAPH
       (…))
-                                    
+
     (set 'var 12345)
     (symbols)  → (foo-draw var)  ; GRAPH has now two symbols
 
@@ -6131,7 +6134,7 @@ An evaluated context (no quote) can be given as an argument:
     *BAR*
     *BAR>* (context MAIN:old)
     *FOO*
-    *FOO>* 
+    *FOO>*
 
 If an identifier with the same symbol already exists, it is redefined to
 be a context.
@@ -6149,7 +6152,7 @@ symbols in MAIN when they are prefixed with a context:
     (context 'CTX)
     (define (CTX:new var)
         (…))
-        
+
     (context 'MAIN)
 
 CTX:new will overwrite new in MAIN.
@@ -6229,7 +6232,7 @@ be made non-destructive.
 
     (rotate (copy str)) → "PnewLIS"
 
-    str → "newLISP" 
+    str → "newLISP"
 
 Using copy the functions replace <#replace> and rotate <#rotate> are
 prevented from changing the data. A modified version of the data is
@@ -6347,7 +6350,7 @@ shows the x86 code to add up two numbers and return the result:
 The binary representation is attached to a new function created in newLISP:
 
     ;; set code
-    (set 'bindata (pack "ccccccccccc" 
+    (set 'bindata (pack "ccccccccccc"
         0x55 0x8B 0xEC 0x8B 0x45 0x08 0x03 0x45 0x0C 0x5D 0xC3))
 
     ;; get function template
@@ -6430,9 +6433,9 @@ command-line filter:
 *example:*
 
     #!/usr/bin/newlisp
-     
+
     (set 'inFile (open (main-args 2) "read"))
-    (while (read-line inFile) 
+    (while (read-line inFile)
       (if (starts-with (current-line) ";;")
         (write-line)))
     (exit)
@@ -6494,7 +6497,7 @@ before conversion of /int-sec/ to a string.
 
     (date)                   → "Fri Oct 29 09:56:58 2004"
 
-    (date (date-value))      → "Sat May 20 11:37:15 2006" 
+    (date (date-value))      → "Sat May 20 11:37:15 2006"
     (date (date-value) 300)  → "Sat May 20 16:37:19 2006"  ; 5 hours offset
     (date 0)                 → "Wed Dec 31 16:00:00 1969"
 
@@ -6518,10 +6521,10 @@ be translated into results appropriate for the current locale:
 
 *example:*
 
-    (set-locale "german") → "de_DE"      
+    (set-locale "german") → "de_DE"
 
     (date (date-value) 0 "%A %-d. %B %Y")
-    → "Montag  7. März 2005" 
+    → "Montag  7. März 2005"
     ; on Linux - suppresses the leading 0
 
     (set-locale "C")  ; default POSIX
@@ -6530,7 +6533,7 @@ be translated into results appropriate for the current locale:
     → "Monday March 07 2005"
 
     (date (date-value) 0 "%a %#d %b %Y")
-    → "Mon 7 Mar 2005" 
+    → "Mon 7 Mar 2005"
     ; suppressing leading 0 on Win32 using #
 
     (set-locale "german")
@@ -6601,8 +6604,8 @@ the current time.
 
     (date-value 2002 2 28)       → 1014854400
     (date-value 1970 1 1 0 0 0)  → 0
-                                     
-    (date (apply date-value (now)))  → "Wed May 24 10:02:47 2006" 
+
+    (date (apply date-value (now)))  → "Wed May 24 10:02:47 2006"
     (date (date-value))              → "Wed May 24 10:02:47 2006"
     (date)                           → "Wed May 24 10:02:47 2006"
 
@@ -6612,7 +6615,7 @@ list:
     (define (value-date val)
       (append
         (slice (now (- (/ val 60) (/ (date-value) 60) )) 0 5)
-        (list (% val 60)))) 
+        (list (% val 60))))
 
     (value-date 1014854400)  → (2002 2 28 0 0 0)
 
@@ -6810,7 +6813,7 @@ Parameters can have default values specified:
 
     (define (foo (a 1) (b 2))
       (list a b))
-        
+
     (foo)      → (1 2)
     (foo 3)    → (3 2)
     (foo 3 4)  → (3 4)
@@ -6818,7 +6821,7 @@ Parameters can have default values specified:
 Expressions in /exp-default/ are evaluated in the function's current
 environment.
 
-    (define-macro (foo (a 10) (b (div a 2))) 
+    (define-macro (foo (a 10) (b (div a 2)))
       (list a b))
 
     (foo)      → (10 5)
@@ -6865,7 +6868,7 @@ returned.
 
 *example:*
 
-    (define-macro (my-setq p1 p2) (set p1 (eval p2))) 
+    (define-macro (my-setq p1 p2) (set p1 (eval p2)))
     → (lambda-macro (p1 p2) (set p1 (eval p2)))
 
     (my-setq x 123)  → 123
@@ -6885,7 +6888,7 @@ default value.
 
     (define-macro (foo (a 1) (b 2))
       (list a b))
-        
+
     (foo)      → (1 2)
     (foo 3)    → (3 2)
     (foo 3 4)  → (3 4)
@@ -6893,7 +6896,7 @@ default value.
 Expressions in /exp-default/ are evaluated in the function's current
 environment.
 
-    (define-macro (foo (a 10) (b (div a 2))) 
+    (define-macro (foo (a 10) (b (div a 2)))
       (list a b))
 
     (foo)      → (10 5)
@@ -6907,7 +6910,7 @@ intended value:
 
     ;; not a good definition!
 
-    (define-macro (my-setq x y) (set x (eval y)))  
+    (define-macro (my-setq x y) (set x (eval y)))
 
     ;; symbol name clash for x
 
@@ -6931,7 +6934,7 @@ as /variable capture/, by writing /hygienic/ macros:
 
     (context 'my-setq)
 
-    (define-macro (my-setq:my-setq x y) (set x (eval y)))  
+    (define-macro (my-setq:my-setq x y) (set x (eval y)))
 
     (context MAIN)
 
@@ -7007,7 +7010,7 @@ symbol was not deleted.
 
     (set 'lst '(a b aVar c d))
 
-    (delete 'aVar true)  
+    (delete 'aVar true)
     → nil ; protect aVar if referenced
 
     lst  → (a b aVar c d)
@@ -7313,7 +7316,7 @@ do-while also updates the system iterator symbol $idx.
     x  → 11
 
     (set 'x 10)
-    (while (< x 10) (inc x)) 
+    (while (< x 10) (inc x))
     x  → 10
 
 While do-while goes through the loop at least once, while <#while> never
@@ -7354,7 +7357,7 @@ The optional break expression causes doargs to interrupt processing of
 the arguments:
 
     (define-macro (foo)
-        (doargs (i (= i 'x)) 
+        (doargs (i (= i 'x))
             (println i)))
 
     *>* (foo a b c x e f g)
@@ -7546,14 +7549,14 @@ The list contains the following memory addresses and information:
     (0) memory address of the newLISP cell
     (1) cell->type: major/minor type, see newlisp.h for details
     (2) cell->next: linked list ptr
-    (3) cell->aux: 
-                    string length+1 or 
-                    low (little endian) or high (big endian) word of 64-bit integer or
-                    low word of IEEE 754 double float
-    (4) cell->contents: 
-                    string/symbol address or 
-                    high (little endian) or low (big endian) word of 64-bit integer or
-                    high word of IEEE 754 double float
+    (3) cell->aux:
+        string length+1 or
+        low (little endian) or high (big endian) word of 64-bit integer or
+        low word of IEEE 754 double float
+    (4) cell->contents:
+        string/symbol address or
+        high (little endian) or low (big endian) word of 64-bit integer or
+        high word of IEEE 754 double float
 
 This function is valuable for changing type bits in cells or hacking
 other parts of newLISP internals. See the function cpymem <#cpymem> for
@@ -7633,15 +7636,15 @@ are applied again to the encrypted text:
 
 *example:*
 
-    (set 'secret 
-      (encrypt "A secret message" "my secret key")) 
+    (set 'secret
+      (encrypt "A secret message" "my secret key"))
     → ",YS\022\006\017\023\017TM\014\022\n\012\030E"
 
     (encrypt secret "my secret key")  → "A secret message"
 
 The second example encrypts a whole file:
 
-    (write-file "myfile.enc" 
+    (write-file "myfile.enc"
       (encrypt (read-file "myfile") "29kH67*"))
 
 
@@ -7697,9 +7700,9 @@ key-value pair of environment variable and value.
 
 *example:*
 
-    (env)  
+    (env)
     → (("PATH" "/bin:/usr/bin:/sbin") ("TERM" "xterm-color") ... ))
-     
+
 
 In the second syntax, the name of an environment variable is given in
 /var-str/. env returns the value of the variable or nil if the variable
@@ -7731,14 +7734,14 @@ with an empty string.
 erf calculates the error function of a number in /num/. The error
 function is defined as:
 
-    */erf (x) = 2/sqrt(pi) * integral from 0 to x of exp(-t^2) dt/* 
+    */erf (x) = 2/sqrt(pi) * integral from 0 to x of exp(-t^2) dt/*
 
 *example:*
 
     (map erf (sequence 0.0 6.0 0.5))
-    → 
-    (0 0.5204998778 0.8427007929 0.9661051465 0.995322265 0.999593048 
-     0.9999779095 0.9999992569 0.9999999846 0.9999999998 1 1 1) 
+    →
+    (0 0.5204998778 0.8427007929 0.9661051465 0.995322265 0.999593048
+     0.9999779095 0.9999992569 0.9999999846 0.9999999998 1 1 1)
 
 
 
@@ -7755,7 +7758,7 @@ error.
 
 *example:*
 
-    (define (my-handler)    
+    (define (my-handler)
       (print "error # " (first (last-error)) " has occurred\n") )
 
     (error-event 'my-handler)  → my-handler
@@ -7764,7 +7767,7 @@ error.
 
     (error-event my-handler)  → $error-event
 
-    (error-event 
+    (error-event
       (fn () (print "error # " (first (last-error)) " has occurred\n")))
 
     (error-event exit)  → $error-event
@@ -7787,8 +7790,8 @@ environment.
     (eval expr)           → 7
     (eval (list + 3 4))   → 7
     (eval ''x)            → x
-    (set 'y 123)          
-    (set 'x 'y)           
+    (set 'y 123)
+    (set 'x 'y)
     x            → y
     (eval x)     → 123
 
@@ -7800,7 +7803,7 @@ environment:
     (eval '(+ x y))          → 7
 
     ; eval in local environment
-    (let ( (x 33) (y 44) ) 
+    (let ( (x 33) (y 44) )
         (eval '(+ x y)))     → 77
 
     ; old environment after leaving local let environment
@@ -7931,7 +7934,7 @@ If no element meets the condition, nil is returned.
 
     (exists (fn (x) (> x 3)) '(3 4 2 -7 3 0))   → 4
 
-    (exists (fn (x) (= x 10)) '(3 4 2 -7 3 0))  → nil 
+    (exists (fn (x) (= x 10)) '(3 4 2 -7 3 0))  → nil
 
 If /func-condition/ is nil?, the result nil is ambiguous. In this case
 index <#index> or find <#find> are the better method when looking for nil.
@@ -8009,7 +8012,7 @@ fashion:
     (set 'a '(b c))
     (set 'b 1)
 
-    (expand '(a b c) 'a 'b)  → ((1 c) 1 c) 
+    (expand '(a b c) 'a 'b)  → ((1 c) 1 c)
 
 Like the apply <#apply> function, expand /reduces/ its argument list.
 
@@ -8056,7 +8059,7 @@ names and non-nil contents.
 The /currying/ function in the example demonstrating the first syntax of
 expand can now be written even more simply using an uppercase variable:
 
-    (define (raise-to Power) 
+    (define (raise-to Power)
       (expand (fn (base) (pow base Power))))
 
     > (define cube (raise-to 3))
@@ -8099,7 +8102,7 @@ omitted if it does not have the full length specified in /int-chunk/.
 
 explode also works on binary content:
 
-    (explode "\000\001\002\003") 
+    (explode "\000\001\002\003")
     → ("\000" "\001" "\002" "\003")
 
 When called in UTF-8–enabled versions of newLISP, explode will work on
@@ -8121,7 +8124,7 @@ length specified in /int-chunk/.
     ; omit last chunk if too short
     (explode '(a b c d e f g h) 2 true)  → ((a b) (c d) (e f))
 
-    (transpose (explode '(a b c d e f g h) 2)) 
+    (transpose (explode '(a b c d e f g h) 2))
     → ((a c e g) (b d f h))
 
 The join <#join> and append <#append> functions are inverse operations
@@ -8147,14 +8150,14 @@ numbers in /num/ are truncated to their integer part.
     ;; factor the biggest integer
     (factor 9223372036854775807)  → (7 7 73 127 337 92737 649657)
 
-    ;; primes.lsp - return all primes in a list, up to n 
+    ;; primes.lsp - return all primes in a list, up to n
 
     (define (primes n , p)
-      (dotimes (e n) 
-        (if (= (length (factor e)) 1) 
+      (dotimes (e n)
+        (if (= (length (factor e)) 1)
           (push e p -1))) p)
-               
-    (primes 20)  → (2 3 5 7 11 13 17 19)         
+
+    (primes 20)  → (2 3 5 7 11 13 17 19)
 
 factor returns nil for numbers smaller than 2. For numbers larger than
 9,223,372,036,854,775,807 (the largest 64-bit integer) converted from
@@ -8177,7 +8180,7 @@ used instead.
 
 *example:*
 
-    (ifft (fft '((1 0) (2 0) (3 0) (4 0)))) 
+    (ifft (fft '((1 0) (2 0) (3 0) (4 0))))
     → ((1 0) (2 0) (3 0) (4 0))
 
     ;; when imaginary part is 0, plain numbers work, too
@@ -8217,7 +8220,7 @@ Depending on /bool-flag/ set, the function reports on either the link
 
 *example:*
 
-    (file-info ".bashrc")   
+    (file-info ".bashrc")
     → (124 33188 0 500 0 920951022 920951022 920953074)
 
     (file-info ".bashrc" 0)  → 124
@@ -8319,11 +8322,11 @@ variable $0 is set to the last element found.
     (find 3 '(8 4 3  7 2 6) >)  → 4
     $0 → 2
 
-    (find "newlisp" '("Perl" "Python" "newLISP") 
+    (find "newlisp" '("Perl" "Python" "newLISP")
                      (fn (x y) (regex x y 1))) → 2
     $0 → "newLISP"
 
-    (find 5 '((l 3) (k 5) (a 10) (z 22)) 
+    (find 5 '((l 3) (k 5) (a 10) (z 22))
              (fn (x y) (= x (last y))))  → 1
     $0 → (k 5)
 
@@ -8375,14 +8378,14 @@ information on regular expression searching.
 
     ; case-insensitive regex
 
-    (find "WorlD" "Hello woRLd" 1)  → 6   
-                                    
+    (find "WorlD" "Hello woRLd" 1)  → 6
+
     (find "hi" "hello world")       → nil
     (find "Hello" "Hello world")    → 0
 
     ; regex with default options
 
-    (find "cat|dog" "I have a cat" 0)  → 9 
+    (find "cat|dog" "I have a cat" 0)  → 9
     $0                                 → "cat"
     (find "cat|dog" "my dog" 0)        → 3
     $0                                 → "dog"
@@ -8395,7 +8398,7 @@ information on regular expression searching.
     (set 'str  "http://nuevatec.com:80")
 
     (find "http://(.*):(.*)" str 0)  → 0
-                                     
+
     $0  → "http://nuevatec.com:80"
     $1  → "nuevatec.com"
     $2  → "80"
@@ -8437,8 +8440,8 @@ options (see regex <#regex> for further details).
     (find-all {(new)(lisp)} "newLISPisNEWLISP" (append $2 $1) 1)
     → ("LISPnew" "LISPNEW")
 
-    (unique (sort 
-        (find-all {[a-zA-Z]+} 
+    (unique (sort
+        (find-all {[a-zA-Z]+}
             (replace "<[^>]+>" (get-url "http://newlisp.org") "" 0) )
     ))
     → ("A" "ACC" "AI" "API" "About" "All" "Amazing" "Apps"
@@ -8632,7 +8635,7 @@ calling imported C library routines.
 
     (flt 1.23)  → 1067282596
 
-    ;; pass 32-bit float to C-function: foo(float value) 
+    ;; pass 32-bit float to C-function: foo(float value)
     (import "mylib.so" "foo")
     (foo (flt 1.23))
 
@@ -8693,7 +8696,7 @@ step size is present.
 
 *example:*
 
-     
+
     > (for (x 1 10 2) (println x))
     *1
     3
@@ -8831,7 +8834,7 @@ the destroy <#destroy> function.
     (define (fork-destroy-demo)
         (set 'pid (fork (dotimes (i 1000) (println i) (sleep 10))))
         (sleep 50)
-        (destroy pid) 
+        (destroy pid)
     )
 
     > (fork-destroy-demo)
@@ -8841,7 +8844,7 @@ the destroy <#destroy> function.
     3
     4
     true*
-    > 
+    >
 
 The process started by fork-destroy-demo will not finish but is
 destroyed 50 milli-seconds after start by a call to destroy <#destroy>.
@@ -8875,7 +8878,7 @@ ensure correct data types and to avoid error messages.
 
 The format string has the following general format:
 
-    "%w.pf" 
+    "%w.pf"
 
 The % (percent sign) starts a format specification. To display a %
 inside a format string, double it: %%
@@ -8961,9 +8964,9 @@ Note that on Tru64 Unix the format character i can be used instead of d.
     (format "%-5.2s" "hello")       → "he   "
 
     (format "%o" 80)    → "120"
-                                    
+
     (format "%x %X" -1 -1)  → "ffffffff FFFFFFFF"
-                                    
+
     (format "%c" 65)  → "A"
 
 The data to be formatted can be passed inside a list:
@@ -8975,7 +8978,7 @@ If the format string requires it, newLISP's format will automatically
 convert integers into floating points or floating points into integers:
 
     (format "%f" 123)      → 123.000000
-                           
+
     (format "%d" 123.456)  → 123
 
 
@@ -9018,7 +9021,7 @@ Calculates the incomplete Gamma function of values /a/ and /b/ in
 The incomplete Gamma function is used to derive the probability of Chi²
 to exceed a given value for a degree of freedom, df, as follows:
 
-    /*Q(Chi²|df) = Q(df/2, Chi²/2) = gammai(df/2, Chi²/2)*/ 
+    /*Q(Chi²|df) = Q(df/2, Chi²/2) = gammai(df/2, Chi²/2)*/
 
 See also the prob-chi2 <#prob-chi2> function.
 
@@ -9040,7 +9043,7 @@ factorial value of 5.
 The log Gamma function is also related to the Beta function, which can
 be derived from it:
 
-    /*Beta(z,w) = Exp(Gammaln(z) + Gammaln(w) - Gammaln(z+w))*/ 
+    /*Beta(z,w) = Exp(Gammaln(z) + Gammaln(w) - Gammaln(z+w))*/
 
 
 
@@ -9061,7 +9064,7 @@ divisor of the result and the next argument in the parameter list.
     (gcd 0 0)      → 0
     (gcd 10)       → 10
     (gcd 12 36)    → 12
-    (gcd 15 36 6)  → 3 
+    (gcd 15 36 6)  → 3
 
 See Wikipedia <http://en.wikipedia.org/wiki/Greatest_common_divisor> for
 details and theory about gcd numbers in mathematics.
@@ -9329,19 +9332,19 @@ sends certain header information by default. After the following request:
 
 newLISP will configure and send the request and header below:
 
-    GET / HTTP/1.1        
+    GET / HTTP/1.1
     Host: somehost.com
     User-Agent: newLISP v8800
     Connection: close
 
 As an alternative, the /str-header/ option could be used:
 
-    (get-url "http://somehost.com" 5000 
+    (get-url "http://somehost.com" 5000
         "User-Agent: Mozilla/4.0\r\nCookie: name=fred\r\n")
 
 newLISP will now send the following request and header:
 
-    GET / HTTP/1.1        
+    GET / HTTP/1.1
     Host: somehost.com
     User-Agent: Mozilla/4.o
     Cookie: name=fred
@@ -9373,7 +9376,7 @@ made global. global returns the last symbol made global.
 
     (global 'aVar 'x 'y 'z)  → z
 
-    (define (foo x) 
+    (define (foo x)
       (…))
 
     (constant (global 'foo))
@@ -9394,7 +9397,7 @@ are global:
 
 *example:*
 
-    global? 'print)   → true
+    (global? 'print)  → true
     (global 'var)     → var
     (global? 'var)    → true
 
@@ -9463,10 +9466,10 @@ if-not is equivalent to (if <#if> (not <#not> /exp-condition/ /exp-1/
 
 *example:*
 
-    (set 'x 50)                       → 50 
+    (set 'x 50)                       → 50
     (if-not (< x 100) "big" "small")  → "small"
-    (set 'x 1000)                     → 1000 
-    (if-not (< x 100) "big" "small")  → "big" 
+    (set 'x 1000)                     → 1000
+    (if-not (< x 100) "big" "small")  → "big"
 
 
 
@@ -9485,12 +9488,12 @@ simple numbers can be used.
 
 *example:*
 
-    (ifft (fft '((1 0) (2 0) (3 0) (4 0)))) 
+    (ifft (fft '((1 0) (2 0) (3 0) (4 0))))
     → ((1 0) (2 0) (3 0) (4 0))
 
     ;; when imaginary part is 0, plain numbers work too
 
-    (ifft (fft '(1 2 3 4))) 
+    (ifft (fft '(1 2 3 4)))
     → ((1 0) (2 0) (3 0) (4 0))
 
 The inverse operation of ifft is the fft <#fft> function.
@@ -9533,7 +9536,7 @@ integers for string addresses.
     *1.23 hello 999 A*
     → 17 ; return value
 
-    ;; import Win32 DLLs in Win32 versions 
+    ;; import Win32 DLLs in Win32 versions
 
     (import "kernel32.dll" "GetTickCount")  → GetTickCount
     (import "user32.dll" "MessageBoxA")     → MessageBoxA
@@ -9549,7 +9552,7 @@ until the 'OK' button is pressed in the message box.
 
     ;;this pops up a message box
 
-    (MessageBoxA 0 "This is the body" "Caption" 1) 
+    (MessageBoxA 0 "This is the body" "Caption" 1)
 
 The other examples show several imports of Win32 DLL functions and the
 details of passing values /by value/ or /by reference/. Whenever strings
@@ -9576,10 +9579,10 @@ or numbers are passed by reference, space must be reserved beforehand.
     (set 'str (dup "\000" 64)  ; reserve space, initialize
 
     ;; get size in a buffer lpNum
-    (set 'lpNum (pack "lu" (length str)))  
+    (set 'lpNum (pack "lu" (length str)))
 
     ;; call the function
-    (GetComputerNameA str lpNum) 
+    (GetComputerNameA str lpNum)
 
     str  → "LUTZ-PC\000                        "
 
@@ -9588,10 +9591,10 @@ or numbers are passed by reference, space must be reserved beforehand.
 import returns the address of the function, which can be used to assign
 a different name to the imported function.
 
-    (set 'imprime (import "libc.so.6" "printf")) 
+    (set 'imprime (import "libc.so.6" "printf"))
     → printf <400862A0>
 
-    (imprime "%s %d" "hola" 123)                 
+    (imprime "%s %d" "hola" 123)
     → "hola 123"
 
 Note that the Win32 version of newLISP uses standard call /stdcall/
@@ -9798,7 +9801,7 @@ each element found both in /list-A/ and /list-B/.
 
 *example:*
 
-    (intersect '(3 0 1 3 2 3 4 2 1) '(1 4 2 5))  
+    (intersect '(3 0 1 3 2 3 4 2 1) '(1 4 2 5))
     → (2 4 1)
 
 In the second syntax, intersect returns a list of all elements in
@@ -9864,16 +9867,16 @@ converge after 50 iterations.
 
 *example:*
 
-    (irr '(-1000 500 400 300 200 100))  
+    (irr '(-1000 500 400 300 200 100))
     → 0.2027
 
-    (npv 0.2027 '(500 400 300 200 100)) 
+    (npv 0.2027 '(500 400 300 200 100))
     → 1000.033848 ; ~ 1000
 
-    (irr '(-1000 500 400 300 200 100) '(0 3 4 5 6 7)) 
+    (irr '(-1000 500 400 300 200 100) '(0 3 4 5 6 7))
     → 0.0998
 
-    (irr '(-5000 -2000 5000 6000) '(0 3 12 18)) 
+    (irr '(-5000 -2000 5000 6000) '(0 3 12 18))
     → 0.0321
 
 If an initial investment of 1,000 yields 500 after the first year, 400
@@ -10143,7 +10146,7 @@ parentheses around the initializers can be omitted:
 
     (letex (x 1 y 2 z 3) '(x y z))    → (1 2 3)
 
-    (letex ( (x 1) (y '(a b c)) (z "hello") ) '(x y z)) 
+    (letex ( (x 1) (y '(a b c)) (z "hello") ) '(x y z))
 
     → (1 (a b c) "hello")
 
@@ -10169,10 +10172,10 @@ The following comparison of let <#let> and letn show the difference:
 *example:*
 
     (set 'x 10)
-    (let ((x 1) (y (+ x 1))) 
+    (let ((x 1) (y (+ x 1)))
     (list x y))           → (1 11)
 
-    (letn ((x 1) (y (+ x 1))) 
+    (letn ((x 1) (y (+ x 1)))
     (list x y))          → (1 2)
 
 While in the first example using let <#let> the variable y is calculated
@@ -10180,7 +10183,7 @@ using the binding of x before the let <#let> expression, in the second
 example using letn the variable y is calculated using the new local
 binding of x.
 
-    (letn  (x 1 y x) 
+    (letn  (x 1 y x)
     (+ x y))             →  2
 
     ;; same as nested let's
@@ -10249,9 +10252,9 @@ URLs are supported.
 
 *example:*
 
-    (load "myfile.lsp")    
+    (load "myfile.lsp")
 
-    (load "a-file.lsp" "b-file.lsp") 
+    (load "a-file.lsp" "b-file.lsp")
 
     (load "file.lsp" "http://mysite.org/mypro")
 
@@ -10340,22 +10343,22 @@ extracting a specific element found in the list.
 *example:*
 
     (set 'params '(
-        (name "John Doe") 
-        (age 35) 
-        (gender "M") 
+        (name "John Doe")
+        (age 35)
+        (gender "M")
         (balance 12.34)
     ))
 
     (lookup 'age params)    → 35
 
     (set 'persons '(
-        ("John Doe" 35 "M" 12.34) 
+        ("John Doe" 35 "M" 12.34)
         ("Mickey Mouse" 65 "N" 12345678)
     ))
 
     (lookup "Mickey Mouse" persons 2)    → "N"
     (lookup "Mickey Mouse" persons -3)   → 65
-    (lookup "John Doe" persons 1)        → 35 
+    (lookup "John Doe" persons 1)        → 35
     (lookup "John Doe" persons -2)       → "M"
 
     (lookup "Jane Doe" persons 1 "N/A")  → "N/A"
@@ -10423,11 +10426,11 @@ the last element of the list like in list-indexing.
 
     newlisp a b c
 
-    > (main-args 0)   
+    > (main-args 0)
     *"/usr/bin/newlisp"*
-    > (main-args -1)  
+    > (main-args -1)
     *"c"*
-    > (main-args 2)   
+    > (main-args 2)
     *"b"*
     > (main-args 10)
     *nil*
@@ -10436,7 +10439,7 @@ Note that when newLISP is executed from a script, main-args also returns
 the /name/ of the script as the second argument:
 
     #!/usr/bin/newlisp
-    # 
+    #
     # script to show the effect of 'main-args' in script file
 
     (print (main-args) "\n")
@@ -10472,7 +10475,7 @@ the file.
 
     ;; 0 (zero) in front of 750 makes it an octal number
 
-    (make-dir "adir" 0750)  
+    (make-dir "adir" 0750)
 
 This example creates a directory named adir in the current directory
 with an access mode of 0750 (octal 750 = drwxr-x---).
@@ -10499,12 +10502,12 @@ list-args-2—/, returning all results in a list.
 
 The second example shows how to dynamically create a function for map:
 
-    (define (foo op p) 
+    (define (foo op p)
         (append (lambda (x)) (list (list op p 'x))))
 
 We can also use the shorter fn:
 
-    (define (foo op p) 
+    (define (foo op p)
         (append (fn (x)) (list (list op p 'x))))
 
 foo now works like a function-maker:
@@ -10520,7 +10523,7 @@ evaluate to themselves in newLISP.
 
 By incorporating map into the function definition, we can do the following:
 
-    (define (list-map op p lst) 
+    (define (list-map op p lst)
         (map (lambda (x) (op p x)) lst))
 
     (list-map + 2 '(1 2 3 4))  → (3 4 5 6)
@@ -10573,7 +10576,7 @@ coded directly in C. The same is true for the matrix operations multiply
     ; specify the operator in a variable
 
     (set 'op +)
-    (mat op A B)    → ((2 4 6) (8 10 12)) 
+    (mat op A B)    → ((2 4 6) (8 10 12))
 
 Using the second syntax, all cells in /matrix-A/ are multiplied with a
 scalar in /number/:
@@ -10636,7 +10639,7 @@ by find-all <#find-all> for lists.
     (match '(+) '(a b))  → ((a b))
 
     (match '(a (*) x ? z) '(a () x y z))  → (() y)
-    (match '(a (+) x ? z) '(a () x y z))  → nil 
+    (match '(a (+) x ? z) '(a () x y z))  → nil
 
 Note that the * operator tries to grab the fewest number of elements
 possible, but match backtracks and grabs more elements if a match cannot
@@ -10907,7 +10910,7 @@ handle after having connected successfully; otherwise, returns nil.
         (set 'site ((parse nameSite "@") 1))
         (set 'socket (net-connect site 79))
         (if socket
-            (net-send socket (append user "\r\n")) 
+            (net-send socket (append user "\r\n"))
             "no connection")
         (net-receive socket str 512)
         (print "\n" str "\n"))
@@ -11015,7 +11018,7 @@ socket into UDP multicasting mode. On the receiving side, use net-listen
 
     ;; example server
     (net-listen 4096 "226.0.0.1" "multi")  → 5
-    (net-receive-from 5 20)               
+    (net-receive-from 5 20)
     → ("hello" "192.168.1.94" 32769)
 
 On the server side, net-peek <#net-peek> or net-select <#net-select> can
@@ -11108,7 +11111,7 @@ The following messages are returned:
 
     (net-connect "jhghjgkjhg" 80)  →  nil
 
-    (net-error)  →  (2 "ERR: Host name not known") 
+    (net-error)  →  (2 "ERR: Host name not known")
 
 When /int-error/ is specified the number and error text for that error
 number is returned.
@@ -11139,7 +11142,7 @@ The remote TCP/IP servers are started in the following way:
 
     ;; or with logging connections
 
-    newlisp -l -c -d 4711 &
+    newlisp -l ./newlisp.log -c -d 4711 &
 
 Instead of 4711, any other port number can be used. Multiple nodes can
 be started on different hosts and with the same or different port
@@ -11183,20 +11186,20 @@ messages.
 *example:*
 
     (net-eval '(
-        ("192.168.1.94" 4711 "(+ 3 4)") 
+        ("192.168.1.94" 4711 "(+ 3 4)")
         ("192.168.1.95" 4711 "(+ 5 6)")
         ) 5000)
     → (7 11)
 
     (net-eval '(
-        ("localhost" 8081 {(foo "abc")}) 
+        ("localhost" 8081 {(foo "abc")})
         ("localhost" 8082 "(myfunc 123)")
         ) 3000)
 
     ;; inetd or xinetd nodes on the same server and port
 
     (net-eval '(
-        ("localhost" 2000 {(foo "abc")}) 
+        ("localhost" 2000 {(foo "abc")})
         ("localhost" 2000 "(myfunc 123)")
         ) 3000)
 
@@ -11252,8 +11255,8 @@ net-eval has also been able to evaluate the spec given in the node
 lists. This allows the following code:
 
     (net-eval '(
-      ((Nodes 0 0) (Nodes 0 1) (Progs 0)) 
-      ((Nodes 1 0) (Nodes 1 1) (Progs 1)) 
+      ((Nodes 0 0) (Nodes 0 1) (Progs 0))
+      ((Nodes 1 0) (Nodes 1 1) (Progs 1))
      ) 3000 myhandler)
 
 While waiting for input from remote hosts, myhandler will be called with
@@ -11309,11 +11312,11 @@ The following example shows this effect:
     [/text])
 
     ; raw mode
-    (net-eval '((host port prog true) ... )) 
+    (net-eval '((host port prog true) ... ))
     → ("(1 2 3 4)\n(a b c)\n")
 
     ; normal mode
-    (net-eval '((host port prog) ... )) 
+    (net-eval '((host port prog) ... ))
     ERR: invalid function in function net-eval : (a b c)
 
     ; brace statements with (begin ... )
@@ -11324,7 +11327,7 @@ The following example shows this effect:
     [/text])
 
     ; normal mode
-    (net-eval '((host port prog) ... )) 
+    (net-eval '((host port prog) ... ))
     → ((a b c))
 
 The begin in the definition of prog forces the return of only one
@@ -11383,9 +11386,9 @@ that can be used to communicate with the connecting client.
 
     (set 'port 1234)
     (set 'listen (net-listen port))
-    (unless listen (begin
-        (print "listening failed\n")
-        (exit)))
+    (unless listen
+      (print "listening failed\n")
+      (exit))
 
     (print "Waiting for connection on: " port "\n")
 
@@ -11405,7 +11408,7 @@ interface IP address or name in /str-ip-addr/ directs net-listen to
 listen on the specified address.
 
     ;; listen on a specific address
-    (net-listen port "192.168.1.54") 
+    (net-listen port "192.168.1.54")
 
 
       Local domain Unix sockets
@@ -11450,9 +11453,9 @@ with net-receive-from <#net-receive-from>, use net-send-to <#net-send-to>.
 Note that net-peer <#net-peer> will not work, as UDP communications do
 not maintain a connected socket with address information.
 
-    (net-listen 10002 "192.168.1.120" "udp") 
+    (net-listen 10002 "192.168.1.120" "udp")
 
-    (net-listen 10002 "" "udp") 
+    (net-listen 10002 "" "udp")
 
 The first example listens on a specific network adapter, while the
 second example listens on the default adapter. Both calls return a
@@ -11501,7 +11504,7 @@ should not be confused with the IP address of the server host.
 
     (net-listen 4096 "226.0.0.1" "multi")  → 5
 
-    (net-receive-from 5 20)               
+    (net-receive-from 5 20)
     → ("hello" "192.168.1.94" 32769)
 
 On the server side, net-peek <#net-peek> or net-select <#net-select> can
@@ -11564,7 +11567,7 @@ returned.
 
     (set 'aSock (net-connect "aserver.com" 123))
 
-    (while ( = (net-peek aSock) 0) 
+    (while ( = (net-peek aSock) 0)
         (do-something-else))
 
     (net-receive aSock buff 1024)
@@ -11759,7 +11762,7 @@ be discarded; on Win32, net-receive-from returns nil and closes the socket.
 *example:*
 
     ;; listen on port 1001 on the default address
-    (net-listen 1001 "" "udp")  → 1980 
+    (net-listen 1001 "" "udp")  → 1980
 
     ;; optionally poll for arriving data with 100ms timeout
     (while (not (net-select 1980 "r" 100000)) (do-something ... ))
@@ -11810,24 +11813,24 @@ followed by a string containing the sender's IP number and the port used.
 
 *example:*
 
-    ;; wait for datagram with maximum 20 bytes 
-    (net-receive-udp 10001 20) 
+    ;; wait for datagram with maximum 20 bytes
+    (net-receive-udp 10001 20)
 
     ;; or
     (net-receive-udp 10001 20 5000000)  ; wait for max 5 seconds
-    		  
+
     ;; executed on remote computer
-    (net-send-udp "nuevatec.com" 1001 "Hello")  → 4 
+    (net-send-udp "nuevatec.com" 1001 "Hello")  → 4
 
     ;; returned from the net-receive-udp statement
-    → ("Hello" "128.121.96.1" 3312)  
+    → ("Hello" "128.121.96.1" 3312)
 
     ;; sending binary information
-    (net-send-udp "ahost.com" 2222 (pack "c c c c" 0 1 2 3))  
-    → 4 
+    (net-send-udp "ahost.com" 2222 (pack "c c c c" 0 1 2 3))
+    → 4
 
     ;; extracting the received info
-    (set 'buff (first (net-receive-udp 2222 10)))   
+    (set 'buff (first (net-receive-udp 2222 10)))
 
     (print (unpack "c c c c" buff))  → (0 1 2 3)
 
@@ -11887,7 +11890,7 @@ time out.
 
     ;; wait for incoming message
     (while (not (net-select connection "read" 1000))
-        (do-something)) 
+        (do-something))
 
     (net-receive connection buff 1024)
 
@@ -11970,7 +11973,7 @@ address as an empty string.
     (while (not (net-error))
        (set 'msg (net-receive-from socket 255))
        (println "-> " msg)
-       (net-send-to (nth 1 msg) (nth 2 msg) 
+       (net-send-to (nth 1 msg) (nth 2 msg)
                     (upper-case (first msg)) socket))
 
     ;;;;;;;;;;;;;;;;;; UDP client
@@ -12087,10 +12090,10 @@ to symbols in the target context.
 
 *example:*
 
-    (new CTX 'CTX-2)  → CTX-2   
+    (new CTX 'CTX-2)  → CTX-2
 
     ;; force overwrite of existing symbols
-    (new CTX MyCTX true)  → MyCTX   
+    (new CTX MyCTX true)  → MyCTX
 
     (set 'CTX:x 123)
     (new CTX)  → MAIN  ; copies x into MAIN
@@ -12293,10 +12296,10 @@ rate /num-interest/ and a series of future payments and income in
 
 *example:*
 
-    (npv 0.1 '(1000 1000 1000)) 
+    (npv 0.1 '(1000 1000 1000))
     → 2486.851991
 
-    (npv 0.1 '(-2486.851991 1000 1000 1000)) 
+    (npv 0.1 '(-2486.851991 1000 1000 1000))
     → -1.434386832e-08  ; ~ 0.0 (zero)
 
 In the example, an initial investment of $2,481.85 would allow for an
@@ -12333,7 +12336,7 @@ be put in a list as shown in the second syntax group.
     ; or simply
     (L 0) → a
 
-    (set 'names '(john martha robert alex)) 
+    (set 'names '(john martha robert alex))
     → (john martha robert alex)
 
     (nth 2 names)    → robert
@@ -12398,7 +12401,7 @@ nth works on arrays <#array> just like it does on lists:
 
 *example:*
 
-    (set 'aArray (array 2 3 '(a b c d e f))) 
+    (set 'aArray (array 2 3 '(a b c d e f)))
     → ((a b c) (d e f))
     (nth 1 aArray)      →  (d e f)
     (aArray 1)          →  (d e f)
@@ -12444,7 +12447,7 @@ useful in conjunction with the functions filter <#filter> or clean
     (map null? '(1 0 0.0 2 NaN "hello" "" (a b c) () nil true))
     → (nil true true true nil true nil true nil true true nil)
 
-    (filter null? '(1 0 2 0.0 NaN "hello" "" (a b c) () nil true)) 
+    (filter null? '(1 0 2 0.0 NaN "hello" "" (a b c) () nil true))
     → (0 0 NaN "" () nil)
 
     (clean null? '(1 0 2 0.0 NaN "hello" "" (a b c) () nil true))
@@ -12467,7 +12470,7 @@ an integer; otherwise, nil is returned.
     (set 'y 456)
     (number? x)      → true
     (number? y)      → true
-    (number? "678")  → nil  
+    (number? "678")  → nil
 
 See the functions float? <#floatp> and integer? <#integerp> to test for
 a specific number type.
@@ -12567,7 +12570,7 @@ One of the following strings is returned: "Linux", "BSD", "OSX",
 
 ostype can be used to write platform-independent code:
 
-    (if 
+    (if
         (= ostype "Linux") (import "libz.so")
         (= ostype "BSD") (import "libz.so")
         (= ostype "OSX") (import "libz.dylib")
@@ -12711,7 +12714,7 @@ the string in /str-break/.
 
     (parse "one--two--three" "--")  → ("one" "two" "three")
 
-    (parse "one-two--three---four" "-+" 0) 
+    (parse "one-two--three---four" "-+" 0)
     → ("one" "two" "three" "four")
 
     (parse "hello regular   expression 1, 2, 3" {,\s*|\s+} 0)
@@ -12882,7 +12885,7 @@ returned.
     ;; use indices in a list
     (set 'pList '(a b (c d () e)))
 
-    (push 'x pList '(2 2 0))  
+    (push 'x pList '(2 2 0))
     → (a b (c d (x) e))
 
     pList
@@ -12968,18 +12971,18 @@ returned.
 *example:*
 
     ;; specify content type
-    (post-url "http://somesite.com/form.pl" 
-    "name=johnDoe&city=New%20York" 
+    (post-url "http://somesite.com/form.pl"
+    "name=johnDoe&city=New%20York"
     "application/x-www-form-urlencoded")
 
     ;; specify content type and timeout
-    (post-url "http://somesite.com/form.pl" 
-    "name=johnDoe&city=New%20York" 
+    (post-url "http://somesite.com/form.pl"
+    "name=johnDoe&city=New%20York"
     "application/x-www-form-urlencoded" 8000)
 
     ;; assumes default content type and no timeout
     (post-url "http://somesite.com/form.pl"
-    "name=johnDoe&city=New%20York" 
+    "name=johnDoe&city=New%20York"
 
 The above example uploads a user name and city using a special format
 called application/x-www-form-urlencoded. post-url can be used to post
@@ -13036,7 +13039,7 @@ the new settings when one or both parameters are specified.
 
     (pretty-print 90 "\t")  → (90 "\t")
 
-    (pretty-print 100)  → (100 "\t") 
+    (pretty-print 100)  → (100 "\t")
 
 The first example reports the default settings of 64 for the maximum
 line length and a TAB character for indenting. The third example changes
@@ -13050,7 +13053,7 @@ printed. To completely suppress pretty printing, use the function string
 
     ;; print without formatting
 
-    (print (string my-expression))	
+    (print (string my-expression))
 
 
 
@@ -13093,7 +13096,7 @@ escape character \:
 
 *example:*
 
-    (print (set 'res (+ 1 2 3))) 
+    (print (set 'res (+ 1 2 3)))
     (print "the result is" res "\n")
 
     "\065\066\067"  → "ABC"
@@ -13173,7 +13176,7 @@ process does not exit by itself.
 
     (process "c:/WINDOWS/system32/notepad.exe")  → 1894 ; on Win32
 
-    ; find out the path of the program to start using exec, 
+    ; find out the path of the program to start using exec,
     ; if the path is not known
 
     (process (first (exec "which xclock")))  → 22607 ; on Unix
@@ -13194,7 +13197,7 @@ other application via write-line <#write-line> and read-line
     ;; Linux/Unix
     ;; create pipes
     (map set '(myin bcout) (pipe))
-    (map set '(bcin myout) (pipe))   
+    (map set '(bcin myout) (pipe))
 
     ;; launch Unix 'bc' calculator application
     (process "/usr/bin/bc" bcin bcout) → 7916
@@ -13237,8 +13240,8 @@ used to check for information on the pipe handles:
 
     ;; create pipes
     (map set '(myin bcout) (pipe))
-    (map set '(bcin myout) (pipe))   
-    (map set '(errin errout) (pipe))   
+    (map set '(bcin myout) (pipe))
+    (map set '(errin errout) (pipe))
 
     ;; launch Unix 'bc' calculator application
     (process "bc" bcin bcout errout)
@@ -13251,7 +13254,7 @@ used to check for information on the pipe handles:
 
     (if (> (peek errin) 0)
     	(println (read-line errin)))
-    	
+
     (if (> (peek myin) 0)
     	(println (read-line myin)))
 
@@ -13393,7 +13396,7 @@ at all. This can be used to efficiently grow a list.
 
 
     ; push on un-initialized symbol
-    aVar  → nil 
+    aVar  → nil
 
     (push 999 aVar)  → (999)
 
@@ -13442,7 +13445,7 @@ put-url requests are also understood by newLISP server nodes.
     (put-url "http://asite.com/myFile.txt" "Hi there")
     (put-url "http://asite.com/myFile.txt" "Hi there" 2000)
 
-    (put-url "http://asite.com/webpage.html" 
+    (put-url "http://asite.com/webpage.html"
         (read-file "webpage.html"))
 
     ; write /home/joe/newfile.txt on the local file system
@@ -13470,10 +13473,10 @@ for the Apache web server:
 #!/usr/home/johndoe/bin/newlisp
 #
 #
-# get PUT method data from CGI STDIN 
+# get PUT method data from CGI STDIN
 # and write data to a file specified
 # int the PUT request
-# 
+#
 #
 
 
@@ -13488,14 +13491,14 @@ for the Apache web server:
 
       (while (< cnt len)
           (set 'n (read-buffer (device) buffer len))
-          (if (not n) 
-            (set 'cnt len) 
-            (begin 
+          (if (not n)
+            (set 'cnt len)
+            (begin
               (inc cnt n)
               (write-buffer result buffer))))
-              
-      (set 'path (append 
-              "/usr/home/johndoe" 
+
+      (set 'path (append
+              "/usr/home/johndoe"
               (env "PATH_TRANSLATED")))
 
       (write-file path result)
@@ -13772,7 +13775,7 @@ containing the data.
 
 *example:*
 
-    (write-file "myfile.enc" 
+    (write-file "myfile.enc"
         (encrypt (read-file "/home/lisp/myFile") "secret"))
 
 The file myfile is read, then encrypted using the password "secret"
@@ -13859,7 +13862,7 @@ or pipe, it will return nil when input is exhausted.
 
     (set 'in-file (open "afile.dat" "read"))
     (while (read-line in-file)
-            (write-line))   
+            (write-line))
     (close in-file)
 
 The first example reads input from the keyboard and converts it to a
@@ -14073,7 +14076,7 @@ parenthesized unquoted expression.
 
     (L '(3 1)) → a
 
-    ; mapped implicit indexing of L 
+    ; mapped implicit indexing of L
 
     (map 'L (ref-all 'a L)) → (a a a a a a)
 
@@ -14092,12 +14095,12 @@ parenthesized unquoted expression.
 
     ; use an anonymous function to compare
 
-    (ref-all 'a L (fn (x y) (or (= x y) (= y 'k))))  
+    (ref-all 'a L (fn (x y) (or (= x y) (= y 'k))))
     → ((0) (3 2 2) (4 0) (4 1))
 
     ; the key is nil because the comparison function only looks at the second argument
 
-    (ref-all nil L (fn (x y) (> (length y) 2)))      
+    (ref-all nil L (fn (x y) (> (length y) 2)))
     → ((3) (3 2) (4))
 
     ; define the comparison functions first
@@ -14125,21 +14128,21 @@ for strings.
 
     ; look for all pairs staring with the symbol a
 
-    (ref-all '(a ?) L match)          
+    (ref-all '(a ?) L match)
     → ((1) (3))
 
     ; look for all pairs where elements are equal
 
     (set 'L '( ((a b) (c d)) ((e e) (f g)) ((z) (z))))
 
-    (ref-all '(X X) L unify)    
+    (ref-all '(X X) L unify)
     → ((1 0) (2))
 
     ; look for all pairs where the second element is the symbol g
 
     (set 'L '( ((x y z) g) ((a b) (c d)) ((e e) (f g)) ))
 
-    (ref-all '(X g) L unify)  
+    (ref-all '(X g) L unify)
     → ((0) (2 1))
 
 See also the ref <#ref> function.
@@ -14178,11 +14181,11 @@ variables to nil when no match is found.
     (regex "b+" "aaaabbbaaaa")  → ("bbb" 4 3)
 
     ; case-insensitive search option 1
-    (regex "b+" "AAAABBBAAAA" 1)  → ("BBB" 4 3) 
+    (regex "b+" "AAAABBBAAAA" 1)  → ("BBB" 4 3)
 
     (regex "[bB]+" "AAAABbBAAAA" )  → ("BbB" 4 3)
 
-    (regex "http://(.*):(.*)" "http://nuevatec.com:80") 
+    (regex "http://(.*):(.*)" "http://nuevatec.com:80")
     → ("http://nuevatec.com:80" 0 22 "nuevatec.com" 7 12 "80" 20 2)
 
     $0  → "http://nuevatec.com:80"
@@ -14212,20 +14215,20 @@ need not to be doubled in a regular expression pattern, which itself is
 delimited by quotes.
 
     ;; double backslash for parentheses (special char in regex)
-    (regex "\\(abc\\)" "xyz(abc)xyz")  → ("(abc)" 3 5)  
+    (regex "\\(abc\\)" "xyz(abc)xyz")  → ("(abc)" 3 5)
 
     ;; one backslash for quotes (special char in newLISP)
-    (regex "\"" "abc\"def")  → ("\"" 3 1)     
+    (regex "\"" "abc\"def")  → ("\"" 3 1)
 
     ;; brackets as delimiters
-    (regex {\(abc\)} "xyz(abc)xyz")  → ("(abc)" 3 5)  
+    (regex {\(abc\)} "xyz(abc)xyz")  → ("(abc)" 3 5)
 
     ;; brackets as delimiters and quote in pattern
-    (regex {"} "abc\"def")  → ("\"" 3 1)     
+    (regex {"} "abc\"def")  → ("\"" 3 1)
 
     ;; text tags as delimiters, good for multiline text in CGI
-    (regex [text]\(abc\)[/text] "xyz(abc)xyz")  → ("(abc)" 3 5)  
-    (regex [text]"[/text] "abc\"def")           → ("\"" 3 1) 
+    (regex [text]\(abc\)[/text] "xyz(abc)xyz")  → ("(abc)" 3 5)
+    (regex [text]"[/text] "abc\"def")           → ("\"" 3 1)
 
 When curly brackets or text tags are used to delimit the pattern string
 instead of quotes, a simple backslash is sufficient. The pattern and
@@ -14234,7 +14237,7 @@ When curly brackets are used inside a pattern itself delimited by curly
 brackets, the inner brackets must be balanced, as follows:
 
     ;; brackets inside brackets are balanced
-    (regex {\d{1,3}} "qwerty567asdfg")  → ("567" 6 3) 
+    (regex {\d{1,3}} "qwerty567asdfg")  → ("567" 6 3)
 
 The following constants can be used for /int-option/. Several options
 can be combined using a binary or | (pipe). The uppercase names are used
@@ -14254,7 +14257,7 @@ last option is a newLISP custom option only to be used in replace
   PCRE_UNGREEDY      512   ; invert greediness of quantifiers
   PCRE_NOTEMPTY     1024   ; empty string considered invalid
   PCRE_UTF8         2048   ; pattern and strings as UTF-8 characters
-                           
+
   REPLACE_ONCE    0x8000   ; replace only one occurrence
                            ; only for use in replace <#replace>
 
@@ -14388,7 +14391,7 @@ user-defined function. By default, /func-compare/ is the = (equals sign).
 
     (set 'AL '((john 5 6 4) ("mary" 3 4 7) (bob 4 2 7 9) ("jane" 3)))
 
-    (replace nil AL (cons (sym ($it 0)) (rest $it)) 
+    (replace nil AL (cons (sym ($it 0)) (rest $it))
                     (fn (x y) (string? (y 0))))
     → ((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3))
 
@@ -14412,7 +14415,7 @@ be formulated that are as powerful as regular expression string searches:
     ; using unify
     (replace '(X X) '((3 10) (2 5) (4 4) (6 7) (8 8)) (list ($it 0) 'double ($it 1)) unify)
     → ((3 10) (2 5) (4 double 4) (6 7) (8 double 8))
-     
+
 
 
       List removal
@@ -14488,7 +14491,7 @@ in the system variable $0.
     ;; using system variables for dynamic replacement
 
     (set 'str "---axb---ayb---")
-    (replace "(a)(.)(b)" str (append $3 $2 $1) 0) 
+    (replace "(a)(.)(b)" str (append $3 $2 $1) 0)
     → "---bxa---bya---"
 
     str  → "---bxa---bya---"
@@ -14502,7 +14505,7 @@ in the system variable $0.
     ;; URL translation of hex codes with dynamic replacement
 
     (set 'str "xxx%41xxx%42")
-    (replace "%([0-9A-F][0-9A-F])" str 
+    (replace "%([0-9A-F][0-9A-F])" str
                    (char (int (append "0x" $1))) 1)
 
     str  → "xxxAxxxB"
@@ -14706,12 +14709,12 @@ save returns true on completion.
 
     (save "save.lsp")
 
-    (save "/home/myself/myfunc.LSP" 'my-func) 
-    (save "file:///home/myself/myfunc.LSP" 'my-func) 
+    (save "/home/myself/myfunc.LSP" 'my-func)
+    (save "file:///home/myself/myfunc.LSP" 'my-func)
 
     (save "http://asite.com:8080//home/myself/myfunc.LSP" 'my-func)
 
-    (save "mycontext.lsp" 'mycontext) 
+    (save "mycontext.lsp" 'mycontext)
 
     ;; multiple args
     (save "stuff.lsp" 'aContext 'myFunc '$main-args 'Acontext)
@@ -14835,15 +14838,15 @@ disk, so the file takes up less space and is called a /sparse file/.
 
 *example:*
 
-    (set 'file (open "myfile" "read"))  → 5 
+    (set 'file (open "myfile" "read"))  → 5
     (seek file 100)                     → 100
     (seek file)                         → 100
 
     (open "newlisp_manual.html" "read")
     (seek file -1)  ; seek to EOF
-    → 593816     
+    → 593816
 
-    (set 'fle (open "large-file" "read") 
+    (set 'fle (open "large-file" "read")
     (seek file 30000000000)  → 30000000000
 
 newLISP supports file position numbers up to 9,223,372,036,854,775,807.
@@ -14878,7 +14881,7 @@ In the second two forms, select picks one or more characters from
 
 *example:*
 
-    (set 'str "abcdefg") 
+    (set 'str "abcdefg")
 
     (select str '(0 3 2 5 3))  → "adcfd"
 
@@ -14939,26 +14942,26 @@ The following code examples summarize the different syntax forms:
 
 *example:*
 
-    ;; init semaphores 
-    (semaphore) 
+    ;; init semaphores
+    (semaphore)
 
-    ;; assign a semaphore to sid 
+    ;; assign a semaphore to sid
     (set 'sid (semaphore))
 
     ;; inquire the state of a semaphore (not on Win32)
     (semaphore sid)
 
-    ;; put sid semaphore in wait state (-1) 
-    (semaphore sid -1) 
+    ;; put sid semaphore in wait state (-1)
+    (semaphore sid -1)
 
-    ;; run sid semaphore previously put in wait (always 1) 
-    (semaphore sid 1) 
+    ;; run sid semaphore previously put in wait (always 1)
+    (semaphore sid 1)
 
-    ;; run sid semaphore with X times a skip (backward or forward) on the function 
-    (semaphore sid X) 
+    ;; run sid semaphore with X times a skip (backward or forward) on the function
+    (semaphore sid X)
 
-    ;; release sid semaphore system-wide (always 0) 
-    (semaphore sid 0) 
+    ;; release sid semaphore system-wide (always 0)
+    (semaphore sid 0)
 
 The following example shows semaphores controlling a child process:
 
@@ -15121,8 +15124,8 @@ will display the data:
 
 Running above example produces the following output:
 
-    *pid:53181->47  pid:53180->61  pid:53179->75  pid:53178->39  pid:53177->3   
-    pid:53181->59  pid:53180->12  pid:53179->20  pid:53178->77  pid:53177->47  
+    *pid:53181->47  pid:53180->61  pid:53179->75  pid:53178->39  pid:53177->3
+    pid:53181->59  pid:53180->12  pid:53179->20  pid:53178->77  pid:53177->47
     pid:53181->6   pid:53180->56  pid:53179->96  pid:53178->78  pid:53177->18
     *
 
@@ -15157,7 +15160,7 @@ can in turn be statements:
 
     ; sender process of the message
     (set 'pidA (spawn 'result
-        (begin 
+        (begin
             (dotimes (i 3)
                 (set 'ppid (sys-info -4))
                 (set 'pid (sys-info -3))
@@ -15255,19 +15258,19 @@ value:
 
     (series 1 (fn (x) (div (add 1 x))) 20)  →
 
-    (1 0.5 0.6666666 0.6 0.625 0.6153846 0.619047 0.6176470 0.6181818 
-     0.6179775 0.6180555 0.6180257 0.6180371 0.6180327 0.6180344 
+    (1 0.5 0.6666666 0.6 0.625 0.6153846 0.619047 0.6176470 0.6181818
+     0.6179775 0.6180555 0.6180257 0.6180371 0.6180327 0.6180344
      0.6180338 0.6180340 0.6180339 0.6180339 0.6180339)
 
     ; pre-define the function
 
-    (define (oscillate x) 
-      (if (< x) 
-        (+ (- x) 1) 
+    (define (oscillate x)
+      (if (< x)
+        (+ (- x) 1)
         (- (+ x 1)))
     )
 
-    (series 1 oscillate 20)  → 
+    (series 1 oscillate 20)  →
 
     (1 -2 3 -4 5 -6 7 -8 9 -10 11 -12 13 -14 15 -16 17 -18 19 -20)
 
@@ -15457,7 +15460,7 @@ speeds in when doing replacements in large lists:
     	(set-ref-all 'apples ctx "Apples")
     )
 
-    (foo db) 
+    (foo db)
      → ((monday ("Apples" 20 30) (oranges 2 4 9)) (tuesday ("Apples" 5) (oranges 32 1)))
 
 When evaluating (foo data), the list in db:db will be passed by
@@ -15471,7 +15474,7 @@ unify <#unify> in /func-compare/:
     (set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
 
     (set-ref-all '(oranges *) data (list (first $it) (apply + (rest $it))) match)
-        → ( ... (oranges 15) ... (oranges 33) ... ) 
+        → ( ... (oranges 15) ... (oranges 33) ... )
 
 The example sums all numbers found in records starting with the symbol
 oranges. Instead of the system variable $it. $0 could be used as well.
@@ -15497,7 +15500,7 @@ reference and setf is used when setting list or array references.
 
     ; multiple args
 
-    (setq x 1 y 2 z 3)  → 3 
+    (setq x 1 y 2 z 3)  → 3
 
     x  → 1
     y  → 2
@@ -15514,7 +15517,7 @@ reference and setf is used when setting list or array references.
     (setf (L 2 0) 'C)    → C
     L                    → (a B (C d) e f g)
 
-    (setf (L 2) 'X)   
+    (setf (L 2) 'X)
     L                    → (A B X e f g)
 
     ; with assoc
@@ -15546,7 +15549,7 @@ Often the new value set is dependent on the old value. setf can use the
 anaphoric system variable $it to refer to the old value inside the setf
 expression:
 
-    (setq L '((apples 4) (oranges 1))) 
+    (setq L '((apples 4) (oranges 1)))
 
     (setf (L 1 1) (+ $it 1)) → 2
 
@@ -15666,7 +15669,7 @@ is present, on Win32 it may have to be created.
     (share mem)               → (+ 1 2 3 4)
 
     ; expressions received can be evaluated (since v.10.1.0)
-    (eval (share mmem))       → 10 
+    (eval (share mmem))       → 10
 
     (share nil mem)   → true  ; unmap only on Unix
 
@@ -15777,8 +15780,8 @@ The user-defined signal handler can pass the signal number as a parameter.
     (define (signal-handler sig)
     	(println "received signal: " sig))
 
-    ;; set all signals from 1 to 8 to the same handler	
-    (for (s 1 8) 
+    ;; set all signals from 1 to 8 to the same handler
+    (for (s 1 8)
     	(signal s 'signal-handler))
 
 In this example, all signals from 1 to 8 are set to the same handler.
@@ -15939,7 +15942,7 @@ without a preceding quote.
     (sort '((3 4) "hi" 2.8 8 b))  → (2.8 8 "hi" b (3 4))
 
     (set 's '(k a l s))
-    (sort s)  → (a k l s)  
+    (sort s)  → (a k l s)
 
     (sort '(v f r t h n m j) '>)
     → (v t r n m j h f)
@@ -15947,13 +15950,13 @@ without a preceding quote.
     (sort '(v f r t h n m j) >)
     → (v t r n m j h f)
     (sort s <)  → (a k l s)
-    (sort s >)  → (s l k a)  
+    (sort s >)  → (s l k a)
     s           → (s l k a)
 
     ;; define a comparison function
-    (define (comp x y) 
+    (define (comp x y)
         (> (last x) (last y)))
-        
+
     (set 'db '((a 3) (g 2) (c 5)))
 
     (sort db comp)  →  ((c 5) (a 3) (g 2))
@@ -16313,10 +16316,10 @@ with no parameters, or true if given with a timeout.
 *example:*
 
     ; wait for 10 seconds and process finished child processes
-    (sync 10000) 
+    (sync 10000)
 
     ; wait for the maximum time (~ 1193 hours)
-    (sync -1) 
+    (sync -1)
 
     (define (report pid)
         (println "process: " pid " has returned"))
@@ -16386,7 +16389,7 @@ configurations that are not legal newLISP symbols:
 
     ;; using sym for simulating hash tables
 
-    (set (sym "John Doe" 'MyDB') 1.234)
+    (set (sym "John Doe" 'MyDB) 1.234)
     (set (sym "(" 'MyDB) "parenthesis open")
     (set (sym 12 'MyDB) "twelve")
 
@@ -16436,7 +16439,7 @@ symbol; otherwise, it returns nil.
 
     (set 'x 'y)  → y
 
-    (symbol? x)  → true 
+    (symbol? x)  → true
 
     (symbol? 123)  → nil
 
@@ -16525,8 +16528,8 @@ statistics. Eight integers report the following status:
   8 - Version number as an integer constant
   9 - Operating system constant:
       linux=1, bsd=2, osx=3, solaris=4, cygwin=5, win32=6,
-      os/2=7, tru64unix=9 
-	  
+      os/2=7, tru64unix=9
+
       bit 9 will be set for IPv6 versions (add 256)
       bit 8 will be set for UTF-8 versions (add 128)
       bit 7 will be added for library versions (add 64)
@@ -16544,7 +16547,7 @@ When using /int-idx/, one element of the list will be returned.
 *example:*
 
     (sys-info)     → (401 268435456 376 1 0 2048 39220 10002 131)
-    (sys-info 3)   → 1 
+    (sys-info 3)   → 1
     (sys-info -2)  → 10002
 
 The number for the maximum of Lisp cells can be changed via the -m
@@ -16595,7 +16598,7 @@ of catch.
 *example:*
 
     (define (throw-test)
-        (dotimes (x 1000) 
+        (dotimes (x 1000)
             (if (= x 500) (throw "interrupted"))))
 
     (catch (throw-test) 'result)  → true
@@ -16712,7 +16715,7 @@ handler.
 
 *example:*
 
-    (define (ticker) 
+    (define (ticker)
         (println (date)) (timer 'ticker 1.0))
 
     > (ticker)
@@ -16738,25 +16741,25 @@ ready for reading:
 
     define (interrupt)
         (set 'timeout true))
-            
+
     (set 'listen (net-listen 30001))
     (set 'socket (net-accept listen))
-            
+
     (timer 'interrupt 10)
     ;; or specifying the function directly
     (timer (fn () (set 'timeout true)) 10)
-            
+
     (until (or timeout done)
         (if (net-select socket "read" 100000)
             (begin
                 (read-buffer socket buffer 1024)
                 (set 'done true)))
     )
-                                                                                    
+
     (if timeout
         (println "timeout")
         (println buffer))
-                                                                                  
+
     (exit)
 
 In this example, the until loop will run until something can be read
@@ -16818,13 +16821,13 @@ checked during debugging or set to different values.
 *example:*
 
     ;; switches newLISP into debugging mode
-    (trace true)  → true 
+    (trace true)  → true
 
     ;; the debugger will show each step
     (my-func a b c)
 
     ;; switched newLISP out of debugging mode
-    (trace nil)  → nil 
+    (trace nil)  → nil
 
 To set break points where newLISP should interrupt normal execution and
 go into debugging mode, put (trace true) statements into the newLISP
@@ -16853,11 +16856,11 @@ characters is allowed for the header and 31 for the footer.
 
     ;; active expressions are enclosed in >> and <<
 
-    (trace-highlight ">>" "<<") 
-                 
+    (trace-highlight ">>" "<<")
+
     ;; 'bright' color on a VT100 or similar terminal window
 
-    (trace-highlight "\027[1m" "\027[0m")   
+    (trace-highlight "\027[1m" "\027[0m")
 
 The first example replaces the default # (number sign) with a >> and <<.
 The second example works on most Linux shells. It may not, however, work
@@ -16964,7 +16967,7 @@ UTF-8–enabled versions of newLISP.
 
 *example:*
 
-    (unicode "new") 
+    (unicode "new")
     → "n\000\000\000e\000\000\000w\000\000\000\000\000\000\000"
 
 
@@ -17026,7 +17029,7 @@ in find <#find>, ref <#ref>, ref-all <#ref-all> and replace <#replace>.
 
     (unify '(q (p X Y) (p Y X)) '(q Z Z))  → ((Y X) (Z (p X X)))  ; indirect alias
 
-    ;; some examples taken from 
+    ;; some examples taken from
        http://en.wikipedia.org/wiki/Unification
 
 unify can take an optional binding or association list in /list-env/.
@@ -17064,7 +17067,7 @@ The function bind <#bind> can be used to set unified variables:
 
     (bind (unify '(f (g A) A) '(f B xyz)))
 
-    A → xyz 
+    A → xyz
     B → (g xyz)
 
 
@@ -17094,8 +17097,8 @@ unify and expand <#expand>:
     ; socrates is human -> (socrates human)
     ; is socrates mortal? -> ?  (socrates mortal)
 
-    (expand '(X mortal) 
-             (unify '(X human) '(socrates human))) 
+    (expand '(X mortal)
+             (unify '(X human) '(socrates human)))
     → (socrates mortal)
 
 The following is a more complex example showing a small, working PROLOG
@@ -17205,7 +17208,7 @@ begin <#begin>:
     	(process (current-line))
     	...
     	(finish)
-    )	
+    )
 
 See also the function when <#when>.
 
@@ -17261,7 +17264,7 @@ The > and < specifiers can be used to switch between /little endian/ and
 /big endian/ byte order when packing or unpacking:
 
     ;; on a little endian system (e.g., Intel CPUs)
-    (set 'buff (pack "d" 1))  → "\001\000" 
+    (set 'buff (pack "d" 1))  → "\001\000"
 
     (unpack "d" buff)   → (1)
     (unpack ">d" buff)  → (256)
@@ -17339,7 +17342,7 @@ This function is only available on UTF-8–enabled versions of newLISP.
 
 *example:*
 
-    (unicode "new") 
+    (unicode "new")
     → "n\000\000\000e\000\000\000w\000\000\000\000\000\000\000"
 
     (utf8 (unicode "new"))  → "new"
@@ -17475,7 +17478,7 @@ statements in /body/ need not to be grouped with begin <#begin>:
     	(set 'result (analyze (current-line)))
     	(report result)
     	(finish)
-    )	
+    )
 
 See also the function unless <#unless> working like (when (not ...) ...).
 
@@ -17520,7 +17523,7 @@ the number of bytes written or nil on failure.
 *example:*
 
     (set 'handle (open "myfile.ext" "write"))
-    (write-buffer handle data 100)   
+    (write-buffer handle data 100)
     (write-buffer handle "a quick message\n")
 
 The code in the example writes 100 bytes to the file myfile.ext from the
@@ -17562,13 +17565,13 @@ write-char returns the number of bytes written.
 *example:*
 
     (define (slow-file-copy from-file to-file)
-        (set 'in-file (open from-file "read"))
-        (set 'out-file (open to-file "write"))
-        (while (set 'chr (read-file in-file))
-            (write-char out-file chr))
-         (close in-file)
-        (close out-file)
-        "finished")
+      (set 'in-file (open from-file "read"))
+      (set 'out-file (open to-file "write"))
+      (while (set 'chr (read-file in-file))
+        (write-char out-file chr))
+      (close in-file)
+      (close out-file)
+      "finished")
 
 Use the print <#print> and device <#device> functions to write larger
 portions of data at a time. Note that newLISP already supplies a faster
@@ -17729,12 +17732,12 @@ access error information.
 
 *example:*
 
-    (set 'xml 
+    (set 'xml
       "<person name='John Doe' tel='555-1212'>nice guy</person>")
 
-    (xml-parse xml) 
-    → (("ELEMENT" "person" 
-        (("name" "John Doe") 
+    (xml-parse xml)
+    → (("ELEMENT" "person"
+        (("name" "John Doe")
          ("tel" "555-1212"))
         (("TEXT" "nice guy"))))
 
@@ -17790,32 +17793,32 @@ The following examples show how the different options can be used:
       Parsing without any options:
 
     (xml-parse (read-file "example.xml"))
-    → (("ELEMENT" "DATABASE" (("name" "example.xml")) (("TEXT" "\r\n\t") 
-        ("COMMENT" "This is a database of fruits") 
-        ("TEXT" "\r\n\t") 
-        ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
-           (("TEXT" "apple"))) 
-          ("TEXT" "\r\n\t\t") 
-          ("ELEMENT" "COLOR" () (("TEXT" "red"))) 
-          ("TEXT" "\r\n\t\t") 
-          ("ELEMENT" "PRICE" () (("TEXT" "0.80"))) 
-          ("TEXT" "\r\n\t"))) 
-        ("TEXT" "\r\n\r\n\t") 
-        ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
-           (("TEXT" "orange"))) 
-          ("TEXT" "\r\n\t\t") 
-          ("ELEMENT" "COLOR" () (("TEXT" "orange"))) 
-          ("TEXT" "\r\n\t\t") 
-          ("ELEMENT" "PRICE" () (("TEXT" "1.00"))) 
-          ("TEXT" "\r\n\t"))) 
-        ("TEXT" "\r\n\r\n\t") 
-        ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
-           (("TEXT" "banana"))) 
-          ("TEXT" "\r\n\t\t") 
-          ("ELEMENT" "COLOR" () (("TEXT" "yellow"))) 
-          ("TEXT" "\r\n\t\t") 
-          ("ELEMENT" "PRICE" () (("TEXT" "0.60"))) 
-          ("TEXT" "\r\n\t"))) 
+    → (("ELEMENT" "DATABASE" (("name" "example.xml")) (("TEXT" "\r\n\t")
+        ("COMMENT" "This is a database of fruits")
+        ("TEXT" "\r\n\t")
+        ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" ()
+           (("TEXT" "apple")))
+          ("TEXT" "\r\n\t\t")
+          ("ELEMENT" "COLOR" () (("TEXT" "red")))
+          ("TEXT" "\r\n\t\t")
+          ("ELEMENT" "PRICE" () (("TEXT" "0.80")))
+          ("TEXT" "\r\n\t")))
+        ("TEXT" "\r\n\r\n\t")
+        ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" ()
+           (("TEXT" "orange")))
+          ("TEXT" "\r\n\t\t")
+          ("ELEMENT" "COLOR" () (("TEXT" "orange")))
+          ("TEXT" "\r\n\t\t")
+          ("ELEMENT" "PRICE" () (("TEXT" "1.00")))
+          ("TEXT" "\r\n\t")))
+        ("TEXT" "\r\n\r\n\t")
+        ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" ()
+           (("TEXT" "banana")))
+          ("TEXT" "\r\n\t\t")
+          ("ELEMENT" "COLOR" () (("TEXT" "yellow")))
+          ("TEXT" "\r\n\t\t")
+          ("ELEMENT" "PRICE" () (("TEXT" "0.60")))
+          ("TEXT" "\r\n\t")))
         ("TEXT" "\r\n"))))
 
 The TEXT elements containing only whitespace make the output very
@@ -17826,18 +17829,18 @@ suppress whitespace and comments with option (+ 1 3):
       Filtering whitespace TEXT, COMMENT tags, and empty attribute lists:
 
     (xml-parse (read-file "example.xml") (+ 1 2 4))
-    → (("ELEMENT" "DATABASE" (("name" "example.xml")) ( 
+    → (("ELEMENT" "DATABASE" (("name" "example.xml")) (
          ("ELEMENT" "FRUIT" (
-           ("ELEMENT" "NAME" (("TEXT" "apple"))) 
-           ("ELEMENT" "COLOR" (("TEXT" "red"))) 
-           ("ELEMENT" "PRICE" (("TEXT" "0.80"))))) 
+           ("ELEMENT" "NAME" (("TEXT" "apple")))
+           ("ELEMENT" "COLOR" (("TEXT" "red")))
+           ("ELEMENT" "PRICE" (("TEXT" "0.80")))))
          ("ELEMENT" "FRUIT" (
-           ("ELEMENT" "NAME" (("TEXT" "orange"))) 
-           ("ELEMENT" "COLOR" (("TEXT" "orange"))) 
-           ("ELEMENT" "PRICE" (("TEXT" "1.00"))))) 
+           ("ELEMENT" "NAME" (("TEXT" "orange")))
+           ("ELEMENT" "COLOR" (("TEXT" "orange")))
+           ("ELEMENT" "PRICE" (("TEXT" "1.00")))))
          ("ELEMENT" "FRUIT" (
-           ("ELEMENT" "NAME" (("TEXT" "banana"))) 
-           ("ELEMENT" "COLOR" (("TEXT" "yellow"))) 
+           ("ELEMENT" "NAME" (("TEXT" "banana")))
+           ("ELEMENT" "COLOR" (("TEXT" "yellow")))
            ("ELEMENT" "PRICE" (("TEXT" "0.60"))))))))
 
 The resulting output looks much more readable, but it can still be
@@ -17853,16 +17856,16 @@ tags "ELEMENT" and "TEXT" completely using the xml-type-tags
     ;; suppress all XML type tags for TEXT and ELEMENT
     ;; instead of "CDATA", use cdata and instead of "COMMENT", use !--
 
-    (xml-type-tags nil 'cdata '!-- nil) 
+    (xml-type-tags nil 'cdata '!-- nil)
 
     ;; turn on all options for suppressing whitespace and empty
     ;; attributes, translate tags to symbols
 
     (xml-parse (read-file "example.xml") (+ 1 2 8))
-    → ((DATABASE (("name" "example.xml")) 
-         (!-- "This is a database of fruits") 
-         (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80")) 
-         (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00")) 
+    → ((DATABASE (("name" "example.xml"))
+         (!-- "This is a database of fruits")
+         (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80"))
+         (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00"))
          (FRUIT (NAME "banana") (COLOR "yellow") (PRICE "0.60"))))
 
 When tags are translated into symbols by using option 8, a context can
@@ -17888,9 +17891,9 @@ generated:
 
     (xml-type-tags nil nil nil nil)
     (xml-parse (read-file "example.xml") (+ 1 2 4 8 16))
-    → ((DATABASE (@ (name "example.xml")) 
-        (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80")) 
-        (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00")) 
+    → ((DATABASE (@ (name "example.xml"))
+        (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80"))
+        (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00"))
         (FRUIT (NAME "banana") (COLOR "yellow") (PRICE "0.60"))))
 
 Note that using option number 16 causes an @ (at symbol) to be added to
@@ -17908,9 +17911,9 @@ symbol creation:
 
     (xml-type-tags nil nil nil nil)
     (xml-parse (read-file "example.xml") (+ 1 2 4 8 16) 'CTX)
-    →((CTX:DATABASE (@ (name "example.xml")) 
-        (CTX:FRUIT (CTX:NAME "apple") (CTX:COLOR "red") (CTX:PRICE "0.80")) 
-        (CTX:FRUIT (CTX:NAME "orange") (CTX:COLOR "orange") (CTX:PRICE "1.00")) 
+    →((CTX:DATABASE (@ (name "example.xml"))
+        (CTX:FRUIT (CTX:NAME "apple") (CTX:COLOR "red") (CTX:PRICE "0.80"))
+        (CTX:FRUIT (CTX:NAME "orange") (CTX:COLOR "orange") (CTX:PRICE "1.00"))
         (CTX:FRUIT (CTX:NAME "banana") (CTX:COLOR "yellow") (CTX:PRICE "0.60"))))
 
 If the context does not exist, it will be created. If it exists, the
@@ -18070,8 +18073,8 @@ zero? will return nil on data types other than numbers.
         local symbol is protected         60
         no symbol reference found         61
         list is empty                     62
-        I/O error                         63			
-        working directory not found       64     
+        I/O error                         63
+        working directory not found       64
         invalid PID                       65
 
 
@@ -18115,7 +18118,7 @@ others are user settable. Some will change when used in a sub-expression
 of the enclosing expression using it. Others are safe when using
 reentrant in nested functions or expressions.
 
-name	purpose	 protection 	 reentrant 
+name	purpose	 protection 	 reentrant
  $0 - $15	Used primarily in regular expressions. $0 is also used to
 record the last state or count of execution of a function. 	 no	 no
  $args	Contains the list parameters not bound to local variables.
@@ -18143,7 +18146,7 @@ to newLISP when it was started. Normally the function main-args
 These are preset symbol constants. Two of them are used as namespace
 templates, one two write platform independent code.
 
-name	purpose	 protection 	 reentrant 
+name	purpose	 protection 	 reentrant
  Class	Is the predefined general FOOP class constructor which can be
 used together with new to create new FOOP classes, e.g: (new Class
 'Rectangle) would create a class and object constructor for a user class
@@ -18789,12 +18792,12 @@ loads automatically from $NEWLISPDIR/modules/. 	 no	 n/a
     conditions:
 
         a) The work must carry prominent notices stating that you
-        modified it, and giving a relevant date. 
+        modified it, and giving a relevant date.
 
         b) The work must carry prominent notices stating that it is
         released under this License and any conditions added under
         section 7. This requirement modifies the requirement in section
-        4 to "keep intact all notices". 
+        4 to "keep intact all notices".
 
         c) You must license the entire work, as a whole, under this
         License to anyone who comes into possession of a copy. This
@@ -18802,12 +18805,12 @@ loads automatically from $NEWLISPDIR/modules/. 	 no	 n/a
         7 additional terms, to the whole of the work, and all its parts,
         regardless of how they are packaged. This License gives no
         permission to license the work in any other way, but it does not
-        invalidate such permission if you have separately received it. 
+        invalidate such permission if you have separately received it.
 
         d) If the work has interactive user interfaces, each must
         display Appropriate Legal Notices; however, if the Program has
         interactive interfaces that do not display Appropriate Legal
-        Notices, your work need not make them do so. 
+        Notices, your work need not make them do so.
 
     A compilation of a covered work with other separate and independent
     works, which are not by their nature extensions of the covered work,
@@ -18829,7 +18832,7 @@ loads automatically from $NEWLISPDIR/modules/. 	 no	 n/a
         a) Convey the object code in, or embodied in, a physical product
         (including a physical distribution medium), accompanied by the
         Corresponding Source fixed on a durable physical medium
-        customarily used for software interchange. 
+        customarily used for software interchange.
 
         b) Convey the object code in, or embodied in, a physical product
         (including a physical distribution medium), accompanied by a
@@ -18841,13 +18844,13 @@ loads automatically from $NEWLISPDIR/modules/. 	 no	 n/a
         durable physical medium customarily used for software
         interchange, for a price no more than your reasonable cost of
         physically performing this conveying of source, or (2) access to
-        copy the Corresponding Source from a network server at no charge. 
+        copy the Corresponding Source from a network server at no charge.
 
         c) Convey individual copies of the object code with a copy of
         the written offer to provide the Corresponding Source. This
         alternative is allowed only occasionally and noncommercially,
         and only if you received the object code with such an offer, in
-        accord with subsection 6b. 
+        accord with subsection 6b.
 
         d) Convey the object code by offering access from a designated
         place (gratis or for a charge), and offer equivalent access to
@@ -18861,12 +18864,12 @@ loads automatically from $NEWLISPDIR/modules/. 	 no	 n/a
         object code saying where to find the Corresponding Source.
         Regardless of what server hosts the Corresponding Source, you
         remain obligated to ensure that it is available for as long as
-        needed to satisfy these requirements. 
+        needed to satisfy these requirements.
 
         e) Convey the object code using peer-to-peer transmission,
         provided you inform other peers where the object code and
         Corresponding Source of the work are being offered to the
-        general public at no charge under subsection 6d. 
+        general public at no charge under subsection 6d.
 
     A separable portion of the object code, whose source code is
     excluded from the Corresponding Source as a System Library, need not
@@ -18944,27 +18947,27 @@ loads automatically from $NEWLISPDIR/modules/. 	 no	 n/a
     terms:
 
         a) Disclaiming warranty or limiting liability differently from
-        the terms of sections 15 and 16 of this License; or 
+        the terms of sections 15 and 16 of this License; or
 
         b) Requiring preservation of specified reasonable legal notices
         or author attributions in that material or in the Appropriate
-        Legal Notices displayed by works containing it; or 
+        Legal Notices displayed by works containing it; or
 
         c) Prohibiting misrepresentation of the origin of that material,
         or requiring that modified versions of such material be marked
-        in reasonable ways as different from the original version; or 
+        in reasonable ways as different from the original version; or
 
         d) Limiting the use for publicity purposes of names of licensors
-        or authors of the material; or 
+        or authors of the material; or
 
         e) Declining to grant rights under trademark law for use of some
-        trade names, trademarks, or service marks; or 
+        trade names, trademarks, or service marks; or
 
         f) Requiring indemnification of licensors and authors of that
         material by anyone who conveys the material (or modified
         versions of it) with contractual assumptions of liability to the
         recipient, for any liability that these contractual assumptions
-        directly impose on those licensors and authors. 
+        directly impose on those licensors and authors.
 
     All other non-permissive additional terms are considered "further
     restrictions" within the meaning of section 10. If the Program as
