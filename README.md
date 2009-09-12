@@ -1,7 +1,7 @@
 newLISP utility files
 =====================
 
-LISP風軽量スクリプト言語newLISP用のユーティリティファイル群です。
+LISP風軽量スクリプト言語newLISPのユーティリティファイル群です。
 
 newLISP Home - <http://www.newlisp.org/>
 
@@ -9,8 +9,6 @@ newLISP Home - <http://www.newlisp.org/>
 the magic of traditional Lisp but is easier to learn and use. newLISP is
 friendly, fast, and small. Most of the functions you will ever need are
 already built in. newLISP runs on most OS platforms.
-
-------------------------
 
 
 init.lsp
