@@ -15,6 +15,10 @@ init.lsp
 --------
 雑多な関数群。
 
+* nl-modules.git - その他モジュール
+
+  <http://github.com/kosh04/nl-modules>
+
 
 newlisp.el
 ----------
@@ -22,20 +26,21 @@ Emacsで編集するための簡易メジャーモード。
 
 何が出来るのか
 
-- newlispファイルの編集
-- newlisp プロセスの起動、操作
-- リージョンのEval (eval-region, eval-last-sexp)
+- ファイルの編集
+- プロセスの起動、操作
+- リージョンの評価 (eval-region, eval-last-sexp)
 - シンタックスハイライト
+- 関数名の補完 (組み込み関数のみ)
 
 
-newlisp_manual.txt (v.10.1.0 rev 4)
+newlisp_manual.txt (v.10.1.7)
 -----------------------------------
 HTMLマニュアルをテキストに変換したもの。
 
-newLISP Manual and Reference - <http://www.newlisp.org/downloads/newlisp_manual.html>
+newLISP Manual and Reference
+<http://www.newlisp.org/downloads/newlisp_manual.html>
 
-* newlisp_manual.txt.tar.gz - 上記のファイルを圧縮したもの
-
+* newlisp_manual.txt.tar.gz - 上記のファイルを圧縮したもの (v.10.1.0 rev 4)
 
 swank-newlisp.lsp
 -----------------

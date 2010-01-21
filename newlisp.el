@@ -1,31 +1,37 @@
 ;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
 
-;;; Time-stamp: <2009-09-12T17:19:28JST>
+;; Copyright (C) 2008,2009 Shigeru Kobayashi
 
 ;; Author: Shigeru Kobayashi <shigeru.kb@gmail.com>
-;; Version: 0.1b
+;; Version: 0.2
+;; Created: 2008-12-15
 ;; Keywords: language,lisp
+;; URL: http://github.com/kosh04/newlisp-files/raw/master/newlisp.el
 
 ;; This file is NOT part of GNU Emacs.
 
 ;;; Commentary:
-
+;;
 ;; LISP風軽量スクリプト言語`newLISP'を編集するための簡単なメジャーモードです。
-;; 
+;;
 ;; newLISP Home - http://www.newlisp.org/
-;; 
+;;
 ;; このファイルの最新バージョンはこちらにあります:
-;; http://github.com/kosh04/newlisp-files/tree/master
+;;      http://github.com/kosh04/newlisp-files/tree/master
 
-;;; Usage:
+;;; Installation:
+;;
 ;; (require 'newlisp)
 ;; (push '("\\.lsp$" . newlisp-mode) auto-mode-alist)
-;; (newlisp-mode-setup)
+;; (newlisp-mode-setup) ; if needed
 
 ;;; ChangeLog:
-;; 2009-07-05T20:16:05 version 0.1b
+;;
+;; 2009-09-30 version 0.2
+;; - キーワード補完が出来るように
+;; 2009-07-05 version 0.1b
 ;; - キーワードをnewLISP v10.1.0に追従
-;; - *variable* -> variable (Emacsの命名規則に従って変数名変更)
+;; - rename `*variable*' to `variable' (Emacsの命名規則に従って変数名変更)
 ;; 2009-06-05 version 0.1a
 ;; - font-lock 若干修正
 ;; - newlisp-mode-syntax-table 追加
@@ -35,11 +41,14 @@
 ;; - 初版作成 (newlisp-mode)
 
 ;;; Known Bugs:
-;; - 初回起動時の評価が表示されずに溜まってしまう場合がある
+;;
+;; - (newlisp-eval "(eval-string \"((define hex	0xff))\")") => ERR
+;; - 初回起動時の評価が出力されずに溜まってしまう場合がある
 ;; - ２バイト文字を含むパスから起動することができない
 ;;   e.g. "c:/Documents and Settings/User/デスクトップ/"
+;;   これは文字コードの違いが問題: sjis(windowsのパス名),utf-8(newlisp)
 ;; - newlisp.exeが$PATHにないとshell-command-to-stringを実行できない
-
+;;
 ;; export PATH="$HOME/bin:$PATH"
 ;; - emacsのシェルからの起動に必要
 ;; (or (string-match #1=(expand-file-name "~/bin") #2=(getenv "PATH"))
@@ -48,39 +57,57 @@
 ;; (add-to-list 'exec-path "~/bin")
 
 ;;; Todo:
+;;
 ;; - シンボル補完 (etags, complete-symbol, [d]abbrev)
 ;; - pop-to-buffer は縦分割を好む人もいるかもしれない
 ;; - elisp の書式チェック (checkdoc)
 ;; - defcustom
 ;; - 出力だけでなく入力も*newlisp*バッファに送るべきかもしれない
+;; - lisp-modeから間借りしている機能は分割するべきかも
 ;; - 全ては気の赴くままに
 
+
 ;;; Code:
+
 (eval-when-compile
   (require 'cl))
 (require 'comint)                       ; comint-send-string
 
-;; (executable-find "newlisp")
-(defvar newlisp-command "newlisp"
-  "newLISP execute binary filename.")
+(defgroup newlisp nil
+  "newlisp source code editing functions."
+  :group 'newlisp
+  :prefix "newlisp-"                    ; or "nl-" ?
+  :version "0.2")
 
-;; (defvar newlisp-command-switches "")
+;; (executable-find "newlisp") or "/usr/bin/newlisp"
+(defcustom newlisp-command "newlisp"
+  "Filename to use to run newlisp."
+  :type 'string
+  :group 'newlisp)
 
-(defvar newlisp-process-coding-system '(utf-8 . utf-8)
-  "Cons of coding systems used for process newLISP (input . output).
-If you use newLISP version UTF-8 support, Its value is '(utf-8 . utf-8).
-Otherwise maybe '(sjis . sjis).")
+(defvar newlisp-switches "-C")
+
+(defvar newlisp-load-init-p t)
+
+(defvar newlisp-process-coding-system 'utf-8
+  "Coding system used for process newLISP.
+If you use newLISP version UTF-8 support, its value is `utf-8'.
+Otherwise maybe `shift_jis'.")
 
 (defun newlisp-process ()
-  (let ((default-process-coding-system newlisp-process-coding-system))
+  "Return newlisp process object.
+If not running, then start new process."
+  (let ((default-process-coding-system
+         (cons #1=newlisp-process-coding-system #1#))
+        (switches (split-string newlisp-switches "\s")))
+    (if (null newlisp-load-init-p)
+        (pushnew "-n" switches :test #'equal))
     (get-buffer-process
-     (make-comint "newlisp" newlisp-command nil
-                  ;; newlisp側では`~/'をホームディレクトリとして認識しないので
-                  ;; emacs側で展開しておく
-                  "-C" "-w" (expand-file-name default-directory)
-                  ))))
+     (apply #'make-comint "newlisp"
+            newlisp-command nil switches))))
 
 (defun newlisp-show-repl (&optional no-focus)
+  "Display newlisp process buffer."
   (interactive "P")
   (let ((obuf (current-buffer)))
     (pop-to-buffer (process-buffer (newlisp-process)))
@@ -102,7 +129,17 @@ Otherwise maybe '(sjis . sjis).")
              (sendln str-sexp))))
     (newlisp-show-repl t)))
 
-;; (defsetf process-filter set-process-filter)
+;; (defun newlisp-eval (str-sexp)
+;;   "Eval newlisp s-expression."
+;;   (interactive "snewLISP Eval: ")
+;;   (let ((proc (newlisp-process)))
+;;     (dolist (str (list "[cmd]\n"
+;;                        (concat str-sexp "\n")
+;;                        "[/cmd]\n"))
+;;       (send-string proc str))
+;;     ;; (send-string proc "\n")
+;;     )
+;;   (newlisp-show-repl t))
 
 (defun newlisp-eval-region (from to)
   (interactive "r")
@@ -128,32 +165,41 @@ Otherwise maybe '(sjis . sjis).")
     (mark-defun)
     (newlisp-eval-region (region-beginning) (region-end))))
 
+(defun newlisp-eval-buffer ()
+  (interactive)
+  (newlisp-eval-region (point-min) (point-max)))
+
 (defun newlisp-load-file (file)
+  "Load and translates newLISP from a FILE."
   (interactive (list
                 (read-file-name "Load file: " (buffer-file-name))))
   (newlisp-eval (format "(load {%s})" (expand-file-name file))))
 
 (defun newlisp-restart-process ()
   "Restart a new clean newLISP process with same command-line params.
-This mode is not available on Win32."
+This function is not available on Win32."
   (interactive)
   (newlisp-eval "(reset true)"))
 
 (defun newlisp-kill-process (&optional force)
+  "kill running process."
   (interactive "P")
   (if force
       (delete-process (newlisp-process))
       (newlisp-eval "(exit)")))
 
 ;; eval sync
-(defun newlisp-eval-buffer (arg)
-  (interactive "P")
-  (setq arg (if arg (read-string "newLISP args: ") ""))
-  (shell-command (format "%s \"%s\" %s"
-                         newlisp-command
-                         (buffer-file-name)
-                         arg)
-                 "*newLISP output*"))
+;; (defun newlisp-eval-buffer (arg)
+;;   (interactive "P")
+;;   (setq arg (if arg (read-string "newLISP args: ") ""))
+;;   (shell-command (format "%s \"%s\" %s"
+;;                          newlisp-command
+;;                          (buffer-file-name)
+;;                          arg)
+;;                  "*newLISP output*"))
+
+;; (newlisp-eval
+;;  (concat "(eval-string \"" (buffer-string) "\")" ))
 
 ;; eval async
 (defun newlisp-execute-file (&optional cmd-args)
@@ -181,19 +227,14 @@ This mode is not available on Win32."
                     (pop-to-buffer (process-buffer process))))))))
     ))
 
-;; lisp.el:571
-(defun newlisp-complete-symbol (&optional predicate)
-  "Perform completion on newLISP symbol preceding point."
-  (interactive)
-  (error "Undefined"))
-
 (defun newlisp-begin-cmd () (interactive) (insert "[cmd]") (comint-send-input))
 (defun newlisp-end-cmd () (interactive) (insert "[/cmd]") (comint-send-input))
-
 ;; (define-key inferior-newlisp-mode-map "\C-c[" 'newlisp-begin-cmd)
 ;; (define-key inferior-newlisp-mode-map "\C-c]" 'newlisp-end-cmd)
 
+;;
 ;; Keyword List
+;;
 (eval-when (compile load eval)
   ;; newlisp-font-lock-keywords (lisp-font-lock-keywords)
   (defvar newlisp-primitive-keywords
@@ -253,14 +294,38 @@ This mode is not available on Win32."
     '("peek" "fork" "wait-pid" "net-ping" "parse-date"))
   )
 
+(defsubst newlisp-keywords ()
+  "Return newLISP keyword list as string."
+  (append newlisp-primitive-keywords
+          newlisp-lambda-keywords
+          (unless (eq system-type 'windows-nt)
+            newlisp-un*x-based-function-keywords)))
+
+(defvar newlisp-obarray
+  (let ((array (make-vector 401 0)))    ; more than keyword size
+    (dolist (s (newlisp-keywords))
+      (intern s array))
+    array)
+  "newLISP symbol table.")
+
+(defsubst newlisp-find-symbol (string)
+  "Locates a symbol whose name is STRING in a newLISP symbols."
+  (intern-soft string newlisp-obarray))
+
+(defun newlisp-complete-symbol ()
+  (interactive "*")
+  (let ((emacs-lisp-mode-syntax-table newlisp-mode-syntax-table)
+        (obarray newlisp-obarray))
+    (lisp-complete-symbol (lambda (s)
+                            (newlisp-find-symbol (symbol-name s))))))
+
 (defun newlisp-mode-setup ()
   (setq newlisp-process-coding-system
         (let ((res (shell-command-to-string
                     (format "%s -n -e \"%s\"" newlisp-command
                             '(primitive? MAIN:utf8)))))
           (if (string-match "true" res)
-              '(utf-8 . utf-8)
-              '(shift_jis . shift_jis))))
+              'utf-8 'shift_jis)))
   (setq newlisp-primitive-keywords
         (car (read-from-string
               (shell-command-to-string
@@ -283,6 +348,8 @@ This mode is not available on Win32."
 (defindent until 1)
 (defindent letn 1)
 (defindent dostring 1)
+(defindent doargs 1)
+(defindent dotree 1)
 
 (defvar newlisp-mode-hook nil)
 (defvar newlisp-mode-map
@@ -296,6 +363,7 @@ This mode is not available on Win32."
 (define-key newlisp-mode-map "\C-c\C-l" 'newlisp-load-file)
 (define-key newlisp-mode-map "\C-c\C-z" 'newlisp-show-repl)
 (define-key newlisp-mode-map "\e\t" 'newlisp-complete-symbol) ; ESC TAB
+;; (define-key newlisp-mode-map "\C-c\C-i" 'newlisp-complete-symbol)
 (define-key newlisp-mode-map [f5] 'newlisp-execute-file)
 (define-key newlisp-mode-map [(control c) f4] 'newlisp-kill-process) ; C-c f4
 (define-key newlisp-mode-map "\C-m" 'newline-and-indent)
@@ -320,7 +388,7 @@ This mode is not available on Win32."
 
 ;;;###autoload
 (defun newlisp-mode ()
-  "Major mode for editing newLISP code to run in Emacs."
+  "Major mode for newLISP files."
   (interactive)
   (kill-all-local-variables)
   (setq major-mode 'newlisp-mode
@@ -328,12 +396,12 @@ This mode is not available on Win32."
   (use-local-map newlisp-mode-map)
   (lisp-mode-variables)
   (set-syntax-table newlisp-mode-syntax-table)
-  ;; (setq font-lock-defaults nil)
+  ;; (set (make-local-variable (quote font-lock-defaults)) '(fn t nil nil fn))
   ;; (set (make-local-variable 'font-lock-keywords-case-fold-search) nil)
   (run-mode-hooks 'newlisp-mode-hook))
 
 ;; $ html2txt $NEWLISPDIR/newlisp_manual.html -o newlisp_manual.txt
-;; or use www browser [File] -> [Save Page As (Text)]
+;; or use www-browser [File] -> [Save Page As (Text)]
 (defvar newlisp-manual-text "newlisp_manual.txt")
 
 (defvar newlisp-manual-html
@@ -341,50 +409,61 @@ This mode is not available on Win32."
                           ;; When build newlisp `make install_home'
                           "~/share/doc/newlisp/manual_frame.html"
                           "C:/Program Files/newlisp/manual_frame.html"))
-        (and (file-exists-p path)
-             (return path)))
+        (if (file-exists-p path)
+            (return path)))
       "http://www.newlisp.org/downloads/manual_frame.html"))
 
 (defun newlisp-browse-manual ()
   (interactive)
   (browse-url-of-file newlisp-manual-html))
 
-(defsubst newlisp-keywords ()
-  (append newlisp-primitive-keywords
-          newlisp-lambda-keywords
-          newlisp-un*x-based-function-keywords))
+(defun newlisp-switch-to-manual ()
+  (interactive)
+  (if (file-exists-p #1=newlisp-manual-text)
+      (progn
+        (pop-to-buffer (find-file-noselect #1#))
+        (unless (eq major-mode 'newlisp-mode) (newlisp-mode))
+        (toggle-read-only t))
+      (error "manual %s not exist" #1#)))
 
-(defun newlisp-browse-manual-from-text (str)
+(defun newlisp-browse-manual-from-text (keyword)
   (interactive
-   ;; FIXME: "lambda?" が選択できない => C-q ?
-   ;; 空文字("")いらない: REQUIRE-MATCH
-   (list (completing-read "newLISP manual: " (newlisp-keywords) nil t
-                          (car (member (thing-at-point 'symbol)
-                                       (newlisp-keywords))))))
-  (let ((obuf (current-buffer)))
-    (pop-to-buffer (find-file-noselect newlisp-manual-text))
-    (toggle-read-only t)
-    (let ((opoint (point)))
-      (goto-char (point-min))
-      (unless (search-forward-regexp
-               ;; (foo)
-               ;; (foo arg1 arg2 ...)
-               ;; (foo-bar-baz) is no-need
-               (concat "^\\*syntax: (" (regexp-quote str) "\s?")
-               nil 'noerror)
-        (goto-char opoint)
-        (pop-to-buffer obuf)
-        (message "Function Not Found: %s" str)))))
+   ;; FIXME: cannot select "lambda?" -> C-q ?
+   (list (let* ((s (newlisp-find-symbol (current-word))) ; (thing-at-point 'symbol)
+                (default (and s (symbol-name s))))
+           (completing-read (format "newLISP manual%s: "
+                                    (if default
+                                        (format " (default %s)" default)
+                                        ""))
+                            (newlisp-keywords)
+                            nil t nil nil default))))
+  (if (equal keyword "setf")
+      (setq keyword "setq"))
+  (newlisp-switch-to-manual)
+  (let ((opoint (point)))
+    (goto-char (point-min))
+    (unless (and (not (equal keyword ""))
+                 (search-forward-regexp
+                  ;; (foo)
+                  ;; (foo ...)
+                  ;; (foo-bar-baz) is NOT NEEDED
+                  ;; (concat "^\\*syntax: (" (regexp-quote keyword) "\s?")
+                  ;; e.g. "    define ! <#destructive>"
+                  ;; e.g. "    define-macro"
+                  (format "^    %s\s?" (regexp-quote keyword))
+                  nil "noerror")
+                 (progn (recenter 0) t))
+      (goto-char opoint))))
 
 (define-key newlisp-mode-map "\C-ch" 'newlisp-browse-manual-from-text)
 
-;; (put 'font-lock-add-keywords 'lisp-indent-function 1)
+;; (setf (get 'font-lock-add-keywords 'lisp-indent-function) 1)
 ;; lisp-mode.el:91
 (font-lock-add-keywords 'newlisp-mode
   (list
    ;; (list "\\<\\(FIXME\\):" 1 font-lock-warning-face 'prepend)
-   (cons (eval-when-compile (regexp-opt newlisp-primitive-keywords 'words))
-         font-lock-keyword-face)
+   (cons (eval-when-compile (regexp-opt newlisp-primitive-keywords 'words)) font-lock-keyword-face)
+   ;; (eval-when-compile (regexp-opt newlisp-primitive-keywords 'words))
    (cons (eval-when-compile (regexp-opt newlisp-lambda-keywords 'words))
          font-lock-function-name-face)
    (cons (eval-when-compile (regexp-opt newlisp-variable-keyword 'words))
