@@ -1,14 +1,29 @@
 ;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
 
-;; Copyright (C) 2008,2009 Shigeru Kobayashi
+;; Copyright (C) 2008,2009,2010 KOBAYASHI Shigeru
 
-;; Author: Shigeru Kobayashi <shigeru.kb@gmail.com>
+;; Author: KOBAYASHI Shigeru <shigeru.kb@gmail.com>
 ;; Version: 0.2
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp
 ;; URL: http://github.com/kosh04/newlisp-files/raw/master/newlisp.el
 
 ;; This file is NOT part of GNU Emacs.
+
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+
+;; This file is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
 
 ;;; Commentary:
 ;;
@@ -27,23 +42,31 @@
 
 ;;; ChangeLog:
 ;;
+;; 2010-02-05
+;; - とりあえずライセンス適用 (GPLv3)
+;;
 ;; 2009-09-30 version 0.2
 ;; - キーワード補完が出来るように
+;;
 ;; 2009-07-05 version 0.1b
 ;; - キーワードをnewLISP v10.1.0に追従
 ;; - rename `*variable*' to `variable' (Emacsの命名規則に従って変数名変更)
+;;
 ;; 2009-06-05 version 0.1a
 ;; - font-lock 若干修正
 ;; - newlisp-mode-syntax-table 追加
+;;
 ;; 2009-04-19 version 0.1
 ;; - newlisp-mode, font-lock 追加
+;;
 ;; 2008-12-15 version 0.01
 ;; - 初版作成 (newlisp-mode)
+;;
 
 ;;; Known Bugs:
 ;;
-;; - (newlisp-eval "(eval-string \"((define hex	0xff))\")") => ERR
-;; - 初回起動時の評価が出力されずに溜まってしまう場合がある
+;; - (newlisp-eval "(eval-string \"((define hex\t0xff))\")") => ERR
+;; - 複数行のS式([cmd]~[cmd]タグで囲まれたS式)の出力が溜まる場合がある
 ;; - ２バイト文字を含むパスから起動することができない
 ;;   e.g. "c:/Documents and Settings/User/デスクトップ/"
 ;;   これは文字コードの違いが問題: sjis(windowsのパス名),utf-8(newlisp)
@@ -58,9 +81,8 @@
 
 ;;; Todo:
 ;;
-;; - シンボル補完 (etags, complete-symbol, [d]abbrev)
 ;; - pop-to-buffer は縦分割を好む人もいるかもしれない
-;; - elisp の書式チェック (checkdoc)
+;; - elisp の書式チェック (M-x checkdoc)
 ;; - defcustom
 ;; - 出力だけでなく入力も*newlisp*バッファに送るべきかもしれない
 ;; - lisp-modeから間借りしている機能は分割するべきかも
@@ -106,6 +128,7 @@ If not running, then start new process."
      (apply #'make-comint "newlisp"
             newlisp-command nil switches))))
 
+;;;###autoload
 (defun newlisp-show-repl (&optional no-focus)
   "Display newlisp process buffer."
   (interactive "P")
@@ -113,6 +136,7 @@ If not running, then start new process."
     (pop-to-buffer (process-buffer (newlisp-process)))
     (if no-focus (pop-to-buffer obuf))))
 
+;;;###autoload
 (defalias 'run-newlisp 'newlisp-show-repl)
 
 (defun newlisp-eval (str-sexp)
@@ -121,25 +145,15 @@ If not running, then start new process."
   (let ((proc (newlisp-process)))
     (labels ((sendln (str)
                (comint-send-string proc (concat str "\n"))))
-      (cond ((string-match "\n" str-sexp)
-             (sendln "[cmd]")
-             (sendln str-sexp)
-             (sendln "[/cmd]"))
-            (:else
-             (sendln str-sexp))))
+      (cond
+        ((string-match "\n" str-sexp)   ; multi-line expr
+         (sendln "[cmd]")
+         (sleep-for 0.05)               ; FIXME
+         (sendln str-sexp)
+         (sendln "[/cmd]"))
+        (:else
+         (sendln str-sexp))))
     (newlisp-show-repl t)))
-
-;; (defun newlisp-eval (str-sexp)
-;;   "Eval newlisp s-expression."
-;;   (interactive "snewLISP Eval: ")
-;;   (let ((proc (newlisp-process)))
-;;     (dolist (str (list "[cmd]\n"
-;;                        (concat str-sexp "\n")
-;;                        "[/cmd]\n"))
-;;       (send-string proc str))
-;;     ;; (send-string proc "\n")
-;;     )
-;;   (newlisp-show-repl t))
 
 (defun newlisp-eval-region (from to)
   (interactive "r")
@@ -182,11 +196,18 @@ This function is not available on Win32."
   (newlisp-eval "(reset true)"))
 
 (defun newlisp-kill-process (&optional force)
-  "kill running process."
+  "Kill running process."
   (interactive "P")
   (if force
       (delete-process (newlisp-process))
       (newlisp-eval "(exit)")))
+
+(defun newlisp-signal-process (&optional sigcode)
+  "Send a signal to newlisp process. Default signal is TERM."
+  (interactive "P")
+  ;; e.g. (see `kill -l`)
+  ;; 2) SIGINT  9) SIGKILL  15) SIGTERM
+  (signal-process (newlisp-process) (or sigcode 15)))
 
 ;; eval sync
 ;; (defun newlisp-eval-buffer (arg)
@@ -198,8 +219,7 @@ This function is not available on Win32."
 ;;                          arg)
 ;;                  "*newLISP output*"))
 
-;; (newlisp-eval
-;;  (concat "(eval-string \"" (buffer-string) "\")" ))
+;; (newlisp-eval (concat "(eval-string \"" (buffer-string) "\")" ))
 
 ;; eval async
 (defun newlisp-execute-file (&optional cmd-args)
@@ -232,23 +252,30 @@ This function is not available on Win32."
 ;; (define-key inferior-newlisp-mode-map "\C-c[" 'newlisp-begin-cmd)
 ;; (define-key inferior-newlisp-mode-map "\C-c]" 'newlisp-end-cmd)
 
+(defun newlisp-debug-region (start end)
+  (interactive "r")
+  (newlisp-eval (format "(debug %s)" (buffer-substring start end)))
+  ;; "s|tep n|ext c|ont q|uit" の操作もまとめたい
+  )
+
 ;;
 ;; Keyword List
 ;;
 (eval-when (compile load eval)
   ;; newlisp-font-lock-keywords (lisp-font-lock-keywords)
   (defvar newlisp-primitive-keywords
-    ;; newLISP v.10.1.0 on Linux IPv4 UTF-8
+    ;; newLISP v.10.1.2 on Linux IPv4 UTF-8
     ;; > (map name (filter (lambda (s) (primitive? (eval s))) (symbols MAIN)))
     ;; - define define-macro
-    '("!" "!=" "$" "%" "&" "*" "+" "-" "/" ":" "<" "<<" "<=" "=" ">" ">=" ">>" "NaN?"
-      "^" "abort" "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file"
+    '("!" "!=" "$" "%" "&" "*" "+" "-" "/" ":" "<" "<<" "<=" "=" ">" ">=" ">>" "^"
+      "NaN?" "abort" "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file"
       "apply" "args" "array" "array-list" "array?" "asin" "asinh" "assoc" "atan" "atan2"
       "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query" "bayes-train" "begin" "beta"
       "betai" "bind" "binomial" "bits" "callback" "case" "catch" "ceil" "change-dir" "char"
       "chop" "clean" "close" "command-event" "cond" "cons" "constant" "context" "context?"
       "copy" "copy-file" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-z" "current-line"
-      "curry" "date" "date-value" "debug" "dec" "def-new" "default" ;; "define" "define-macro"
+      "curry" "date" "date-value" "debug" "dec" "def-new" "default"
+      ;; "define" "define-macro"
       "delete" "delete-file" "delete-url" "destroy" "det" "device" "difference" "directory"
       "directory?" "div" "do-until" "do-while" "doargs" "dolist" "dostring" "dotimes"
       "dotree" "dump" "dup" "empty?" "encrypt" "ends-with" "env" "erf" "error-event" "estack"
@@ -259,7 +286,7 @@ This function is not available on Win32."
       "import" "inc" "index" "inf?" "int" "integer" "integer?" "intersect" "invert" "irr"
       "join" "lambda?" "last" "last-error" "legal?" "length" "let" "letex" "letn" "list"
       "list?" "load" "local" "log" "lookup" "lower-case" "macro?" "main-args" "make-dir"
-      "map" "mat" "match" "max" "member" "min" "mod" "mul" "multiply" "name" "net-accept"
+      "map" "mat" "match" "max" "member" "min" "mod" "mul" "multiply" "net-accept"
       "net-close" "net-connect" "net-error" "net-eval" "net-interface" "net-listen" "net-local"
       "net-lookup" "net-peek" "net-peer" "net-ping" "net-receive" "net-receive-from" "net-receive-udp"
       "net-select" "net-send" "net-send-to" "net-send-udp" "net-service" "net-sessions"
@@ -267,20 +294,27 @@ This function is not available on Win32."
       "pack" "parse" "parse-date" "peek" "pipe" "pmt" "pop" "pop-assoc" "post-url" "pow"
       "pretty-print" "primitive?" "print" "println" "prob-chi2" "prob-z" "process" "prompt-event"
       "protected?" "push" "put-url" "pv" "quote" "quote?" "rand" "random" "randomize"
-      "read-buffer" "read-char" "read-expr" "read-file" "read-key" "read-line" "read-utf8"
-      "real-path" "receive" "ref" "ref-all" "regex" "regex-comp" "remove-dir" "rename-file"
-      "replace" "reset" "rest" "reverse" "rotate" "round" "save" "search" "seed" "seek"
+      "read-char" "read-expr" "read-file" "read-key" "read-line" "read-utf8"
+      "reader-event" "real-path" "receive" "ref" "ref-all" "regex" "regex-comp" "remove-dir"
+      "rename-file" "replace" "reset" "rest" "reverse" "rotate" "round" "save" "search" "seed" "seek"
       "select" "semaphore" "send" "sequence" "series" "set" "set-locale" "set-ref" "set-ref-all"
       "setf" "setq" "sgn" "share" "signal" "silent" "sin" "sinh" "sleep" "slice" "sort"
       "source" "spawn" "sqrt" "starts-with" "string" "string?" "sub" "swap" "sym" "symbol?"
       "symbols" "sync" "sys-error" "sys-info" "tan" "tanh" "throw" "throw-error" "time"
       "time-of-day" "timer" "title-case" "trace" "trace-highlight" "transpose" "trim"
       "true?" "unicode" "unify" "unique" "unless" "unpack" "until" "upper-case" "utf8"
-      "utf8len" "uuid" "wait-pid" "when" "while" "write-buffer" "write-char" "write-file"
-      "write-line" "xfer-event" "xml-error" "xml-parse" "xml-type-tags" "zero?" "|" "~")
+      "utf8len" "uuid" "wait-pid" "when" "while" "write-char" "write-file"
+      "write-line" "xfer-event" "xml-error" "xml-parse" "xml-type-tags" "zero?" "|" "~"
+      ;; add functions from v.10.2.0 or later
+      "++" "--" "extend" "module" "prefix" "term" "read" "self"  "write"
+      ;; should be avoided in new code
+       "read-buffer" "write-buffer"
+      ;; remove functions
+      ;; "name"
+      )
     "newLISP primitive keyword list.")
   (defvar newlisp-lambda-keywords
-    '("define" "lambda" "fn" "define-macro" "lambda-macro"))
+    '("define" "lambda" "fn" "fn-macro" "define-macro" "lambda-macro"))
   (defvar newlisp-variable-keyword
     '("nil" "true" "ostype"
       "$args" "$idx" "$it" "$main-args" "$prompt-event"
@@ -299,7 +333,9 @@ This function is not available on Win32."
   (append newlisp-primitive-keywords
           newlisp-lambda-keywords
           (unless (eq system-type 'windows-nt)
-            newlisp-un*x-based-function-keywords)))
+            newlisp-un*x-based-function-keywords)
+          newlisp-variable-keyword
+          ))
 
 (defvar newlisp-obarray
   (let ((array (make-vector 401 0)))    ; more than keyword size
@@ -330,10 +366,12 @@ This function is not available on Win32."
         (car (read-from-string
               (shell-command-to-string
                (format "%s -n -e \"%s\"" newlisp-command
-                       '(map name (filter (lambda (s) (primitive? (eval s)))
+                       '(map term (filter (lambda (s) (primitive? (eval s)))
                                           (symbols MAIN))))))))
   t)
 
+
+;; FIXME: This code influence other lisp-mode indent.
 (defmacro defindent (operator indentation)
   `(put ',operator 'lisp-indent-function ',indentation))
 
@@ -388,7 +426,7 @@ This function is not available on Win32."
 
 ;;;###autoload
 (defun newlisp-mode ()
-  "Major mode for newLISP files."
+  "Major mode for editing newLISP code."
   (interactive)
   (kill-all-local-variables)
   (setq major-mode 'newlisp-mode
@@ -413,10 +451,6 @@ This function is not available on Win32."
             (return path)))
       "http://www.newlisp.org/downloads/manual_frame.html"))
 
-(defun newlisp-browse-manual ()
-  (interactive)
-  (browse-url-of-file newlisp-manual-html))
-
 (defun newlisp-switch-to-manual ()
   (interactive)
   (if (file-exists-p #1=newlisp-manual-text)
@@ -426,36 +460,50 @@ This function is not available on Win32."
         (toggle-read-only t))
       (error "manual %s not exist" #1#)))
 
-(defun newlisp-browse-manual-from-text (keyword)
+(defun newlisp-browse-manual ()
+  (interactive)
+  (browse-url-of-file newlisp-manual-html))
+
+(defun newlisp-lookup-manual (keyword )
+  "マニュアルファイルから関数を調べます."
   (interactive
-   ;; FIXME: cannot select "lambda?" -> C-q ?
-   (list (let* ((s (newlisp-find-symbol (current-word))) ; (thing-at-point 'symbol)
-                (default (and s (symbol-name s))))
-           (completing-read (format "newLISP manual%s: "
-                                    (if default
-                                        (format " (default %s)" default)
-                                        ""))
-                            (newlisp-keywords)
-                            nil t nil nil default))))
+    (list (let* ((s (newlisp-find-symbol
+                     (current-word)
+                     ;; (function-called-at-point)
+                     ;; (thing-at-point 'symbol)
+                     ))
+                 (default (and s (symbol-name s))))
+            ;; NOTE: Type "lambda?" from minibuffer -> l a m b d a C-q ?
+            (completing-read (format "newLISP manual%s: "
+                                     (if default
+                                         (format " (default %s)" default)
+                                         ""))
+                             (newlisp-keywords)
+                             nil t nil nil default))))
   (if (equal keyword "setf")
       (setq keyword "setq"))
   (newlisp-switch-to-manual)
-  (let ((opoint (point)))
+  (let ((opoint (point)) (found nil))
     (goto-char (point-min))
-    (unless (and (not (equal keyword ""))
-                 (search-forward-regexp
-                  ;; (foo)
-                  ;; (foo ...)
-                  ;; (foo-bar-baz) is NOT NEEDED
-                  ;; (concat "^\\*syntax: (" (regexp-quote keyword) "\s?")
-                  ;; e.g. "    define ! <#destructive>"
-                  ;; e.g. "    define-macro"
-                  (format "^    %s\s?" (regexp-quote keyword))
-                  nil "noerror")
-                 (progn (recenter 0) t))
+    (if (and (not (equal keyword ""))
+             (search-forward-regexp
+              ;; (foo)
+              ;; (foo ...)
+              ;; (foo-bar-baz) is NOT NEEDED
+              ;; (concat "^\s+syntax: (" (regexp-quote keyword) "\s?")
+              ;; e.g. "    define ! <#destructive>"
+              ;; e.g. "    define-macro"
+              ;; (format "^    %s\\(\s?.*\\)?$" (regexp-quote keyword))
+              (format "^        syntax: (%s" (regexp-quote keyword))
+              nil 'noerror))
+        (progn
+          (beginning-of-line)
+          (forward-line -3)
+          (recenter 0)
+          (setq found t)))
+    (unless found
+      (message "not found %s" keyword)
       (goto-char opoint))))
-
-(define-key newlisp-mode-map "\C-ch" 'newlisp-browse-manual-from-text)
 
 ;; (setf (get 'font-lock-add-keywords 'lisp-indent-function) 1)
 ;; lisp-mode.el:91
