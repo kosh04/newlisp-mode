@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008,2009,2010 KOBAYASHI Shigeru
 
 ;; Author: KOBAYASHI Shigeru <shigeru.kb@gmail.com>
-;; Version: 0.2
+;; Version: 0.25
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp
 ;; URL: http://github.com/kosh04/newlisp-files/raw/master/newlisp.el
@@ -37,10 +37,14 @@
 ;;; Installation:
 ;;
 ;; (require 'newlisp)
-;; (push '("\\.lsp$" . newlisp-mode) auto-mode-alist)
+;; (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
+;; (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
 ;; (newlisp-mode-setup) ; if needed
 
 ;;; ChangeLog:
+;;
+;; 2010-06-25 version 0.25
+;; - Emacs21でも利用出来るように修正
 ;;
 ;; 2010-02-05
 ;; - とりあえずライセンス適用 (GPLv3)
@@ -96,7 +100,7 @@
 (require 'comint)                       ; comint-send-string
 
 (defgroup newlisp nil
-  "newlisp source code editing functions."
+  "Newlisp source code editing functions."
   :group 'newlisp
   :prefix "newlisp-"                    ; or "nl-" ?
   :version "0.2")
@@ -121,7 +125,7 @@ Otherwise maybe `shift_jis'.")
 If not running, then start new process."
   (let ((default-process-coding-system
          (cons #1=newlisp-process-coding-system #1#))
-        (switches (split-string newlisp-switches "\s")))
+        (switches (split-string newlisp-switches " ")))
     (if (null newlisp-load-init-p)
         (pushnew "-n" switches :test #'equal))
     (get-buffer-process
@@ -148,7 +152,7 @@ If not running, then start new process."
       (cond
         ((string-match "\n" str-sexp)   ; multi-line expr
          (sendln "[cmd]")
-         (sleep-for 0.05)               ; FIXME
+         (sleep-for 0.05)               ; XXX
          (sendln str-sexp)
          (sendln "[/cmd]"))
         (:else
@@ -205,9 +209,10 @@ This function is not available on Win32."
 (defun newlisp-signal-process (&optional sigcode)
   "Send a signal to newlisp process. Default signal is TERM."
   (interactive "P")
+  (or sigcode (setq sigcode 15))
   ;; e.g. (see `kill -l`)
   ;; 2) SIGINT  9) SIGKILL  15) SIGTERM
-  (signal-process (newlisp-process) (or sigcode 15)))
+  (signal-process (newlisp-process) sigcode))
 
 ;; eval sync
 ;; (defun newlisp-eval-buffer (arg)
@@ -273,8 +278,8 @@ This function is not available on Win32."
       "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query" "bayes-train" "begin" "beta"
       "betai" "bind" "binomial" "bits" "callback" "case" "catch" "ceil" "change-dir" "char"
       "chop" "clean" "close" "command-event" "cond" "cons" "constant" "context" "context?"
-      "copy" "copy-file" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-z" "current-line"
-      "curry" "date" "date-value" "debug" "dec" "def-new" "default"
+      "copy" "copy-file" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-z"
+      "current-line" "curry" "date" "date-value" "debug" "dec" "def-new" "default"
       ;; "define" "define-macro"
       "delete" "delete-file" "delete-url" "destroy" "det" "device" "difference" "directory"
       "directory?" "div" "do-until" "do-while" "doargs" "dolist" "dostring" "dotimes"
@@ -308,7 +313,7 @@ This function is not available on Win32."
       ;; add functions from v.10.2.0 or later
       "++" "--" "extend" "module" "prefix" "term" "read" "self"  "write"
       ;; should be avoided in new code
-       "read-buffer" "write-buffer"
+      "read-buffer" "write-buffer"
       ;; remove functions
       ;; "name"
       )
@@ -343,6 +348,58 @@ This function is not available on Win32."
       (intern s array))
     array)
   "newLISP symbol table.")
+
+(defvar newlisp-mode-hook nil)
+(defvar newlisp-mode-map
+  (let ((map (make-sparse-keymap "newlisp")))
+    (set-keymap-parent map lisp-mode-shared-map)
+    map))
+(define-key newlisp-mode-map "\M-:" 'newlisp-eval)
+(define-key newlisp-mode-map "\e\C-x" 'newlisp-eval-defun)
+(define-key newlisp-mode-map "\C-x\C-e" 'newlisp-eval-last-sexp)
+(define-key newlisp-mode-map "\C-c\C-r" 'newlisp-eval-region)
+(define-key newlisp-mode-map "\C-c\C-l" 'newlisp-load-file)
+(define-key newlisp-mode-map "\C-c\C-z" 'newlisp-show-repl)
+(define-key newlisp-mode-map "\e\t" 'newlisp-complete-symbol) ; ESC TAB
+;; (define-key newlisp-mode-map "\C-c\C-i" 'newlisp-complete-symbol)
+(define-key newlisp-mode-map [f5] 'newlisp-execute-file)
+(define-key newlisp-mode-map [(control c) f4] 'newlisp-kill-process) ; C-c f4
+(define-key newlisp-mode-map "\C-m" 'newline-and-indent)
+
+(defvar newlisp-mode-syntax-table
+  (let ((table (copy-syntax-table emacs-lisp-mode-syntax-table)))
+    ;; SYMBOL
+    (modify-syntax-entry ?` "_   " table)
+    (modify-syntax-entry ?, "_   " table)
+    (modify-syntax-entry ?@ "_   " table)
+    (modify-syntax-entry ?| "_   " table)
+    (modify-syntax-entry ?\[ "_   " table)
+    (modify-syntax-entry ?\] "_   " table)
+    ;; STRING (match)
+    (modify-syntax-entry ?\{ "(}   " table)
+    (modify-syntax-entry ?\} "){   " table)
+    ;; COMMENT
+    (modify-syntax-entry ?# "<   " table)
+    ;; ESCAPE
+    ;; ?\\ は通常はエスケープ文字だが、{}で囲まれた文字列内の場合はリテラルになる
+    table))
+
+;;;###autoload
+(defun newlisp-mode ()
+  "Major mode for editing newLISP code."
+  (interactive)
+  (kill-all-local-variables)
+  (setq major-mode 'newlisp-mode
+        mode-name "newLISP")
+  (use-local-map newlisp-mode-map)
+  (lisp-mode-variables newlisp-mode-syntax-table)
+  ;; (set-syntax-table newlisp-mode-syntax-table)
+  ;; (set (make-local-variable (quote font-lock-defaults)) '(fn t nil nil fn))
+  ;; (set (make-local-variable 'font-lock-keywords-case-fold-search) nil)
+  ;; (set (make-local-variable 'comment-start) "# ")
+  (if (fboundp 'run-mode-hooks)
+      (run-mode-hooks 'newlisp-mode-hook)
+      (run-hooks 'newlisp-mode-hook)))
 
 (defsubst newlisp-find-symbol (string)
   "Locates a symbol whose name is STRING in a newLISP symbols."
@@ -389,55 +446,6 @@ This function is not available on Win32."
 (defindent doargs 1)
 (defindent dotree 1)
 
-(defvar newlisp-mode-hook nil)
-(defvar newlisp-mode-map
-  (let ((map (make-sparse-keymap "newlisp")))
-    (set-keymap-parent map lisp-mode-shared-map)
-    map))
-(define-key newlisp-mode-map "\M-:" 'newlisp-eval)
-(define-key newlisp-mode-map "\e\C-x" 'newlisp-eval-defun)
-(define-key newlisp-mode-map "\C-x\C-e" 'newlisp-eval-last-sexp)
-(define-key newlisp-mode-map "\C-c\C-r" 'newlisp-eval-region)
-(define-key newlisp-mode-map "\C-c\C-l" 'newlisp-load-file)
-(define-key newlisp-mode-map "\C-c\C-z" 'newlisp-show-repl)
-(define-key newlisp-mode-map "\e\t" 'newlisp-complete-symbol) ; ESC TAB
-;; (define-key newlisp-mode-map "\C-c\C-i" 'newlisp-complete-symbol)
-(define-key newlisp-mode-map [f5] 'newlisp-execute-file)
-(define-key newlisp-mode-map [(control c) f4] 'newlisp-kill-process) ; C-c f4
-(define-key newlisp-mode-map "\C-m" 'newline-and-indent)
-
-(defvar newlisp-mode-syntax-table
-  (let ((table (copy-syntax-table emacs-lisp-mode-syntax-table)))
-    ;; SYMBOL
-    (modify-syntax-entry ?` "_   " table)
-    (modify-syntax-entry ?, "_   " table)
-    (modify-syntax-entry ?@ "_   " table)
-    (modify-syntax-entry ?| "_   " table)
-    (modify-syntax-entry ?\[ "_   " table)
-    (modify-syntax-entry ?\] "_   " table)
-    ;; STRING (match)
-    (modify-syntax-entry ?\{ "(}   " table)
-    (modify-syntax-entry ?\} "){   " table)
-    ;; COMMENT
-    (modify-syntax-entry ?# "<   " table)
-    ;; ESCAPE
-    ;; ?\\ は通常はエスケープ文字だが、{}で囲まれた文字列内の場合はリテラルになる
-    table))
-
-;;;###autoload
-(defun newlisp-mode ()
-  "Major mode for editing newLISP code."
-  (interactive)
-  (kill-all-local-variables)
-  (setq major-mode 'newlisp-mode
-        mode-name "newLISP")
-  (use-local-map newlisp-mode-map)
-  (lisp-mode-variables)
-  (set-syntax-table newlisp-mode-syntax-table)
-  ;; (set (make-local-variable (quote font-lock-defaults)) '(fn t nil nil fn))
-  ;; (set (make-local-variable 'font-lock-keywords-case-fold-search) nil)
-  (run-mode-hooks 'newlisp-mode-hook))
-
 ;; $ html2txt $NEWLISPDIR/newlisp_manual.html -o newlisp_manual.txt
 ;; or use www-browser [File] -> [Save Page As (Text)]
 (defvar newlisp-manual-text "newlisp_manual.txt")
@@ -478,7 +486,7 @@ This function is not available on Win32."
                                      (if default
                                          (format " (default %s)" default)
                                          ""))
-                             (newlisp-keywords)
+                             newlisp-obarray ;(newlisp-keywords)
                              nil t nil nil default))))
   (if (equal keyword "setf")
       (setq keyword "setq"))
