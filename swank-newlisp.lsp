@@ -1,44 +1,47 @@
-# swank-newlisp.lsp -- Swank server for newLISP.
+# swank-newlisp.lsp -- Swank server for newLISP.    -*- coding:utf-8 -*-
 #
-# Copyright (C) 2009, Shigeru Kobayashi
+# Copyright (C) 2009-2010 KOBAYASHI Shigeru (kosh)
 #
 # This file is licensed under the terms of the GNU General Public
 # License as distributed with newLISP.
 
 ;;; Commentary:
 ;;
-;; This is tiny Swank server written by newLISP. It has been tested
-;; with newLISP v.10.1.1 on Ubuntu UTF-8.
+;; This is tiny Swank server written by newLISP [1]. It has been
+;; tested with newLISP v.10.1.2 on Ubuntu UTF-8.
 ;;
-;; * newlISP is a Lisp-like, general-purpose scripting language.
+;; [1] newlISP is a Lisp-like, general-purpose scripting language.
 
 ;;; Installation
 ;;
-;; 1. Install newlisp binary.   <http://www.newlisp.org/downloads/>
-;;    (If ubuntu, simply type `apt-get install newlisp')
+;; 1. Install newlisp binary (or compile from source).
+;;    <http://www.newlisp.org/downloads/>
 ;;
 ;; 2. Add something like this to your .emacs:
 ;;
-[text]
-(defun swank-newlisp-init (port-filename coding-system)
-  (format "%S\n" `(swank:start-server ,port-filename)))
+;; (defun swank-newlisp-init (port-filename coding-system)
+;;   (format "%S\n" `(swank:start-server ,port-filename)))
 
-(setq slime-protocol-version nil) ; ignore version query (if need)
-(defvar swank-newlisp-filename "./swank-newlisp.lsp") ; This file
-(defun slime-newlisp ()
-  (interactive)
-  (let ((slime-lisp-implementations
-         `((newlisp ("newlisp" "-n" ,swank-newlisp-filename)
-                    :init swank-newlisp-init
-                    :coding-system utf-8-unix))))
-    (slime 'newlisp)))
-[/text]
+;; (setq slime-protocol-version nil) ; ignore version query (if need)
+;; (defvar swank-newlisp-filename "./swank-newlisp.lsp") ; This file
+;; (defun slime-newlisp ()
+;;   (interactive)
+;;   (let ((slime-lisp-implementations
+;;          `((newlisp ("newlisp" "-n" ,swank-newlisp-filename)
+;;                     :init swank-newlisp-init
+;;                     :coding-system utf-8-unix))))
+;;     (slime 'newlisp)))
 ;;
 ;; 3. Use `M-x slime-newlisp' to start it.
 ;;
 ;; 4. If you want to kill swank process,
 ;;    use `M-x slime-repl-sayoonara' (or `slime-quit-lisp')
 
+;;; ChangeLog:
+;;
+;; 2010-04-11	newLISPのバージョンアップに対応 (v10.1.12: s/name/term)
+;;              win32にてstdoutの出力を拾えるように修正(add win32-peek)
+;; 2009-09-12	初版作成。REPLが動くくらい
 
 ;;; Code:
 
@@ -59,14 +62,15 @@
 
 (define let* letn)
 (define defparameter define)
-(define-macro (defvar symbol init doc)
+(define-macro (defvar symbol value doc)
   "Define variable if SYMBOL value is nil."
   (if (nil? (eval symbol))
-      (set symbol (eval init)))
+      (set symbol (eval value)))
   symbol)
 
+;; @syntax (defun fname arglist body...)
 (define-macro (defun)
-  (set (args 0) (append (fn) (cons (args 1) (2 (args))))))
+  (set (args 0) (append (lambda ) (cons (args 1) (2 (args))))))
 
 ;;; The `DEFSLIMEFUN' macro defines a function that Emacs can call via RPC.
 (define defslimefun defun)
@@ -76,6 +80,11 @@
   (let ((result (eval form1)))
     (map eval (args))
     result))
+(define-macro (prog2 form1 form2)
+  (letex ((_body (cons 'begin (args))))
+    (progn
+      (eval form1)
+      (prog1 (eval form2) _body))))
 
 (define (make-string n (init "\000"))
   (dup init n))
@@ -84,8 +93,8 @@
   (let ((return throw))
     (catch (while true (map eval (args))))))
 
+;; @syntax (read-sequence sequence stream)
 (define-macro (read-sequence)
-  "syntax: (read-sequence sequence stream)"
   (net-receive (eval (args 1))
                (eval (args 0))
                (string-length (eval (args 0)))))
@@ -93,15 +102,33 @@
 (define (write-string str (stream *stdout))
   (net-send stream str))
 
+;; ちょっと適当 
+(define (listen stream)
+  (< 0 (or (peek stream)
+           (net-peek stream)
+           -1)))
+
+;; @syntax (unwind-protect protected-form cleanup-form*) => result
 (define-macro (unwind-protect form)
-  "syntax: (unwind-protect protected-form cleanup-form*) => result"
   (local (result)
     (if (catch (eval form) 'result)
         (begin (map eval (args)) result)
         (begin (map eval (args)) (throw-error result)))))
 
-;; (define-macro (with-simple-restart) ...)
 ;; (define read-from-string read-expr)
+;; (define-macro (simple-restart restart-designer)
+;;   ;;(mapset (restart-name format-control format-arguments) restart-designer
+;;   (local (restart-handler)
+;;     (cond ((catch 'restart-handler (last (map eval (args))))
+;;            restart-handler)
+;;           ("else"
+;;            (println (apply format (rest restart-designer)))
+;;            nil))
+;;     ))
+;; (def)
+
+(define (find-symbol str (ctx (context)))
+  (sym str ctx nil))
 
 
 ;;;; newLISP Utility
@@ -109,6 +136,17 @@
 (if (primitive? utf8len)
     (define string-length utf8len)
     (define string-length length))
+
+;; (or (primitive? peek) (define peek net-peek))
+;; for "Win32"
+(unless (primitive? peek)
+(define (win32-peek fd)
+  (or (net-peek fd)
+      (let ((ptr (seek fd)))
+        (when ptr
+          (- (seek fd -1) (seek fd ptr))))))
+(define peek win32-peek)
+)
 
 (define (utf8?)
   "Non-nil means newLISP is UTF-8 eoncoding are supported."
@@ -119,14 +157,14 @@
 (define (error-text err) (if (list? err) (nth 1 err) "What error?"))
 
 (define (find-context obj)
-  "Return context named OBJ. If not found, then return NIL."
+  "Return context named OBJ. If not found, then return nil."
   (let ((x (cond ((string? obj) (eval-string obj MAIN nil))
-                 ((symbol? obj) (eval-string (name obj) MAIN nil))
+                 ((symbol? obj) (eval-string (term obj) MAIN nil))
                  ("else" obj))))
     (if (context? x) x nil)))
 
-(define (symbol-name x) (name x nil))
-(define (context-name x) (name x true))
+(define symbol-name term)
+(define context-name prefix)
 (define (symbol-context x) (find-context (context-name x)))
 
 ;; (define even? (lambda (n) (= (& n 0x01) 0)))
@@ -136,14 +174,14 @@
 
 (define (create-socket host port)
   (or (net-listen port host)
-      (throw-error (net-error))))
+      (throw-error (error-text (net-error)))))
 (define (local-port socket) (nth 1 (net-local socket)))
 (define (close-socket socket) (net-close socket))
 (define (accept-connection socket) (net-accept socket))
 
 (define (getpid) (sys-info -3))
 
-(defvar *coding-system* (if (utf8?) "UTF-8" "SHIFT_JIS"))
+(defvar *coding-system* (if (utf8?) "UTF-8" "Shift_JIS"))
 
 (defvar *loopback-interface* "127.0.0.1") ; "localhost"
 (defvar default-server-port 4005)
@@ -179,6 +217,7 @@
 ;; (define (stop-server port) (close-socket *listener-sockets*))
 ;; (define (restart-server port dont-close) (stop-server port) (sleep 500) (create-server port dont-close))
 
+;; write-file ?
 (define (announce-server-port file port)
   (append-file file (format "%d\n" port)))
 
@@ -190,7 +229,7 @@
 
 (define (decode-message stream)
   (let* ((len (decode-message-length stream))
-         (str (make-string len))
+         (str (make-string len "@"))
          (pos (read-sequence str stream)))
     (if (!= len pos) (log-event ";; Short read: %s\n" str))
     (string-to-rpc str)))
@@ -209,7 +248,7 @@
     (dotimes (i len)
       (setf (str i) (char (read-utf8 stream))))
     (if (!= len (string-length str)) (log-event ";; Short read: %s\n" str))
-    ;; (log-event "READ: %s\n" str)
+    ;; (log-event "READ: %s\n" (to-string str))
     (string-to-rpc str)))
 )
 
@@ -224,6 +263,14 @@
 
 (define (send-to-emacs object)
   (encode-message object *emacs-connection*))
+
+(define (emacs-write-string str)
+  (send-to-emacs (list ":write-string" str)))
+
+(define (emacs-new-package ctx)
+  (send-to-emacs (list ":new-package"
+                       (context-name ctx)
+                       (context-string-for-prompt ctx))))
 
 (define (encode-message message stream)
   (let* ((str (rpc-to-string message))
@@ -242,7 +289,7 @@
     (true
      (letex ((_id (event -1)))
        (log-event "Unhandled event: %s\n" (string event))
-       (send-to-emacs '(":write-string" "; Evaluation aborted.\n" ":repl-result"))
+       ;; (send-to-emacs '(":write-string" "; Evaluation aborted.\n" ":repl-result"))
        (send-to-emacs '(":return" (":abort") _id))
        ;; (throw-to-toplevel)
        ))))
@@ -259,8 +306,8 @@
 (defvar *log-events* true)
 (defvar *log-output* *stderr)
 
+;; @syntax (log-event format-string args+)
 (define (log-event)
-  "syntax: (log-event format-string &rest args)"
   (when *log-events*
     (write-buffer *log-output* (apply format (args)))))
 
@@ -276,7 +323,7 @@
                (cond ((and (symbol? x) (= (symbol-name x) ":"))
                       (setq kwd? true))
                      (kwd?
-                      (push (format ":%s" (name x)) rpc -1) ; x -> ":x"
+                      (push (format ":%s" (symbol-name x)) rpc -1) ; x -> ":x"
                       (setq kwd? nil))
                      ((list? x)
                       (push (to-rpc x) rpc -1))
@@ -300,7 +347,7 @@
     (string (map create-rpc form))))
 
 ;; or prin1-to-string
-;; (read-expr (to-string STRING)) == STRING
+;; (read-expr (to-string STRING)) === STRING
 (define (to-string obj)
   (cond ((string? obj) (format"\"%s\"" (replace "\\" obj "\\\\")))
         ("else" (string obj))))
@@ -318,9 +365,20 @@
 ;; (define (sldb-backtrace exc start _end) )
 ;; (define (frame-src-loc exc frame) )
 
+;; SWANK側のプロトコルをでっち上げる  
+(define (slime-changelog-date)
+  (if (file? slime-changelog)
+      (let ((fp (open slime-changelog "r")))
+        (unwind-protect
+             (first (parse (read-line fp) " "))
+          (close fp)))))
+(defvar slime-changelog "/usr/share/doc/slime/changelog")
+(defvar slime-protocol-version (slime-changelog-date))
+
 (defslimefun connection-info ()
   (letex ((_pid (getpid))
-          (_version (sys-info -2)))
+          (_version (sys-info -2))
+          (_pv (or (slime-changelog-date) "2009-09-28")))
     '(":pid" _pid
       ":style" nil
       ":package" (":name" "MAIN"
@@ -329,12 +387,12 @@
                               ":name" "newlisp"
                               ":version" _version)
       ":machine" (":instance" "" ":type" "" ":version" "")
-      ":features" ()
-      ;; ":version" *swank-wire-protocol-version*
+      ":features" nil
+      ":version" _pv
       )))
 
 (defslimefun create-repl (target)
-  (list "MAIN" ""))
+  (set-context "MAIN"))
 
 (defslimefun swank-require (modules filename)
   nil)
@@ -344,7 +402,7 @@
 
 (defslimefun set-default-directory (dir)
   (unless (change-dir dir)
-    (log-event "change-dir error: `%s' %s\n" dir (last (sys-error))))
+    (log-event "change-dir: `%s' %s\n" dir (error-text (sys-error))))
   dir)
 
 (defslimefun load-file (filename)
@@ -360,25 +418,37 @@
 (defvar *error-object* (sym "#:ERR"))
 (define (error? obj) (= obj *error-object*))
 
+;; FIXME: 'MAIN:foo をコンテキスト表記なしで表示したい
+;; 'MAIN:foo -> 'foo
 (define (eval-string-for-emacs str)
-  (let ((value (eval-string str *buffer-context* *error-object*)))
+  (let ((value
+         ;; DO EVAL
+         (eval-string str *buffer-context* *error-object*)))
     (prog1
-        (cond ((error? value)
-               (log-event "EVAL-STRING ERROR [%s]: %s\n"
-                          (string *buffer-context*) (error-text (last-error)))
-               (error-text (eval-error)))
-              ("else"
-               (to-string value)))
-      (set-context-maybe str) )))
+        (cond
+          ((error? value)
+           (log-event "EVAL-STRING ERROR [%s]: %s\n"
+                      (string *buffer-context*) (error-text (last-error)))
+           (error-text (eval-error)))
+          ("else"
+           (to-string value)))
+      (set-context-maybe str))))
+
+(define (set-context cname)
+  "Set context named str-context.
+Return the context-name and the string to use in the prompt."
+  (let ((ctx (or (find-context cname)
+                 (progn
+                   (log-event (string "set-context: " cname " not found\n"))
+                   *buffer-context*))))
+    (setf *buffer-context* ctx)
+    (list (term ctx) (context-string-for-prompt ctx))))
 
 (define (set-context-maybe str)
   (when (regex "\\(context '?(\\w+)\\)" str)
-    (let* ((cname $1) (ctx (find-context cname)))
-      (when (context? ctx)
-        (setf *buffer-context* ctx)
-        ;; (:new-package PACKAGE-NAME PACKAGE-STRING-FOR-PROMPT)
-        (send-to-emacs
-         (list ":new-package" cname (context-string-for-prompt cname)))))))
+    (let (cname (find-context (last (read-expr $0))))
+      (set-context cname)
+      (emacs-new-package cname))))
 
 (define (context-string-for-prompt ctx)
   (or (context? ctx)
@@ -399,8 +469,9 @@
 (define (eval-error)
   "Reports the last error without swank-server error."
   (let ((err (last-error)))
-    (and err (let ((n (error-number err)))
-               (list n (format "ERR: %s" (error-text (last-error n))))))))
+    (when err
+      (list (error-number err)
+            (first (parse (error-text err) "\n"))))))
 
 ;; or eval-for-emacs
 (define (emacs-rex form ctx thread-id id)
@@ -411,19 +482,51 @@
           'error-handler)
         (letex ((_id id))               ; error occurred at (EVAL FORM)
           (log-event "ABORT: %s\n" error-handler)
-          (send-to-emacs '(":write-string" "; Evaluation aborted.\n" ":repl-result"))
+          ;; (send-to-emacs '(":write-string" "; Evaluation aborted.\n" ":repl-result")) ; 重複っぽい 
           (send-to-emacs '(":return" (":abort") _id)))
         )))
 
 (defslimefun interactive-eval (str)
-  (eval-string-for-emacs str))
+  (eval-region str))
 
 (defslimefun interactive-eval-region (str)
   (interactive-eval str))
 
+(define (eval-region str)
+  (with-output-to-repl
+      (track-context
+       (lambda ()
+         (eval-string-for-emacs str)))))
+
+(map set '(repl-input repl-output) (pipe))
+
+(define-macro (with-output-to-repl)
+  (letex ((_body (cons 'begin (args))))  
+    (let ((src (device)))
+      (device repl-output)           ; printなどの出力先を擬似的に変更する
+      (unwind-protect
+           (prog1
+               _body
+             (write-repl-output repl-input))
+        (device src)))))
+
+(define (write-repl-output stream)
+  (let ((buf ""))
+    (while (listen stream)
+      (write-buffer buf (char (read-utf8 stream))))
+    (unless (= buf "")
+      (emacs-write-string buf))))
+
+(define (track-context func)
+  (let ((old *buffer-context*))
+    (unwind-protect
+         (func)
+      (if (!= old *buffer-context*)
+          (emacs-new-package *buffer-context*)))))
+
 ;; C-u C-x C-e
-;; (defslimefun eval-and-grab-output (str)
-;;   (listener-eval str))
+(defslimefun eval-and-grab-output (str)
+  (listener-eval str))
 
 (defslimefun throw-to-toplevel ()
   (throw 'swank-toplevel))
@@ -431,10 +534,8 @@
 ;;;; Listener eval
 
 (defslimefun listener-eval (str)
-  (letex ((_result (eval-string-for-emacs str) ))
-    (send-to-emacs '(":write-string" _result ":repl-result"))
-    (send-to-emacs '(":write-string" "\n" ":repl-result"))
-    nil))
+  (letex ((_value (eval-region str)))
+    '(":values" _value)))
 
 (defslimefun buffer-first-change (filename) nil)
 
@@ -456,7 +557,14 @@
 ;; call-compiler
 
 (defslimefun simple-completions (str package) '(nil nil))
-(defslimefun list-all-package-names (str) nil)
+(defslimefun list-all-package-names (str)
+  (map name (list-all-contexts)))
+
+(define (list-all-contexts)
+  (filter context? (map eval (symbols MAIN))))
+
+(defslimefun set-package (str-context)
+  (set-context str-context))
 
 ;;;; Streams
 
@@ -473,8 +581,8 @@
     (cond ((list? alist) (to-string (cons symbol alist)))
           ("else" "nil"))))
 
+;; @syntax (raw-specs &key arg-indices print-right-margin print-lines)
 (defslimefun arglist-for-echo-area (raw-specs)
-  "syntax: (raw-specs &key arg-indices print-right-margin print-lines)"
   (let ((lst (match '((?) *) raw-specs)))
     (and lst
          (let* ((symbol (read-expr (first lst) *buffer-context* nil))
@@ -492,6 +600,10 @@
            (first def))
           ("else" nil))))               ; ":not-available"
 
+;; (load "arglist.lsp")
+;; (load "http://github.com/kosh04/nl-modules/raw/master/arglist.lsp")
+;; (define swank:arglist MAIN:arglist)
+
 (define (function-name function) nil)
 (define (macroexpand-all form) nil)
 (define (compiler-macroexpand-1 form &optional e) nil)
@@ -504,10 +616,10 @@
 
 ;;;; Fuzzy Symbol Completion
 
-;; contrib/swank-fuzzy.lisp
+;; see: contrib/swank-fuzzy.lisp
 (defslimefun fuzzy-completions
     (str default-package-name &key limit time-limit-in-msec)
-  '(() nil))
+  '(() nil) )
 
 ;;;; Macroexpansion
 
