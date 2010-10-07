@@ -15,7 +15,7 @@ init.lsp
 --------
 雑多な関数群。
 
-* nl-modules.git - その他モジュール
+* nl-modules.git - その他モジュールはこちら
 
   <http://github.com/kosh04/nl-modules>
 
@@ -33,14 +33,16 @@ Emacsで編集するための簡易メジャーモード。
 - 関数名の補完 (組み込み関数のみ)
 
 
-newlisp_manual.txt (v.10.1.7)
+newlisp_manual.txt (v.10.2.8 rev-19)
 -----------------------------------
 HTMLマニュアルをテキストに変換したもの。
+ブラウザで開くと非常に重いので、一旦ローカルに落とす方が良い
+
+`wget http://github.com/kosh04/newlisp-files/raw/master/newlisp_manual.txt`
 
 newLISP Manual and Reference
 <http://www.newlisp.org/downloads/newlisp_manual.html>
 
-* newlisp_manual.txt.tar.gz - 上記のファイルを圧縮したもの (v.10.1.0 rev 4)
 
 swank-newlisp.lsp
 -----------------
