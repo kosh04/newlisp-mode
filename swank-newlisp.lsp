@@ -39,7 +39,7 @@
 
 ;;; ChangeLog:
 ;;
-;; 2010-04-11	newLISPのバージョンアップに対応 (v10.1.12: s/name/term)
+;; 2010-04-11	newLISPのバージョンアップに対応 (v10.1.12: s/name/term/)
 ;;              win32にてstdoutの出力を拾えるように修正(add win32-peek)
 ;; 2009-09-12	初版作成。REPLが動くくらい
 
@@ -279,8 +279,8 @@
     (write-string (format "%06x" len) stream)
     (write-string str stream)))
 
-;; Normal RPC use  (:emacs-rex ...)
-;; newLISP RPC use (":emacs-rex" ...)
+;; Normal RPC  -> (:emacs-rex ...)
+;; newLISP RPC -> (":emacs-rex" ...)
 (define (dispatch-event event)
   (log-event "DISPATCHING: %s\n" (string event))
   (case (event 0)
@@ -339,7 +339,7 @@
          (lambda (x)
            (cond ((and (string? x)
                        ;; (even? $idx)
-                       (starts-with x ":"))
+                       (= (x 0) ":"))
                   (sym x))              ; ":x" -> :x
                  ((and (list? x) (not (lambda? x)) (not (macro? x)))
                   (map create-rpc x))
@@ -349,7 +349,7 @@
 ;; or prin1-to-string
 ;; (read-expr (to-string STRING)) === STRING
 (define (to-string obj)
-  (cond ((string? obj) (format"\"%s\"" (replace "\\" obj "\\\\")))
+  (cond ((string? obj) (format "\"%s\"" (replace "\\" obj "\\\\")))
         ("else" (string obj))))
 
 ;; (define (pseudo-debug exc)
@@ -428,7 +428,8 @@
         (cond
           ((error? value)
            (log-event "EVAL-STRING ERROR [%s]: %s\n"
-                      (string *buffer-context*) (error-text (last-error)))
+                      (string *buffer-context*)
+                      (error-text (last-error)))
            (error-text (eval-error)))
           ("else"
            (to-string value)))
@@ -477,7 +478,8 @@ Return the context-name and the string to use in the prompt."
 (define (emacs-rex form ctx thread-id id)
   (local (error-handler)
     (or (catch
-            (letex ((_expr (eval form)) (_id id))
+            (letex ((_expr (eval form))
+                    (_id id))
               (send-to-emacs '(":return" (":ok" _expr) _id)))
           'error-handler)
         (letex ((_id id))               ; error occurred at (EVAL FORM)
@@ -513,7 +515,7 @@ Return the context-name and the string to use in the prompt."
 (define (write-repl-output stream)
   (let ((buf ""))
     (while (listen stream)
-      (write-buffer buf (char (read-utf8 stream))))
+      (write buf (char (read-utf8 stream))))
     (unless (= buf "")
       (emacs-write-string buf))))
 
