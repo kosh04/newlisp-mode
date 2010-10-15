@@ -43,12 +43,16 @@
 
 ;;; ChangeLog:
 
+;; 2010-10-15
+;; - syntax-tableの指定が間違っていたので修正
+;;
 ;; 2010-10-08 version 0.26
 ;; - リモートのファイル上でプロセス生成に失敗するとreplバッファ
 ;;   (*newlisp*)が残るので間に合わせ修正
 ;; - メニューバーを追加してみた
 ;; - キーワードをnewLISP v10.2.14に追従
 ;; - Win32の場合に利用できない関数の色分けができてなかったのを修正
+;; - [text][cmd]キーワードのfont-lockを変更 (emacs21では未定義だったので)
 ;;
 ;; 2010-06-25 version 0.25
 ;; - Emacs21でも利用出来るように修正
@@ -105,6 +109,7 @@
 (eval-when-compile
   (require 'cl))
 (require 'comint)                       ; comint-send-string
+(require 'font-lock)
 
 (defgroup newlisp nil
   "Newlisp source code editing functions."
@@ -261,7 +266,7 @@ This function is not available on Win32."
              (:else
               (with-current-buffer outbuf
                 (goto-char (point-min))
-                (if (< (line-number-at-pos (point-max)) 5)
+                (if (< (count-lines (point-min) (point-max)) 5)
                     (message "%s" (replace-regexp-in-string
                                    "\n+$" "" (buffer-string)))
                     (pop-to-buffer (process-buffer process))))))))
@@ -419,8 +424,8 @@ This function is not available on Win32."
   (setq major-mode 'newlisp-mode
         mode-name "newLISP")
   (use-local-map newlisp-mode-map)
-  (lisp-mode-variables newlisp-mode-syntax-table)
-  ;; (set-syntax-table newlisp-mode-syntax-table)
+  (lisp-mode-variables)
+  (set-syntax-table newlisp-mode-syntax-table)
   ;; (set (make-local-variable (quote font-lock-defaults)) '(fn t nil nil fn))
   ;; (set (make-local-variable 'font-lock-keywords-case-fold-search) nil)
   ;; (set (make-local-variable 'comment-start) "# ")
@@ -513,7 +518,7 @@ This function is not available on Win32."
                                      (if default
                                          (format " (default %s)" default)
                                          ""))
-                             newlisp-obarray ;(newlisp-keywords)
+                             newlisp-obarray ; (newlisp-keywords)
                              nil t nil nil default))))
   (if (equal keyword "setf")
       (setq keyword "setq"))
@@ -555,7 +560,7 @@ This function is not available on Win32."
    (cons (eval-when-compile (regexp-opt newlisp-context-keyowrds 'words))
          font-lock-type-face)
    (cons (eval-when-compile (regexp-opt newlisp-tag-keywords)) ; not 'words
-         font-lock-preprocessor-face)
+         font-lock-string-face)
    (cons (eval-when-compile (regexp-opt newlisp-un*x-based-function-keywords 'words))
          (if (eq system-type 'windows-nt)
              font-lock-warning-face
