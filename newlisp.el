@@ -1,9 +1,9 @@
 ;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
 
-;; Copyright (C) 2008,2009,2010 KOBAYASHI Shigeru
+;; Copyright (C) 2008, 2009, 2010, 2011 KOBAYASHI Shigeru
 
 ;; Author: KOBAYASHI Shigeru <shigeru.kb@gmail.com>
-;; Version: 0.25
+;; Version: 0.3
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp
 ;; URL: http://github.com/kosh04/newlisp-files/raw/master/newlisp.el
@@ -31,18 +31,27 @@
 ;;
 ;; newLISP Home - http://www.newlisp.org/
 ;;
-;; このファイルの最新バージョンはこちらにあります:
-;;      http://github.com/kosh04/newlisp-files/tree/master
+;; このファイルの最新バージョンはこちらにあります
+;;      https://github.com/kosh04/newlisp-files
 
 ;;; Installation:
 ;;
 ;; (require 'newlisp)
 ;; (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
 ;; (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
-;; (newlisp-mode-setup) ; if needed
+;; (newlisp-mode-setup) 	; if needed
+;; (defun newlisp-user-hook ()
+;;   (setq comment-start "; ")
+;;   (setq tab-width 8)
+;;   (setq indent-tabs-mode nil))
+;; (add-hook 'newlisp-mode-hook 'newlisp-user-hook)
 
 ;;; ChangeLog:
 
+;; 2011-01-28 version 0.3
+;; - newlisp-complete-symbol: キーワード補完関数を作り直した
+;; - newlisp--allow-lazy-eval: readlineよる余計なタブ補完を抑制するように修正
+;;
 ;; 2010-10-15
 ;; - syntax-tableの指定が間違っていたので修正
 ;;
@@ -82,6 +91,8 @@
 ;;
 ;; - (newlisp-eval "(eval-string \"((define hex\t0xff))\")") => ERR
 ;; - 複数行のS式([cmd]~[cmd]タグで囲まれたS式)の出力が溜まる場合がある
+;; - 先頭に複数のTABを含むS式を入力するとreadline関数の補完がうざったい
+;;   > これはv.10.2.11以降のmultiline-modeにて発生する
 ;; - ２バイト文字を含むパスから起動することができない
 ;;   e.g. "c:/Documents and Settings/User/デスクトップ/"
 ;;   これは文字コードの違いが問題: sjis(windowsのパス名),utf-8(newlisp)
@@ -102,7 +113,6 @@
 ;; - 出力だけでなく入力も*newlisp*バッファに送るべきかもしれない
 ;; - lisp-modeから間借りしている機能は分割するべきかも
 ;; - 全ては気の赴くままに
-
 
 ;;; Code:
 
@@ -163,12 +173,19 @@ If not running, then start new process."
 ;;;###autoload
 (defalias 'run-newlisp 'newlisp-show-repl)
 
+(defvar newlisp--allow-lazy-eval t)
+
 (defun newlisp-eval (str-sexp)
   "Eval newlisp s-expression."
   (interactive "snewLISP Eval: ")
   (let ((proc (newlisp-process)))
     (labels ((sendln (str)
                (comint-send-string proc (concat str "\n"))))
+      ;; タブ補完を抑制する [tab] -> [space]
+      (if newlisp--allow-lazy-eval
+          (setq str-sexp (replace-regexp-in-string
+                          "\t\t" (make-string (* 2 tab-width) #x20)
+                          str-sexp)))
       (cond
         ((string-match "\n" str-sexp)   ; multi-line expr
          (sendln "[cmd]")
@@ -438,25 +455,50 @@ This function is not available on Win32."
   (intern-soft string newlisp-obarray))
 
 (defun newlisp-complete-symbol ()
+  "Perform completion on newLISP symbol preceding point."
   (interactive "*")
-  (let ((emacs-lisp-mode-syntax-table newlisp-mode-syntax-table)
-        (obarray newlisp-obarray))
-    (lisp-complete-symbol (lambda (s)
-                            (newlisp-find-symbol (symbol-name s))))))
+  ;; NOTE: newlisp's symbol is case-insensitive
+  (let* ((completion-ignore-case nil)
+         (from (save-excursion (backward-sexp) (point)))
+         (to (point))
+         (pattern (buffer-substring from to))
+         (completion (try-completion pattern newlisp-obarray)))
+    (cond ((eq completion t)
+           (message "Sole completion"))
+          ((null completion)
+           (message "Can't find completion for \"%s\"" pattern)
+           (ding))
+          ((not (string= pattern completion))
+           (delete-region from to)
+           (insert completion))
+          (:else
+           (message "Making completion list...")
+           (with-output-to-temp-buffer "*Completions*"
+             (display-completion-list
+              (all-completions pattern newlisp-obarray nil)
+              pattern))
+           (message "Making completion list...done"))
+          )))
+
+;; (defun newlisp-complete-symbol ()
+;;   (interactive "*")
+;;   (let ((emacs-lisp-mode-syntax-table newlisp-mode-syntax-table)
+;;         (obarray newlisp-obarray))
+;;     (lisp-complete-symbol (lambda (s)
+;;                             (newlisp-find-symbol (symbol-name s))))))
 
 (defun newlisp-mode-setup ()
   (setq newlisp-process-coding-system
         (let ((res (shell-command-to-string
-                    (format "%s -n -e \"%s\"" newlisp-command
-                            '(primitive? MAIN:utf8)))))
+                    (format "%s -n -e \"(primitive? MAIN:utf8)\""
+                            newlisp-command))))
           (if (string-match "true" res)
               'utf-8 'shift_jis)))
   (setq newlisp-primitive-keywords
         (car (read-from-string
               (shell-command-to-string
-               (format "%s -n -e \"%s\"" newlisp-command
-                       '(map term (filter (lambda (s) (primitive? (eval s)))
-                                          (symbols MAIN))))))))
+               (format "%s -n -e \"(map term (filter (fn (s) (primitive? (eval s))) (symbols MAIN)))\""
+                       newlisp-command)))))
   t)
 
 
