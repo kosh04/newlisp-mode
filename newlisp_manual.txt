@@ -6,14 +6,14 @@ newLISP®
 *For Mac OS X, GNU Linux, Unix and Win32*
 
 
-    User Manual and Reference v.10.2.8 rev-19
+    User Manual and Reference v.10.3.0rev 2010-02-06
 
 
 
 
 
 
-Copyright © 2010 Lutz Mueller www.nuevatec.com
+Copyright © 2011 Lutz Mueller www.nuevatec.com
 <http://www.nuevatec.com>. All rights reserved.
 
 Permission is granted to copy, distribute and/or modify this document
@@ -36,7 +36,8 @@ newLISP is a registered trademark of Lutz Mueller.
 
    1. Introduction <#introduction>
    2. Deprecated functions and future changes <#deprecated>
-   3. Command line options <#options>
+   3. Interactive Lisp mode <#REPL>
+   4. Command line options <#options>
           * Command line help summary <#cmd_help>
           * Specifying files as URLs <#url_files>
           * No loading of init.lsp <#no_init>
@@ -53,33 +54,34 @@ newLISP is a registered trademark of Lutz Mueller.
           * Local domain Unix socket server <#local_domain_server>
           * Connection timeout <#conn_timeout>
           * inetd daemon mode <#inetd_daemon>
-   4. Startup, directories, environment <#startup>
+   5. Startup, directories, environment <#startup>
           * Environment variable NEWLISPDIR <#environment>
           * The initialization file init.lsp <#initialization>
           * Directories on Linux, BSD, Mac OS X <#directories_unix>
           * Directories on Win32 <#directories_win32>
-   5. Shared library module for Unix <#shared-lib>
-   6. DLL module for Win32 versions <#dll>
-   7. Evaluating newLISP expressions <#expressions>
+   6. Shared library module for Unix <#shared-lib>
+   7. DLL module for Win32 versions <#dll>
+   8. Evaluating newLISP expressions <#expressions>
+          * Intercactive multiline expressions <#multiline>
           * Integer, floating point data and operators <#int_float>
           * Evaluation rules and data types <#eval_rules>
-   8. Lambda expressions in newLISP <#lambda_expressions>
-   9. nil, true, cons and () in newLISP <#nil_and_true>
-  10. Arrays <#arrays>
-  11. Indexing elements of strings, lists and arrays <#indexing>
+   9. Lambda expressions in newLISP <#lambda_expressions>
+  10. nil, true, cons and () in newLISP <#nil_and_true>
+  11. Arrays <#arrays>
+  12. Indexing elements of strings, lists and arrays <#indexing>
           * Implicit indexing for nth <#implicit_indexing>
           * Implicit indexing and the default functor <#implicit_default>
           * Implicit indexing for rest and slice <#implicit_rest_slice>
           * Modify references in lists, arrays and strings
             <#implicit_modify>
-  12. Destructive versus non-destructive functions <#destructive>
+  13. Destructive versus non-destructive functions <#destructive>
           * Make a destructive function non-destructive
             <#make_nondestructive>
-  13. Dynamic and lexical scoping <#scoping>
-  14. Early return from functions, loops, blocks <#return>
+  14. Dynamic and lexical scoping <#scoping>
+  15. Early return from functions, loops, blocks <#return>
           * Using catch and throw <#flow_catch_throw>
           * Using and and or <#flow_and_or>
-  15. Contexts <#contexts>
+  16. Contexts <#contexts>
           * Symbol creation in contexts <#context_rules>
           * Creating contexts <#creating_contexts>
           * Global scope <#scope_global>
@@ -91,20 +93,20 @@ newLISP is a registered trademark of Lutz Mueller.
           * Contexts as data containers <#context_data>
           * Loading and declaring contexts <#loading_contexts>
           * Serializing context objects <#serializing>
-  16. The context default functor <#default_function>
+  17. The context default functor <#default_function>
           * Functions with memory <#func_memory>
           * Hash functions and dictionaries <#hash>
           * Passing data by reference <#pass_big>
-  17. Functional object-oriented programming in newLISP <#foop>
+  18. Functional object-oriented programming in newLISP <#foop>
           * FOOP classes and constructors <#newlisp_classes>
           * Objects <#newlisp_objects>
           * The colon : operator and polymorphism <#colon_operator>
           * Structuring a larger FOOP program <#structure_foop>
-  18. Concurrent processing and distributed computing <#multi_processing>
+  19. Concurrent processing and distributed computing <#multi_processing>
           * The Cilk API <#cilk>
           * Distributed network computing <#distributed>
-  19. XML, SXML and XML-RPC <#XML>
-  20. Customization, localization and UTF-8 <#internationalization>
+  20. XML, SXML and XML-RPC <#XML>
+  21. Customization, localization and UTF-8 <#internationalization>
           * Customizing function names <#naming>
           * Switching the locale <#switching>
           * Decimal point and decimal comma <#decimal_point>
@@ -112,8 +114,8 @@ newLISP is a registered trademark of Lutz Mueller.
           * Functions working on UTF-8 characters <#utf8_capable>
           * Functions only available on UTF-8 enabled versions
             <#utf8_version>
-  21. Commas in parameter lists <#commas>
-  22. Linking newLISP source and executable <#linking>
+  22. Commas in parameter lists <#commas>
+  23. Linking newLISP source and executable <#linking>
 
 
       Function Reference <#function_ref>
@@ -129,7 +131,7 @@ newLISP is a registered trademark of Lutz Mueller.
           * Array functions <#array-funcs>
           * Bit operators <#bit_operators>
           * Predicates <#predicates>
-          * Time and date functions <#timedate>
+          * Date and time functions <#timedate>
           * Simulation and modeling functions <#montecarlo>
           * Pattern matching <#pattern>
           * Financial math functions <#financial>
@@ -144,48 +146,48 @@ newLISP is a registered trademark of Lutz Mueller.
           * newLISP internals API <#internals>
    4. Functions in alphabetical order <#functions_alphabetical>
 
-      * ! <newlisp_manual.html#shell>
-      +-*/% <newlisp_manual.html#arithmetic>
-      Ab <newlisp_manual.html#abort> 
-      Ap <newlisp_manual.html#append>
-      As <newlisp_manual.html#asin>
-      Ba <newlisp_manual.html#base64-dec>
-      Ca <newlisp_manual.html#callback>
-      Cl <newlisp_manual.html#clean>
-      Co <newlisp_manual.html#command-event>
-      Cu <newlisp_manual.html#current-line>
-      De <newlisp_manual.html#dec> 
-      Di <newlisp_manual.html#difference>
-      Do <newlisp_manual.html#do-until>
-      En <newlisp_manual.html#encrypt> 
-      Ex <newlisp_manual.html#exec>
-      Fi <newlisp_manual.html#file-info> 
-      Fl <newlisp_manual.html#flat>
-      Ga <newlisp_manual.html#gammaln> 
-      Gl <newlisp_manual.html#global>
-      In <newlisp_manual.html#inc>
-      La <newlisp_manual.html#lambdap>
-      Li <newlisp_manual.html#listp>
-      Ma <newlisp_manual.html#macrop>
-      Mu <newlisp_manual.html#mul>
-      Net <newlisp_manual.html#net-accept>
-      New <newlisp_manual.html#new> 
-      Nt <newlisp_manual.html#nth>
-      Pa <newlisp_manual.html#pack> 
-      Pr <newlisp_manual.html#pretty-print>
-      Ra <newlisp_manual.html#randomize>
-      Rea <newlisp_manual.html#read> 
-      Reg <newlisp_manual.html#regex>
-      Sea <newlisp_manual.html#search> 
-      Seq <newlisp_manual.html#sequence>
-      Sl <newlisp_manual.html#sleep>
-      St <newlisp_manual.html#starts-with> 
-      Sy <newlisp_manual.html#sync>
-      Ti <newlisp_manual.html#time-of-day>
-      Tr <newlisp_manual.html#truep> 
-      Ut <newlisp_manual.html#utf8>
-      Wr <newlisp_manual.html#write-file>
-      *
+      *	! <newlisp_manual.html#shell>
+	+-*/% <newlisp_manual.html#arithmetic>
+	Ab <newlisp_manual.html#abort> 
+	Ap <newlisp_manual.html#append>
+	As <newlisp_manual.html#asin>
+	Ba <newlisp_manual.html#base64-dec>
+	Ca <newlisp_manual.html#callback>
+	Cl <newlisp_manual.html#clean>
+	Co <newlisp_manual.html#command-event>
+	Cu <newlisp_manual.html#current-line>
+	De <newlisp_manual.html#dec> 
+	Di <newlisp_manual.html#difference>
+	Do <newlisp_manual.html#do-until>
+	En <newlisp_manual.html#encrypt> 
+	Ex <newlisp_manual.html#exec>
+	Fi <newlisp_manual.html#file-info> 
+	Fl <newlisp_manual.html#flat>
+	Ga <newlisp_manual.html#gammaln> 
+	Gl <newlisp_manual.html#global>
+	In <newlisp_manual.html#inc>
+	La <newlisp_manual.html#lambdap>
+	Li <newlisp_manual.html#listp>
+	Ma <newlisp_manual.html#macrop>
+	Mu <newlisp_manual.html#mul>
+	Net <newlisp_manual.html#net-accept>
+	New <newlisp_manual.html#new> 
+	Nt <newlisp_manual.html#nth>
+	Pa <newlisp_manual.html#pack> 
+	Pr <newlisp_manual.html#pretty-print>
+	Ra <newlisp_manual.html#randomize>
+	Rea <newlisp_manual.html#read>
+	Reg <newlisp_manual.html#regex>
+	Sea <newlisp_manual.html#search> 
+	Seq <newlisp_manual.html#sequence>
+	Sl <newlisp_manual.html#sleep>
+	St <newlisp_manual.html#starts-with> 
+	Sy <newlisp_manual.html#sync>
+	Ti <newlisp_manual.html#time-of-day>
+	Tr <newlisp_manual.html#truep> 
+	Ut <newlisp_manual.html#utf8>
+	Wr <newlisp_manual.html#write-file>
+    *
 
 
       Appendix <#appendix>
@@ -212,58 +214,53 @@ Lexical scoping is implemented using separate namespaces called /contexts/.
 
 The result is an easier-to-learn Lisp that is even smaller than most
 Scheme implementations, but which still has about 350 built-in
-functions. Approximately 200k in size, newLISP is built for high
+functions. Not much over 200k in size, newLISP is built for high
 portability using only the most common Unix system C-libraries. It loads
 quickly and has a small memory footprint. newLISP is as fast or faster
 than other popular scripting languages and uses very few resources.
 
-newLISP is dynamically scoped inside lexically separated contexts
-(namespaces). Contexts can be used to create isolated protected
-expansion packages, functions with memory and to write /object-oriented/
-programs.
-
 Both built-in and user-defined functions, along with variables, share
-the same namespace and are manipulated by the same functions. Lambda
-expressions and user-defined functions can be handled like any other
-list expression.
+the same global symbol tree and are manipulated by the same functions.
+Lambda expressions and user-defined functions can be handled like any
+other list expression.
 
-Contexts (namespaces) in newLISP facilitate the development of larger
-applications comprising independently developed modules with their own
-separate namespaces. They can be copied, dynamically assigned to
-variables, and passed by reference to functions as arguments. In this
-way, contexts can serve as dynamically created objects that package
-symbols and methods. Lexical separation of namespaces also enables the
-definition of statically scoped functions.
+newLISP is dynamically scoped inside lexically separated contexts
+(namespaces). Contexts in newLISP are used for multiple purposes. They
+allow (1) partitioning of programs into modules, (2) the definition of
+/Classes/ in FOOP (Functional Object Oriented Programming), (3) the
+definition of functions with state and (4) the creation of Hash trees
+for associative key → value storage.
 
-newLISP's efficient /red-black tree/ implementation can handle millions
-of symbols without degrading performance. Contexts can hold symbol-value
-pairs, allowing them to be used as hash-tables. Functions are also
-available to iteratively access symbols inside contexts.
+newLISP's efficient /red-black/ tree implementation can handle millions
+of symbols in namespaces or hashes without degrading performance.
 
 newLISP allocates and reclaims memory automatically, without using
-traditional asynchronous garbage collection (except under error
-conditions). All objects — except for contexts, built-in primitives, and
-symbols — are passed by value and are referenced only once. When objects
-are no longer referenced, their memory is automatically deallocated.
-This results in predictable processing times without the pauses found in
+traditional asynchronous garbage collection. All objects — except for
+contexts, built-in primitives, and symbols — are passed by value and are
+referenced only once. Upon creation objects are scheduled for delayed
+deletion and Lisp cells are recycled for newly created objects. This
+results in predictable processing times without the pauses found in
 traditional garbage collection. newLISP's unique automatic memory
-management makes it the fastest interactive Lisp available.
+management makes it the fastest interactive Lisp available. More than
+any other Lisp, it implements the /data equals program/ paradigm and
+full self reflection.
 
 Many of newLISP's built-in functions are polymorphic and accept a
 variety of data types and optional parameters. This greatly reduces the
-number of functions and syntactic forms it is necessary to learn and
-implement. High-level functions are available for distributed computing,
-parallel processing, financial math, statistics, and AI.
+number of functions and syntactic forms necessary to learn and
+implement. High-level functions are available for string and list
+processing, financial math, statistics, and Artifial Intelligence
+applications.
 
 newLISP has functions to modify, insert, or delete elements inside
 complex /nested/ lists or /multi-dimensional/ array structures.
 
 Because strings can contain null characters in newLISP, they can be used
-to process binary data.
+to process binary data with most string manipulating functions.
 
 newLISP can also be extended with a shared library interface to import
 functions that access data in foreign binary data structures. The
-distribution contains a module for importing popular database APIs.
+distribution contains modules for importing popular C-library APIs.
 
 newLISP's HTTP, TCP/IP, and UDP socket interfaces make it easy to write
 distributed networked applications. Its built-in XML interface, along
@@ -274,12 +271,12 @@ processing. newLISP can be run a as a CGI capable web server using its
 built-in http mode option.
 
 newLISP has built-in support for distributed processing on networks and
-parallel processing on the same CPU with one or more processing cores.
+parallel, concurrent processing on the same CPU with one or more
+processing cores.
 
-The source distribution can be compiled for Linux, BSDs, Mac OS
-X/Darwin, Solaris, and Win32. On 64-bit Linux, Mac OS X, and True64Unix,
-newLISP can be compiled as a 64-bit LP64 application for full 64-bit
-memory addressing.
+The source distribution can be compiled for Linux, Mac OS X/Darwin, BSDs
+Solaris, and Win32. newLISP can be compiled as a 64-bit LP64 application
+for full 64-bit memory addressing.
 
 
       newLISP-GS
@@ -311,42 +308,89 @@ Documentation License <#GNUFDL>.
 
     2. Deprecated functions and future changes
 
-The functions inc <#inc> and dec <#dec> should not be used when the
-result must be an integer type, i.e. required when passing the result to
-a C-imported library function taking an integer. In these case the ++
-<#inci> and -- <#deci> should be used. They always return integer type
-numbers. The following statement can be used to make new code compatible
-with older versions of newLISP:
+Since version 10.3.0 newLISP can switch between IPv4 and IPv6 modes
+during run-time using the new net-ipv <#net-ipv> function. The -6
+commandline option can be used to start newLISP in IPv6 mode. After
+transition to IPv6 the -6 commandline switch will be changed to -4 for
+starting up in IPv4 mode.
 
-; make new code compatible with older newLISP versions
-(when (< (sys-info -2) 10110)
-    (constant (global '++) inc)
-    (constant (global '-- ) dec))
-
-The old function name <#name> has been replaced with term <#term> to
-avoid variable name clashes. The symbol: name can now freely be used as
-a user variable. The following statement makes new code compatible with
-older versions of newLISP.
-
-; make new code compatible with older newLISP versions
-(when (< (sys-info -2) 10111)
-    (constant (global 'term) name)) 
-
-The usage of write write-buffer <#write> and write-line <#write-line>
-for destructive string appending is discouraged, the new extend
-<#extend> should be used instead. Only if the number of bytes to be
-written is specified, write <#write> is necessary for string appending.
-
-The functions read-buffer <#read> and write-buffer <#write> should be
-replaced with their shorter forms read <#read> and write <#write>. The
-longer forms will still work for several releases, but their usage is
-discouraged in new code.
+date-parse <#date-parse> is a new writing for the previously named
+parse-date fucntion. The old writing is deprecated but will still work
+for some time in future versions. In the VIM editor, the old writing is
+highlighted as obsolete.
 
 
 ( § )
 
 
-    3. Command-line options, startup and directories
+    3. Interactive Lisp mode
+
+The best way to experience Lisp and experiment with it, is using
+interactive mode in a terminal windows or operating system command
+shell. Since version 10.3, newLISP's read-eval-print-loop (REPL) accepts
+mult-line statements.
+
+To enter a multi-line statement hit the [enter] key on an empty line
+after the system prompt. To exit multi-line mode, hit the [enter] key
+again on an empty line. In the following example computer output is
+shown in bold letters:
+
+*>* 
+(define (foo x y)
+    (+ x y))
+
+*(lambda (x y) (+ x y))
+>* (foo 3 4)
+*7
+>* 
+
+Note, that multi-line mode is only possible in an OS command terminal
+window or command shell. The monitor window in the Java based newLISP-GS
+IDE will not accept multi-line statements.
+
+Intercative Lisp mode can accept operating system shell commands. To hit
+an OS command enter the '!' character right after the prompt,
+immediately followed by the shell command:
+
+*> *!ls *.html
+*CodePatterns.html		MemoryManagement.html	newLISPdoc.html
+ExpressionEvaluation.html	manual_frame.html		newlisp_index.html
+License.html			newLISP-10.3-Release.html	newlisp_manual.html
+> *
+
+In the example a ls shell command is entered to show HTML files in the
+current directory. On MS Windows a dir command could be used in the same
+fashion.
+
+The mode can also be used to call an editor or any other program:
+
+*> *!vi foo.lsp
+
+The Vi editor will open to edit the progtam "foo.lsp". After leaving the
+editor the program could be run using a load statement:
+
+*> *(load "foo.lsp")
+
+The program foo.lsp is now run. This mode using '!' can also be used
+from the newLISP-GS IDE.
+
+When using a UNIX teminal or command shell, tab-expansion for built-in
+newLISP fucntions can be used:
+
+*> *(pri
+*print       println     primitive?  
+> (pri*
+
+After entering the characters (pri hit the [tab] key once to show all
+the built-in functions starting with the same characters. When hitting
+[tab] twice before a function name has started, all built-in function
+names will be displayed.
+
+
+( § )
+
+
+    4. Command-line options, startup and directories
 
 
       Command line help summary
@@ -373,6 +417,7 @@ switches:
 -p <port-number>
 -d <port-number>
 -http HTTP only
+-6 set IPv6 mode
 
 Before or after the command-line switches, files to load and execute can
 be specified. If a newLISP executable program is followed by parameters
@@ -456,7 +501,8 @@ In any mode, newLISP can write a log when started with the -l or -L
 option. Depending on the mode newLISP is running, different output is
 written to the log file. Both options always must specify the path of a
 log-file. The path may be a relative path and can be either attached or
-detached to the -l or -L option. The file must exist.
+detached to the -l or -L option. The file must exist and is not created
+automatically.
 
 newlisp -l./logfile.txt -c
 
@@ -651,10 +697,11 @@ More information about CGI processing for newLISP server modes can be
 found in the document Code Patterns in newLISP
 <http://www.newlisp.org/CodePatterns.html>
 
-In both server modes -c and -http, the environment variables
+In both server modes -c and -http the environment variables
 DOCUMENT_ROOT, REQUEST_METHOD, SERVER_SOFTWARE and QUERY_STRING are set.
-The variables HTTP_HOST, HTTP_USER_AGENT and HTTP_COOKIE are also set,
-if present in the HTTP header sent by the client.
+The variables CONTENT_TYPE, CONTENT_LENGTH, HTTP_HOST, HTTP_USER_AGENT
+and HTTP_COOKIE are also set, if present in the HTTP header sent by the
+client.
 
 
       Local domain Unix socket server
@@ -780,7 +827,7 @@ read-file <#read-file>, write-file <#write-file> and append-file
 ( § )
 
 
-    4. Startup, directories, environment
+    5. Startup, directories, environment
 
 
       Environment variable NEWLISPDIR
@@ -851,7 +898,7 @@ external libraries and sample programs written for newLISP-GS.
 ( § )
 
 
-    5. Shared library module for Unix
+    6. Shared library module for Unix
 
 newLISP can be compiled as a Unix shared library called newlisp.so on
 Linux and BSDs. A newLISP shared library can be used like any other Unix
@@ -928,7 +975,7 @@ function. To silence the output from return values, use the silent
 ( § )
 
 
-    6. DLL module for Win32 versions
+    7. DLL module for Win32 versions
 
 On the Win32 platforms, newLISP can be compiled as a DLL (Dynamic Link
 Library). In this way, newLISP functions can be made available to other
@@ -956,27 +1003,39 @@ silence the output from return values, use the silent <#silent> directive.
 ( § )
 
 
-    7. Evaluating newLISP expressions
+    8. Evaluating newLISP expressions
 
 The following is a short introduction to newLISP statement evaluation
 and the role of integer and floating point arithmetic in newLISP.
 
 Top-level expressions are evaluated when using the load <#load> function
-or when entering expressions in console mode on the command-line. As
-shown in the following snippet from an interactive session, multiline
-expressions can be entered by enclosing them between [cmd] and [/cmd] tags:
+or when entering expressions in console mode on the command-line.
 
-> [cmd]
+
+      Interactive multiline expressions
+
+Multiline expressions can be entered by entering an empty line first.
+Once in multiline mode, another empty line returns from entry mode and
+evaluates the statement(s) entered:
+
+>
 (define (foo x y)
     (+ x y))
-[/cmd]
+
 *(lambda (x y) (+ x y))*
 > (foo 3 4)
 *7*
 > _
 
-Each [cmd] and [/cmd] tag is entered on a separate line. This mode is
-useful for pasting multiline code into the interactive console.
+Entering multiline mode by hitting the enter key on an empty line
+suppresses the prompt. Entering another empty line will leave the
+multiline mode and evaluate expressions.
+
+As an alternativo to entering empty lines, the [cmd] and [/cmd] tags are
+used, each entered on separate lines. This mode is used by some
+interactive IDEs controllling newLISP and internally by the net-eval
+<#net-eval> function. The [cmd] and [/cmd] tags must also be used in the
+console part of the newLISP-GS Java IDE.
 
 
       Integer, floating point data and operators
@@ -1215,7 +1274,7 @@ applications or to pass results back to newLISP.
 ( § )
 
 
-    8. Lambda expressions in newLISP
+    9. Lambda expressions in newLISP
 
 Lambda expressions in newLISP evaluate to themselves and can be treated
 just like regular lists:
@@ -1288,7 +1347,7 @@ functions with multiple parameter signatures.
 ( § )
 
 
-    9. nil, true, cons, and ()
+    10. nil, true, cons, and ()
 
 In newLISP, nil and true represent both the symbols and the Boolean
 values /false/ and /true/. Depending on their context, nil and true are
@@ -1332,7 +1391,7 @@ part may contain a basic data type. Early Lisp implementations used
 ( § )
 
 
-    10. Arrays
+    11. Arrays
 
 newLISP's arrays enable fast element access within large lists. New
 arrays can be constructed and initialized with the contents of an
@@ -1393,7 +1452,7 @@ For more details, see array <#array>, array? <#arrayp>, and array-list
 ( § )
 
 
-    11. Indexing elements of strings, lists, and arrays
+    12. Indexing elements of strings, lists, and arrays
 
 Some functions take array, list, or string elements (characters)
 specified by one or more /int-index/ (integer index). The positive
@@ -1561,7 +1620,7 @@ by a multi-chracacter string.
 ( § )
 
 
-    12. Destructive versus nondestructive functions
+    13. Destructive versus nondestructive functions
 
 Most of the primitives in newLISP are nondestructive (no /side effects/)
 and leave existing objects untouched, although they may create new ones.
@@ -1614,7 +1673,7 @@ The list in aList is left unchanged.
 ( § )
 
 
-    13. Dynamic and lexical scoping
+    14. Dynamic and lexical scoping
 
 newLISP uses dynamic scoping /inside/ contexts. A context is a lexically
 closed namespace. In this way, parts of a newLISP program can live in
@@ -1685,7 +1744,7 @@ chapters Contexts <#contexts> and Programming with contexts
 ( § )
 
 
-    14. Early return from functions, loops, and blocks
+    15. Early return from functions, loops, and blocks
 
 What follows are methods of interrupting the control flow inside both
 loops and the begin <#begin> expression.
@@ -1783,7 +1842,7 @@ returns a value which is /not/ nil or ().
 ( § )
 
 
-    15. Contexts
+    16. Contexts
 
 In newLISP, symbols can be separated into namespaces called /contexts/.
 Each context has a private symbol table separate from all other
@@ -2214,7 +2273,7 @@ they should be pre-declared to avoid problems due to context forward
 references that can occur before the loading of that context.
 
 ;; pre-declaring contexts, finish with Main to return
-(map context '(Utilities Config Acquisition Analysis SysLog Main))
+(map context '(Utilities Config Acquisition Analysis SysLog MAIN))
 
 ;; loading context module files
 (load "Utilities.lsp" "Acquisition.lsp")
@@ -2263,7 +2322,7 @@ For details, see the functions save <#save> (mentioned above) and source
 ( § )
 
 
-    16. The context default functor
+    17. The context default functor
 
 A /default functor/ or /default function/ is a symbol or user-defined
 function or macro with the same name as its namespace. When the context
@@ -2563,7 +2622,7 @@ symbol of that namespace (context).
 ( § )
 
 
-    17. Functional-object oriented programming
+    18. Functional-object oriented programming
 
 Functional-object oriented programming (FOOP) is based on the following
 five principles:
@@ -2826,7 +2885,7 @@ All sets of class functions are now lexically separated from each other.
 ( § )
 
 
-    18. Concurrent processing and distributed computing
+    19. Concurrent processing and distributed computing
 
 newLISP has high-level APIs to control multiple processes on the same
 CPU or distributed onto different computer nodes on a TCP/IP network.
@@ -2885,7 +2944,7 @@ results from remote nodes.
 ( § )
 
 
-    19. XML, S-XML, and XML-RPC
+    20. XML, S-XML, and XML-RPC
 
 newLISP's built-in support for XML-encoded data or documents comprises
 three functions: xml-parse <#xml-parse>, xml-type-tags <#xml-type-tags>,
@@ -3004,7 +3063,7 @@ modules/xmlrpc-client.lsp.
 ( § )
 
 
-    20. Customization, localization, and UTF-8
+    21. Customization, localization, and UTF-8
 
 
       Customizing function names
@@ -3177,8 +3236,7 @@ on one- or multi-byte characters rather than one 8-bit byte boundaries:
 function	description
 char <#char> 	translates between characters and ASCII/Unicode
 chop <#chop> 	chops characters from the end of a string
-date <#date> 	converts date number to string (when used with the third
-argument)
+date <#date> 	converts date number to string (when used with the third argument)
 dostring <#dostring> 	evaluates once for each character in a string
 explode <#explode> 	transforms a string into a list of characters
 first <#first> 	gets first element in a list (car, head) or string
@@ -3187,11 +3245,9 @@ lower-case <#lower-case> 	converts a string to lowercase characters
 nth <#nth> 	gets the /nth/ element of a list or string
 pop <#pop> 	deletes an element from a list or string
 push <#push> 	inserts a new element in a list or string
-rest <#rest> 	gets all but the first element of a list (cdr, tail) or
-string
+rest <#rest> 	gets all but the first element of a list (cdr, tail) or string
 select <#select> 	selects and permutes elements from a list or string
-title-case <#title-case> 	converts the first character of a string to
-uppercase
+title-case <#title-case> 	converts the first character of a string to uppercase
 trim <#trim> 	trims a string from both sides
 upper-case <#upper-case> 	converts a string to uppercase characters
 
@@ -3249,7 +3305,7 @@ Kuhn/.
 ( § )
 
 
-    21. Commas in parameter lists
+    22. Commas in parameter lists
 
 Some of the example programs contain functions that use a comma to
 separate the parameters into two groups. This is not a special syntax of
@@ -3275,7 +3331,7 @@ For other ways of declaring and initializing local variables, see let
 ( § )
 
 
-    22. Linking newLISP source and executable
+    23. Linking newLISP source and executable
 
 Source code and the newLISP executable can be linked together to build a
 self-contained application by using link.lsp. This program is located in
@@ -3349,7 +3405,7 @@ The following rules apply to the naming of symbols used as variables or
 functions:
 
    1. Variable symbols may not start with any of the following characters:
-      # ; \" ' ( ) { } . , 0 1 2 3 4 5 6 7 8 9
+      # ; " ' ( ) { } . , 0 1 2 3 4 5 6 7 8 9
 
    2. Variable symbols starting with a + or - cannot have a number as
       the second character.
@@ -3754,14 +3810,16 @@ while <#while> 	repeats evaluation of an expression while the condition is true
       String and conversion functions
 
 address <#address> 	gets the memory address of a number or string
-append <#append> 	appends lists, arrays or strings to form a new list, array or string
+append <#append> 	appends lists, arrays or strings to form a new list,
+array or string
 bits <#bits> 	translates a number into binary representation
 char <#char> 	translates between characters and ASCII codes
 chop <#chop> 	chops off characters from the end of a string
 dostring <#dostring> 	evaluates once for each character in a string
 dup <#dup> 	duplicates a list or string a specified number of times
 ends-with <#ends-with> 	checks the end of a string or list against a key of the same type
-encrypt <#encrypt> 	does a one-time–pad encryption and decryption of a string
+encrypt <#encrypt> 	does a one-time–pad encryption and decryption of a
+string
 eval-string <#eval-string> 	compiles, then evaluates a string
 explode <#explode> 	transforms a string into a list of characters
 extend <#extend> 	extends a list or string
@@ -3930,11 +3988,12 @@ true? <#truep> 	checks if an expression is not nil
 zero? <#zerop> 	checks if an expression is 0 or 0.0
 
 
-      Time and date functions
+      Date and time functions
 
 date <#date> 	converts a date-time value to a string
+date-list <#date-list> 	returns a list of year, month, day, hours, minutes, seconds from a time value in seconds
+date-parse <#date-parse> 	parses a date string and returns the number of seconds passed since January 1, 1970, (formerly parse-date)
 date-value <#date-value> 	calculates the time in seconds since January 1, 1970 for a date and time
-parse-date <#parse-date> 	parses a date string and returns the number of seconds passed since January 1, 1970
 now <#now> 	returns a list of current date-time information
 time <#time> 	calculates the time it takes to evaluate an expression in milliseconds
 time-of-day <#time-of-day> 	calculates the number of milliseconds elapsed since the day started
@@ -4060,6 +4119,7 @@ net-connect <#net-connect> 	connects to a remote host
 net-error <#net-error> 	returns the last error
 net-eval <#net-eval> 	evaluates expressions on multiple remote newLISP servers
 net-interface <#net-interface> 	Sets the default interface IP address on multihomed computers.
+net-ipv <#net-ipv> 	Switches between IPv4 and IPv6 internet protocol versions.
 net-listen <#net-listen> 	listens for connections to a local socket
 net-local <#net-local> 	returns the local IP and port number for a connection
 net-lookup <#net-lookup> 	returns the name for an IP number
@@ -4144,9 +4204,12 @@ unpack <#unpack> 	unpacks a binary structure into newLISP expressions
 
       newLISP internals API
 
+command-event <#command-event> 	pre-processes the command-line and HTTP requests
 cpymem <#cpymem> 	copies memory between addresses
 dump <#dump> 	shows memory address and contents of newLISP cells
+prompt-event <#prompt-event> 	customizes the interactive newLISP shell prompt
 read-expr <#read-expr> 	reads and optionally translates s-expressions from source
+reader-event <#reader-event> 	preprocess expressions before evaluation event-driven
 
 
 
@@ -4159,7 +4222,7 @@ read-expr <#read-expr> 	reads and optionally translates s-expressions from sourc
     !
 
 
-        syntax: (! /str-shell-command/)
+        syntax: (! /str-shell-command/ [/int-flags/])
 
 Executes the command in /str-command/ by shelling out to the operating
 system and executing. This function returns a different value depending
@@ -4172,6 +4235,24 @@ Use the exec <#exec> function to execute a shell command and capture the
 standard output or to feed standard input. The process <#process>
 function may be used to launch a non-blocking child process and redirect
 std I/O and std error to pipes.
+
+On Ms Windows the optional /int-flags/ parameter takes process creation
+flags as defined for the Windows CreateProcessA function to control
+various parameters of process creation. The inclusion of this parameter
+– which also can be 0 – forces a different creation of the process
+without a command shell window. This parameter is ignored on UNIX.
+
+; on MS Windows
+; close the console of the currently running newLISP process
+(apply (import "kernel32" "FreeConsole")) 
+
+; start another process and wait for it to finish
+(! "notepad.exe" 0)
+
+(exit)
+
+Without the additional parameter, the ! call would create a new command
+window replacing the closed one.
 
 Note that ! (exclamation mark) can be also be used as a command-line
 shell operator by omitting the parenthesis and space after the !:
@@ -5219,8 +5300,7 @@ curl <http://curl.haxx.se/> utility and conforms to the RFC 4648 standard.
     bayes-query
 
 
-        syntax: (bayes-query /list-L/ /context-D/ [/bool-chain/
-        [/bool-probs/]])
+        syntax: (bayes-query /list-L/ /context-D/ [/bool-chain/ [/bool-probs/]])
 
 Takes a list of tokens (/list-L/) and a trained dictionary (/context-D/)
 and returns a list of the combined probabilities of the tokens in one
@@ -5296,6 +5376,10 @@ The return value of bayes-query is a list of probability values, one for
 each category. Following are two examples: the first for the default
 R.A. Fisher mode, the second for a data set processed with the Chain
 Bayesian method.
+
+Previous to version 10.3.0 the list of probability values returned in
+Fisher Chi² mode was normalized by dividing each value by the sum of the
+whole list. This normalization has been dropped in version 10.3.0.
 
 
       R.A. Fisher Chi² method
@@ -5530,7 +5614,7 @@ output on return.
 The /Beta/ function, beta, is derived from the /log Gamma/ gammaln
 function as follows:
 
-/* beta = exp(gammaln(a) + gammaln(b) - gammaln(a + b)) */
+/*beta = exp(gammaln(a) + gammaln(b) - gammaln(a + b)) */
 
 (beta 1 2)  → 0.5
 
@@ -5546,7 +5630,7 @@ of the /Beta/ distribution, betai, at /x/ in /num-x/. The cumulative
 binomial distribution is defined as the probability of an event, /pev/,
 with probability /p/ to occur /k/ or more times in /N/ trials:
 
-/* pev = Betai(p, k, N - k + 1) */
+/*pev = Betai(p, k, N - k + 1) */
 
 (betai 0.5 3 8)  → 0.9453125
 
@@ -5961,7 +6045,7 @@ Note that using close on device <#device> automatically resets it to 0
     command-event
 
 
-        syntax: (command-event /sym | func/)
+        syntax: (command-event /sym-event-handler/ | /func-event-handler/)
 
 Specifies a user defined function for pre-processing the newLISP
 command-line before it gets evaluated. This can be used to write
@@ -5969,8 +6053,8 @@ customized interactive newLISP shells and to transform HTTP requests
 when running in server mode.
 
 command-event takes either a symbol of a user-defined function or a
-lambda function. Not returning a string will leave the command-line
-untranslated and pass it on to newLISP as is.
+lambda function. The event-handler function must return a string or the
+command-line will be passed untranslated to newLISP.
 
 To only force a prompt, the function should return the empty string "".
 
@@ -6005,8 +6089,8 @@ newLISP's init.lsp startup file:
 
 In the definition of the command-line translation function the Unix
 command cd gets a special treatment, to make sure that the directory is
-changed for newLISP. This way when shelling out with ! and coming back,
-newLISP will maintain the changed directory.
+changed for newLISP process too. This way when shelling out with ! and
+coming back, newLISP will maintain the changed directory.
 
 Command lines for newLISP must start either with a space or an opening
 parenthesis. Unix commands must start at the beginning of the line.
@@ -6062,8 +6146,8 @@ interactive newLISP session and entering the HTTP requests manually.
 newLISP will translate the command line and dispatch it to the built-in
 web server. The server output will appear in the shell window.
 
-Note, that the line length in HTTP request headers is limited to 254
-characters for newLISP server mode.
+Note, that the command line length as well as the line length in HTTP
+headers is limited to 512 characters for newLISP.
 
 
 
@@ -6604,14 +6688,16 @@ curry can be used on all functions taking two arguments.
         syntax: (date /int-secs/ /int-offset/ /str-format/)
 
 The first syntax returns the local time zone's current date and time as
-a string representation.
+a string representation. If /int-secs/ is out of range, nil is returned.
 
 In the second syntax, date translates the number of seconds in
 /int-secs/ into its date/time string representation for the local time
 zone. The number in /int-secs/ is usually retrieved from the system
 using date-value <#date-value>. Optionally, a time-zone offset (in
 minutes) can be specified in /int-offset/, which is added or subtracted
-before conversion of /int-sec/ to a string.
+before conversion of /int-sec/ to a string. If /int-secs/ is out of
+range or an invalid /str-format/ is specified, an empty string "" is
+returned.
 
 (date)                   → "Fri Oct 29 09:56:58 2004"
 
@@ -6635,29 +6721,23 @@ be translated into results appropriate for the current locale:
 
 (set-locale "german") → "de_DE"      
 
-(date (date-value) 0 "%A %-d. %B %Y")
-→ "Montag  7. März 2005" 
-; on Linux - suppresses the leading 0
+; on Linux - no leading 0 on day with %-d
+(date (date-value) 0 "%A %-d. %B %Y")  → "Montag  7. März 2005" 
 
 (set-locale "C")  ; default POSIX
 
-(date (date-value) 0 "%A %B %d %Y")
-→ "Monday March 07 2005"
+(date (date-value) 0 "%A %B %d %Y")    → "Monday March 07 2005"
 
-(date (date-value) 0 "%a %#d %b %Y")
-→ "Mon 7 Mar 2005" 
 ; suppressing leading 0 on Win32 using #
+(date (date-value) 0 "%a %#d %b %Y")   → "Mon 7 Mar 2005" 
 
 (set-locale "german")
 
-(date (date-value) 0 "%x")
-→ "07.03.2005"   ; day month year
+(date (date-value) 0 "%x") → "07.03.2005"   ; day month year
 
 (set-locale "C")
 
-(date (date-value) 0 "%x")
-
-→ "03/07/05"     ; month day year
+(date (date-value) 0 "%x") → "03/07/05"     ; month day year
 
 The following table summarizes all format specifiers available on both
 Win32 and Linux/Unix platforms. More format options are available on
@@ -6676,23 +6756,17 @@ format	description
 %j	day of the year as a decimal number (range 001–366)
 %m	month as a decimal number (range 01–12)
 %M	minute as a decimal number
-%p	either 'am' or 'pm' according to the given time value or the
-corresponding strings for the current locale
-%S	second as a decimal number 0–61 (60 and 61 to account for occasional
-leap seconds)
-%U	week number of the current year as a decimal number, starting with
-the first Sunday as the first day of the first week
+%p	either 'am' or 'pm' according to the given time value or the corresponding strings for the current locale
+%S	second as a decimal number 0–61 (60 and 61 to account for occasional leap seconds)
+%U	week number of the current year as a decimal number, starting with the first Sunday as the first day of the first week
 %w	day of the week as a decimal, Sunday being 0
-%W	week number of the current year as a decimal number, starting with
-the first Monday as the first day of the first week
+%W	week number of the current year as a decimal number, starting with the first Monday as the first day of the first week
 %x	preferred date representation for the current locale without the time
 %X	preferred time representation for the current locale without the date
 %y	year as a decimal number without a century (range 00–99)
 %Y	year as a decimal number including the century
-%z	time zone or name or abbreviation (same as %Z on Win32, different on
-Unix)
-%Z	time zone or name or abbreviation (same as %z on Win32, different on
-Unix)
+%z	time zone or name or abbreviation (same as %Z on Win32, different on Unix)
+%Z	time zone or name or abbreviation (same as %z on Win32, different on Unix)
 %%	a literal '%' character
 
 
@@ -6700,8 +6774,63 @@ Leading zeroes in the display of decimal day numbers can be suppressed
 using "%-d" on Linux and FreeBSD and using "%e" on OpenBSD,
 SunOS/Solaris and Mac OS X. On Win32 use "%#d".
 
-See also date-value <#date-value>, parse-date <#parse-date>, time-of-day
-<#time-of-day>, time <#time>, and now <#now>.
+See also date-value <#date-value>, date-list <#date-list>, date-parse
+<#date-parse>, time-of-day <#time-of-day>, time <#time>, and now <#now>.
+
+
+
+    date-list
+
+
+        syntax: (date-list /int-seconds/ [/int-index/])
+
+Returns a list of year, month, date, hours, minutes, seconds, day of
+year and day of week from a time value given in seconds after January
+1st, 1970 00:00:00. The date and time values aren given as UTC, which
+may differ from the local timezone.
+
+The week-day value ranges from 1 to 7 for Monday thru Sunday.
+
+(date-list 1282479244)      → (2010 8 22 12 14 4 234 1)
+(date-list 1282479244 0)    → 2010 ; year
+(date-list 1282479244 -2)   → 234  ; day of year
+
+(apply date-value (date-list 1282479244)) → 1282479244
+
+(date-list 0)   → (1970 1 1 0 0 0 1 5) ; Thursday 1st, Jan 1900
+
+A second optional /int-index/ parameter can be used to return a specific
+member of the list.
+
+date-list is the inverse operation of date-value <#date-value>.
+
+
+
+    date-parse
+
+
+        syntax: (date-parse /str-date/ /str-format/)
+
+Parses a date from a text string in /str-date/ using a format as defined
+in /str-format/, which uses the same formatting rules found in date
+<#date>. The function date-parse returns the number of UTC seconds
+passed since January 1st, 1970 UTC starting with 0 and up to 2147472000
+for a date of January 19th, 2038. For dates before January 1st 1970,
+negative values are returned down to a value of -2147472000 for December
+14th, 1901.
+
+This function is not available on Win32 platforms. The function was
+named parse-date in previous versions. The old form is deprecated.
+
+(date-parse "2007.1.3" "%Y.%m.%d")    → 1167782400
+(date-parse "January 10, 07" "%B %d, %y")    → 1168387200
+
+; output of date-parse as input value to date-list produces the same date 
+
+(date-list (date-parse "2010.10.18 7:00" "%Y.%m.%d %H:%M"))
+→ (2010 10 18 7 0 0 290 1)
+
+See the date <#date> function for all possible format descriptors.
 
 
 
@@ -6726,18 +6855,14 @@ the current time.
 (date (date-value))              → "Wed May 24 10:02:47 2006"
 (date)                           → "Wed May 24 10:02:47 2006"
 
-The following function can be used to transform a date-value back into a
-list:
+The function date-list <#date-list> can be used to transform a
+date-value back into a list:
 
-(define (value-date val)
-  (append
-    (slice (now (- (/ val 60) (/ (date-value) 60) )) 0 5)
-    (list (% val 60)))) 
+(date-list 1014854400)  → (2002 2 28 0 0 0)
+(apply date-value (date-list 1014854400)) → 1014854400
 
-(value-date 1014854400)  → (2002 2 28 0 0 0)
-
-See also date <#date>, time-of-day <#time-of-day>, time <#time>, and now
-<#now>.
+See also date <#date>, date-list <#date-list>, date-parse <#date-parse>,
+time-of-day <#time-of-day>, time <#time>, and now <#now>.
 
 
 
@@ -7095,8 +7220,7 @@ if no references to the symbol exist outside it's namespace. If external
 references exist, this mode can lead to system crashes, as the external
 reference is not set to nil when using this mode. This mode can be used
 to delete namespace hashes and to delete namespaces in object systems,
-where variables are strictly treated as private and accessed only by
-means of functions.
+where variables are strictly treated as private.
 
 Protected symbols of built-in functions and special symbols like nil and
 true cannot be deleted.
@@ -7431,7 +7555,7 @@ See also the functions until <#until> and do-until <#do-until>.
     doargs
 
 
-        syntax: (doargs (/sym/ [/exp-break/])/ body/)
+        syntax: (doargs (/sym/ [/exp-break/])/body/)
 
 Iterates through all members of the argument list inside a user-defined
 function or macro. This function or macro can be defined using define
@@ -7472,7 +7596,7 @@ Use the args <#args> function to access the entire argument list at once.
     dolist
 
 
-        syntax: (dolist (/sym/ /list/ [/exp-break/])/ body/)
+        syntax: (dolist (/sym/ /list/ [/exp-break/])/body/)
 
 The expressions in /body/ are evaluated for each element in /list/. The
 variable in /sym/ is set to each of the elements before evaluation of
@@ -7909,8 +8033,7 @@ case the symbol passed is the same used as a parameter in the function.
     eval-string
 
 
-        syntax: (eval-string /str-source/ [/sym-context/ [/exp-error/
-        [/int-offset/]]])
+        syntax: (eval-string /str-source/ [/sym-context/ [/exp-error/ [/int-offset/]]])
 
 The string in /str-source/ is compiled into newLISP's internal format
 and then evaluated. The evaluation result is returned. If the string
@@ -8162,14 +8285,23 @@ omitted if it does not have the full length specified in /int-chunk/.
 ; omit last chunk if too short
 (explode "newLISP" 3 true)    → ("new" "LIS")
 
-explode also works on binary content:
+Only on non UTF8– enabled versions, explode also works on binary content:
 
 (explode "\000\001\002\003") 
 → ("\000" "\001" "\002" "\003")
 
 When called in UTF-8–enabled versions of newLISP, explode will work on
 character boundaries rather than byte boundaries. In UTF-8–encoded
-strings, characters may contain more than one byte.
+strings, characters may contain more than one byte. Processing will stop
+when a zero byte character is found.
+
+To explode binary contents on UTF-8–enabled versions of newLISP use
+unpack <#unpack> as shown in the following example:
+
+(set 'str "\001\002\003\004") → "\001\002\003\004"
+
+(unpack (dup "c" (length str)) str) → (1 2 3 4)
+(unpack (dup "s" (length str)) str) → ("\001" "\002" "\003" "\004")
 
 In the second syntax, explode explodes a list (/list/) into sublists of
 chunk size /int-chunk/, which is 1 (one) by default.
@@ -8205,18 +8337,20 @@ The string in /string-1/ is extended by appending /string-2/. More than
 one string may be appended. The string can contain binary 0 (zero)
 characters.
 
+The first parameter can be an un-initialized variable.
+
+The extended list or string is returned.
+
 ; extending lists
 
-(set 'lst '())
-(extend lst '(a b) '(c d))
-(extend lst '(e f g))
+(extend lst '(a b) '(c d)) → (a b c d)
+(extend lst '(e f g)) → (a b c d e f)
 lst → (a b c d e f g)
 
 ; extending strings
 
-(set 'str "")
-(extend str "ab" "cd")
-(extend str "efg")
+(extend str "ab" "cd") → "abcd"
+(extend str "efg") → "abcdefg"
 str → "abcdefg"
 
 ; extending in place
@@ -8237,8 +8371,8 @@ For a non-destructive list or string extension see append <#append>.
 
         syntax: (factor /int/)
 
-Factors the number in /int/ into its prime components. Floating point
-numbers in /num/ are truncated to their integer part.
+Factors the number in /int/ into its prime components. When floating
+point numbers are passed, they are truncated to their integer part first.
 
 (factor 123456789123456789)  → (3 3 7 11 13 19 3607 3803 52579)
 
@@ -8523,13 +8657,14 @@ To find expressions in nested or multidimensional lists, use the ref
     find-all
 
 
-        syntax: (find-all /str-pattern/ /str-text/ [/exp/ [/int-option/]])
-        syntax: (find-all /list-pattern/ /list-lists/ [/exp/])
+        syntax: (find-all /str-pattern/ /str-text/ [/exp/ [/int-regex-option/]])
+        syntax: (find-all /list-match-pattern/ /list-lists/ [/exp/])
         syntax: (find-all /exp-key/ /list/ /exp/ /func-compare/)
 
-In the first syntax, find-all finds all occurrences of /str-pattern/ in
-the text /str-text/, returning a list containing all matching strings.
-The empty list () is returned if no matches are found.
+In the first syntax, find-all finds all occurrences of
+/str-regex-pattern/ in the text /str-text/, returning a list containing
+all matching strings. The empty list () is returned if no matches are
+found.
 
 Optionally, an expression can be specified to process the found string
 or regular subexpressions before placing them into the returned list. An
@@ -8560,8 +8695,9 @@ Note that find-all with strings always performs a regular expression
 search, even if the option in /int-option/ is omitted.
 
 In the second syntax, find-all searches for all list match <#match>
-patterns /list-pattern/ in /list-lists/. As in find-all for strings, an
-expression can be specified in /exp/ to process further the matched sublist:
+patterns /list-match-pattern/ in /list-lists/. As in find-all for
+strings, an expression can be specified in /exp/ to process further the
+matched sublist:
 
 (find-all '(? 2) '((a 1) (b 2) (a 2) (c 4))) → ((b 2) (a 2))
 
@@ -9054,6 +9190,12 @@ Note that on Tru64 Unix the format character i can be used instead of d.
 (format "%o" 80)    → "120"
                                 
 (format "%x %X" -1 -1)  → "ffffffff FFFFFFFF"
+
+; 64 bit numbers on Windows
+(format "%I64X" 123456789012345678)  → "1B69B4BA630F34E"
+
+; 64 bit numbers on UNIX (except TRU64)
+(format "%llX" 123456789012345678)   → "1B69B4BA630F34E"
                                 
 (format "%c" 65)  → "A"
 
@@ -9159,7 +9301,7 @@ details and theory about gcd numbers in mathematics.
 
         syntax: (get-char /int-address/)
 
-Gets a character from an address specified in /int-address/. This
+Gets an 8-bit character from an address specified in /int-address/. This
 function is useful when using imported shared library functions with
 import <#import>.
 
@@ -9174,8 +9316,8 @@ Consider the above C function from a shared library, which returns a
 character pointer (address to a string).
 
 (import "mylib.so" "foo")
-(print (get-char (foo) ))       →  65
-(print (get-char (+ (foo) 1)))  →  66
+(print (get-char (foo) ))       →  65 ; ASCII "A"
+(print (get-char (+ (foo) 1)))  →  66 ; ASCII "B"
 
 Note that it is unsafe to use the get-char function with an incorrect
 address in /int-address/. Doing so could result in the system crashing
@@ -10668,6 +10810,8 @@ by find-all <#find-all> for lists.
 
 (match '(a ? c) '(a (x y z) c))  → ((x y z))
 
+(match '(a ? c) '(a (x y z) c) true)  → (a (x y z) c)
+
 (match '(a ? c) '(a x y z c))  → nil
 
 
@@ -10676,6 +10820,7 @@ by find-all <#find-all> for lists.
 (match '(a (b c ?) x y z) '(a (b c d) x y z))  → (d)
 
 (match '(a (*) x ? z) '(a (b c d) x y z))  → ((b c d) y)
+
 
 (match '(+) '())  → nil
 
@@ -10771,6 +10916,7 @@ See also the max <#max> function.
 
 
         syntax: (mod /num-1/ /num-2/ [/num-3/ ... ])
+        syntax: (mod /num-1/)
 
 Calculates the modular value of the numbers in /num-1/ and /num-2/. mod
 computes the remainder from the division of the numerator /num-i/ by the
@@ -10780,8 +10926,12 @@ the denominator, rounded towards zero to an integer. The result has the
 same sign as the numerator and its magnitude is less than the magnitude
 of the denominator.
 
+In the second syntax 1 is assumed for /num-2/ and the result is the
+fractional part of /num-1/.
+
 (mod 10.5 3.3)   →  0.6
 (mod -10.5 3.3)  → -0.6
+(mod -10.5)      → -0.5
 
 Use the % <#arithmetic> (percent sign) function when working with
 integers only.
@@ -11142,7 +11292,7 @@ no	description
 
 (net-connect "jhghjgkjhg" 80)  →  nil
 
-(net-error)  →  (2 "DNS resolution failed") 
+(net-error)  →  (2 "ERR: DNS resolution failed") 
 
 When /int-error/ is specified the number and error text for that error
 number is returned.
@@ -11195,11 +11345,11 @@ daemon mode <#inetd_daemon> on how to configure this mode correctly.
 In the first syntax, net-eval talks to only one remote newLISP server
 node, sending the host in /str-host/ on port /int-port/ a request to
 evaluate the expression /exp/. If /int-timeout/ is not given, net-eval
-will wait indefinitely for a response. Otherwise, if the timeout in
-milliseconds has expired, nil is returned; else, the evaluation result
-of /exp/ is returned.
+will wait up to 60 seconds for a response after a connection is made.
+Otherwise, if the timeout in milliseconds has expired, nil is returned;
+else, the evaluation result of /exp/ is returned.
 
-; the code to be evaluated is given in a qoted expression
+; the code to be evaluated is given in a quoted expression
 (net-eval "192.168.1.94" 4711 '(+ 3 4))       → 7
 
 ; expression as a string
@@ -11352,6 +11502,37 @@ The return value is the address given in /str-ip-addr/
 
 
 
+    net-ipv
+
+
+        syntax: (net-ipv /int-version/)
+        syntax: (net-ipv)
+
+Switches between IPv4 and IPv6 internet protocol versions. /int-version/
+contains either a 4 for IPv4 or a 6 for IPv6. When no parameter is
+given, net-ipv returns the current setting.
+
+(net-ipv)      → 4
+(net-ipv 6)    → 6
+
+By default newLISP starts up in IPv4 mode. The IPv6 protocol mode can
+also be specified from the commandline when starting newlisp:
+
+newlisp -6
+
+Once a socket is connected with either net-connect <#net-connect> or
+listened on with net-listen <#net-listen>, the net-accept <#net-accept>,
+net-select <#net-select>, net-send <#net-send>, net-receive
+<#net-receive> and net-receive-from <#net-receive-from> functions
+automatically adjust to the address protocol used when creating the
+sockets. Different connections with different IPv4/6 settings can be
+open at the same time.
+
+Note, that currently net-packet <#net-packet> does not support IPv6 and
+will work in IPv4 mode regardless of settings.
+
+
+
     net-listen
 
 
@@ -11492,6 +11673,44 @@ used instead of net-send-to <#net-send-to> and net-receive-from
 <#net-receive-from>.
 
 
+      Packet divert sockets and ports
+
+If /str-mode/ is specified as "divert", a divert socket can be created
+for a divert port in /int-port/ on BSD like platforms. The content of IP
+address in /str-ip-addr/ is ignored and can be specifed as an empty
+string. Only the /int-port/ is relevant and will be bound to the raw
+socket returned.
+
+To use the divert option in net-listen, newLISP must run in super-user
+mode. This option is only available on UNIX like platforms.
+
+The divert socket will receive all raw packets diverted to the divert
+port. Packets may also be written back to a divert socket, in which case
+they re-enter OS kernel IP packet processing.
+
+Rules for packet diversion to the divert port must be defined using
+either the /ipfw/ BSD or /ipchains/ Linux configuration utilities.
+
+The net-receive-from <#net-receive-from> and net-send-to <#net-send-to>
+functions are used to read and write raw packets on the divert socket
+created and returned by the net-listen statement. The same address
+received by net-receive-from <#net-receive-from> is used in the
+net-send-to <#net-send-to> call when re-injecting the packet:
+
+; rules have been previously configured for a divert port
+(set 'divertSocket (net-listen divertPort "" "divert"))
+
+(until (net-error)
+    (set 'rlist (net-receive-from divertSocket maxBytes))
+    (set 'buffer (rlist 1))
+    ; buffer can be processed here before reinjecting
+    (net-send-to (rlist 0) divertPort buffer divertSocket)
+)
+
+For more information see the UNIX man pages for /divert/ and the /ipfw/
+(BSDs) or /ipchains/ (Linux) configuration utilities.
+
+
 
     net-local
 
@@ -11539,9 +11758,8 @@ The function allows custom configured network packets to be sent via a
 IP (Internet Protocol) header followed by either a TCP, UDP or ICMP
 header and optional data. newLISP must be run with super user
 privileges, and this function is only available on Mac OS X, Linux and
-other UNIX operating systems and only for IP v.4. As of version 10.2.6
-Mac OS X on PPC and Intel CPUs, Linux on Intel and OpenBSD on Intel are
-configured and tested.
+other UNIX operating systems and only for IPv4. Currently net-packet is
+IPv4 only and has been tested on MAC OS X, Linux and OpenBSD.
 
 On success the function returns the number of bytes sent. On failure the
 function returns nil and both, net-error <#net-error> and sys-error
@@ -11620,8 +11838,8 @@ IP number and port number.
     net-ping
 
 
-        syntax: (net-ping /str-address/ [/int-timeout/ [/int-count/]])
-        syntax: (net-ping /list-addresses/ [/int-timeout/ [/int-count/]])
+        syntax: (net-ping /str-address/ [/int-timeout/ [/int-count/ /bool/]]])
+        syntax: (net-ping /list-addresses/ [/int-timeout/ [/int-count/ /bool/]]])
 
 This function is only available on Unix-based systems and must be run in
 superuser mode, i.e. using: sudo newlisp to start newLISP on Mac OS X or
@@ -11671,6 +11889,10 @@ cause the function to return sooner than the specified timeout. When a
 given number of responses has been received, net-ping will return before
 the timeout has occurred. Not specifying /int-count/ or specifying 0
 assumes an /int-count/ equal to the number of packets sent out.
+
+As third optional parameter, a true value can be specified. This setting
+will return an error string instead of the response time, if the host
+does not answer.
 
 (net-ping '("newlisp.org" "192.168.1.255") 2000 20)
 → (("66.235.209.72" 826420) ("192.168.1.1" 124) ("192.168.1.254" 210))
@@ -11780,6 +12002,9 @@ net-listen <#net-listen> or net-connect <#net-connect> (both using the
 will be received. On Linux/BSD, if more bytes are received, those will
 be discarded; on Win32, net-receive-from returns nil and closes the socket.
 
+On success net-receive returns a list of the data string, remote IP
+number and remote port used. On failure it returns nil.
+
 ;; listen on port 1001 on the default address
 (net-listen 1001 "" "udp")  → 1980 
 
@@ -11802,7 +12027,7 @@ Note that net-receive could not be used in this case because it does not
 return the sender's address and port information, which are required to
 talk back. In UDP communications, the data packet itself contains the
 address of the sender, /not/ the socket over which communication takes
-place.
+place. net-receive can also be used for TCP/IP communications.
 
 See also the net-connect <#net-connect> function with the "udp" option
 and the net-send-to <#net-send-to> function for sending UDP data packets
@@ -11816,8 +12041,7 @@ For blocking short UDP transactions, see the net-send-udp
     net-receive-udp
 
 
-        syntax: (net-receive-udp /int-port/ /int-maxsize/
-        [/int-microsec/ [/str-addr-if/]])
+        syntax: (net-receive-udp /int-port/ /int-maxsize/ [/int-microsec/ [/str-addr-if/]])
 
 Receives a User Datagram Protocol (UDP) packet on port /int-port/,
 reading /int-maxsize/ bytes. If more than /int-maxsize/ bytes are
@@ -12015,8 +12239,7 @@ net-receive-udp <#net-receive-udp>.
     net-send-udp
 
 
-        syntax: (net-send-udp /str-remotehost/ /int-remoteport/
-        /str-buffer/ [/bool/])
+        syntax: (net-send-udp /str-remotehost/ /int-remoteport/ /str-buffer/ [/bool/])
 
 Sends a User Datagram Protocol (UDP) to the host specified in
 /str-remotehost/ and to the port in /int-remoteport/. The data sent is
@@ -12220,12 +12443,12 @@ otherwise, nil is returned.
     now
 
 
-        syntax: (now [/int-offset/ [/int-index/]])
+        syntax: (now [/int-minutes-offset/ [/int-index/]])
 
 Returns information about the current date and time as a list of
 integers. An optional time-zone offset can be specified in minutes in
-/int-offset/. This causes the time to be shifted forward or backward in
-time, before being split into separate date values.
+/int-minutes-offset/. This causes the time to be shifted forward or
+backward in time, before being split into separate date values.
 
 An optional list-index in /int-index/ makes now return a specific member
 in the result list.
@@ -12247,7 +12470,7 @@ minute	(0–59)
 second	(0–59)
 microsecond	(0–999999) OS-specific, millisecond resolution
 day of current year	Jan 1st is 1
-day of current week	(1–7) starting Sunday
+day of current week	(1–7) starting Monday
 time zone offset in minutes	west of GMT
 daylight savings time type 	(0–6) on Linux/Unix or bias in minutes on Win32
 
@@ -12260,8 +12483,12 @@ the local time zone. The resolution of the microseconds field depends on
 the operating system and platform. On some platforms, the last three
 digits of the microseconds field are always 0 (zero).
 
-On some platforms, the daylight savings flag is not active and returns 0
-(zero) even during daylight savings time.
+Since version 10.2.14 the "day of the week" field now starts with 1 on
+Monday. This change has been made to comform to the ISO 8601
+international standard for date and time representation.
+
+On some platforms, the daylight savings time flag is not active and
+returns 0 (zero) even during daylight savings time (dst).
 
 Depending on the geographical area the daylight time savings type has a
 different value from 1 to 6:
@@ -12275,8 +12502,9 @@ type	area
 5	Eastern European dst
 6	Canada
 
-See also the date <#date>, date-value <#date-value>, time <#time>, and
-time-of-day <#time-of-day> functions.
+See also the date <#date>, date-list <#date-list>, date-parse
+<#date-parse>, date-value <#date-value>, time <#time>, and time-of-day
+<#time-of-day> functions.
 
 
 
@@ -12555,7 +12783,7 @@ return value of the or expression.
 (set 'x 10)
 (or (> x 100) (= x 10))          → true
 (or "hello" (> x 100) (= x 10))  → "hello"
-(or '())                         → () 
+(or '())                         → ()
 (or true)                        → true
 (or)                             → nil
 
@@ -12756,27 +12984,6 @@ expressions.
 
 
 
-    parse-date
-
-
-        syntax: (parse-date /str-date/ /str-format/)
-
-Parses a date from a text string in /str-date/ using a format as defined
-in /str-format/, which uses the same formatting rules found in date
-<#date>. The function parse-date returns the number of seconds passed
-since January 1st, 1970 starting with 0 and up to 2147472000 for a date
-of January 19th, 2038. For dates before January 1st 1970, negative
-values are returned down to a value of -2147472000 for December 14th, 1901.
-
-This function is not available on Win32 platforms.
-
-(parse-date "2007.1.3" "%Y.%m.%d")    → 1167782400
-(parse-date "January 10, 07" "%B %d, %y")    → 1168387200
-
-See the date <#date> function for all possible format descriptors.
-
-
-
     peek
 
 
@@ -12824,7 +13031,7 @@ further information.
 
     pmt
 
-        syntax: (pmt /num-interest/ /num-periods/ /num-principal/ [/num-future-value/ [/int-type/]])*
+        syntax: (pmt /num-interest/ /num-periods/ /num-principal/ [/num-future-value/ [/int-type/]])
 
 Calculates the payment for a loan based on a constant interest of
 /num-interest/ and constant payments over /num-periods/ of time.
@@ -13195,8 +13402,10 @@ See also the inverse function crit-z <#crit-z>.
 
 
         syntax: (process /str-command/)
-        syntax: (process /str-command/ /int-pipe-in/ /int-pipe-out/ [/int-win32-option/])
-        syntax: (process /str-command/ /int-pipe-in/ /int-pipe-out/ [/int-unix-pipe-error/])
+        syntax: (process /str-command/ /int-pipe-in/ /int-pipe-out/
+        [/int-win32-option/])
+        syntax: (process /str-command/ /int-pipe-in/ /int-pipe-out/
+        [/int-unix-pipe-error/])
 
 In the first syntax, process launches a process specified in
 /str-command/ and immediately returns with a process ID or nil if a
@@ -13316,15 +13525,20 @@ starting separate newLISP processes on Linux/Unix.
     prompt-event
 
 
-        syntax: (prompt-event /sym | func/)
+        syntax: (prompt-event /sym-event-handler/ | /func-event-handler/)
 
-Refines the prompt as shown in the interactive newLISP shell. /sym |
-fun/ is either a symbol of a user-defined or the lambda function directly:
+Refines the prompt as shown in the interactive newLISP shell. The
+/sym-event-handler/ or /func-event-handler/ is either a symbol of a
+user-defined function or a lambda expression:
 
-(prompt-event (fn (ctx) (string ctx ":" (real-path) "$ ")))
+*>* (prompt-event (fn (ctx) (string ctx ":" (real-path) "$ ")))
+*$prompt-event*
+*MAIN:/Users/newlisp$* (+ 3 4)
+*7*
+*MAIN:/Users/newlisp$*
 
 The current context before calling the prompt-event code is passed as a
-parameter to the function.
+parameter to the function. Computer output is shown in bold.
 
 The example redefines the > prompt to be the current context followed by
 a colon :, followed by the directory name, followed by the dollar
@@ -13938,7 +14152,7 @@ translation and evaluation process. The function specified in
 translates an expression and before evaluating it. The event handler can
 do transformation on the expression before it gets evaluated.
 
-Specifying nil for the event will disable it.
+Specifying a quoted nil for the event will disable it.
 
 The following one-liner reader-event could be used to enhance the
 interactive shell:
@@ -14077,9 +14291,9 @@ returned instead of the index vector.
 
 (pList v) → (x)
 
-; if nothing is found the empty list is returned
+; if nothing is found, nil is returned
 
-(ref 'foo plist)  → ()
+(ref 'foo plist)  → nil
 
 ; not specifying a comparison functor assumes =
 
@@ -15362,6 +15576,7 @@ In the second syntax, series uses a function specified in /func/ to
 transform the previous expression in to the next expression:
 
 ; embed the function Phi: f(x) = 1 / (1 + x)
+; see also http://en.wikipedia.org/wiki/Golden_ratio
 
 (series 1 (fn (x) (div (add 1 x))) 20)  →
 
@@ -15525,7 +15740,7 @@ See also the chapter Switching the locale <#switching>.
 Searches for /exp-key/ in /list/ and replaces the found element with
 /exp-replacement/. The /list/ can be nested. The system variables $it
 contains the expression found and can be used in /exp-replacement/. The
-function returns the old replaced element.
+function returns the new modified /list/.
 
 (set 'data '(fruits (apples 123 44) (oranges 1 5 3)))
 
@@ -15561,7 +15776,7 @@ For changing all occurrences of an element in a list use set-ref-all
 Searches for /exp-key/ in /list/ and replaces each instance of the found
 element with /exp-replacement/. The /list/ can be nested. The system
 variable $it contains the expression found and can be used in
-/exp-replacement/.
+/exp-replacement/. The function returns the new modified /list/.
 
 (set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
 
@@ -15689,7 +15904,7 @@ s → "newLISP"
 In the first syntax, the sgn function is a logical function that
 extracts the sign of a real number according to the following rules:
 
-*/ x > 0 : sgn(x) = 1
+*/x > 0 : sgn(x) = 1
 x < 0 : sgn(x) = -1
 x = 0 : sgn(x) = 0 /*
 
@@ -15786,23 +16001,28 @@ newLISP source distribution.
     signal
 
 
-        syntax: (signal /int-signal/ /sym-handler/)
-        syntax: (signal /int-signal/ /func-handler/)
-        syntax: (signal /int-signal/ nil | true)
-        syntax: (signal /int-signal/ 'nil)
+        syntax: (signal /int-signal/ /sym-event-handler/ | /func-event-handler/)
+        syntax: (signal /int-signal/ "ignore" | "default" | "reset")
         syntax: (signal /int-signal/)
 
-Sets a user-defined handler in /sym-handler/ for a signal specified in
-/int-signal/ or sets to a function expression in /func-handler/.
+Sets a user-defined handler in /sym-event-handler/ for a signal
+specified in /int-signal/ or sets to a function expression in
+/func-event-handler/.
 
-If nil is specified, the signal handler will be set to SIG_IGN, and the
-signal will be ignored. Specifying true will set the signal handler to
-SIG_DFL, the default handler of the underlying platform OS. On startup,
-newLISP either specifies an empty newLISP handler or a Ctrl-C handler
-for SIGINT and a waitpipd(-1, 0, WNOHANG) C-call for SIGCHLD.
+A parameter following /int-signal/ is not evaluated.
 
-If the quoted symbol 'nil is specified, the signal handler is restored
-to the state after newLISP startup.
+If no signal handler is speified any of the string constants "ignore",
+"default" or "reset" can be specified in either lower or upper case or
+simply using the the first letter of the option string. When signal
+setup with any of these three options has been successfull true is returned.
+
+Using "ignore" will make newLISP ignore the signal. Using "default" will
+set the handler to the default handler of the underlying platform OS.
+The "reset" option will restore the handler to newLISP startup state.
+
+On startup, newLISP either specifies an empty newLISP handler or a
+Ctrl-C handler for SIGINT and a waitpipd(-1, 0, WNOHANG) C-call for
+SIGCHLD.
 
 Different signals are available on different OS platforms and Linux/Unix
 flavors. The numbers to specify in /int-signal/ also differ from
@@ -15824,6 +16044,10 @@ also be different on different platforms.
 ; and will not work in the newLISP-GS editor
 
 ctrl-C has been pressed
+
+; reset tratment of signal 2 to startup conditions
+
+(signal SIGINT "reset")
 
 On Win32, the above example would execute the handler before exiting
 newLISP. On most Linux/Unix systems, newLISP would stay loaded and the
@@ -16229,7 +16453,7 @@ result.
     starts-with
 
 
-        syntax: (starts-with /str/ / str-key/ [/num-option/])
+        syntax: (starts-with /str/ /str-key/ [/num-option/])
         syntax: (starts-with /list/ [/exp/])
 
 In the first version, starts-with checks if the string /str/ starts with
@@ -16664,7 +16888,7 @@ Returns as a string, the term part of a /symbol/ without the context prefix.
 (set 'ACTX:var 123)
 (set 'sm 'ACTX:var)
 (string sm)     → "ACTX:var"
-(term sm)       → "var"
+(term sm)      → "var"
 
 (set 's 'foo:bar)
 (= s (sym (term s) (prefix s)))
@@ -16770,7 +16994,8 @@ now <#now> functions.
     timer
 
 
-        syntax: (timer /sym-event-handler | func-event-handler/ /num-seconds/ [/int-option/])
+        syntax: (timer /sym-event-handler | func-event-handler/
+        /num-seconds/ [/int-option/])
         syntax: (timer /sym-event-handler | func-event-handler/)
         syntax: (timer)
 
@@ -17705,13 +17930,14 @@ line-terminating character.
     xfer-event
 
 
-        syntax: (xfer-event /sym | func-event-handler/)
+        syntax: (xfer-event /sym-event-handler/ | /func-event-handler/)
 
-Registers a function in symbol /sym/ or in lambda function /func/ to
-monitor HTTP byte transfers initiated by get-url <#get-url>, post-url
-<#post-url> or put-url <#put-url> or initiated by file functions which
-can take URLs like load <#load>, save <#save>, read-file <#read-file>,
-write-file <#write-file> and append-file <#append-file>.
+Registers a function in symbol /sym-event-handler/ or in lambda function
+/func-event-handler/ to monitor HTTP byte transfers initiated by get-url
+<#get-url>, post-url <#post-url> or put-url <#put-url> or initiated by
+file functions which can take URLs like load <#load>, save <#save>,
+read-file <#read-file>, write-file <#write-file> and append-file
+<#append-file>.
 
 E.g. whenever a block of data requested with get-url <#get-url> arrives
 the function in /sym/ or /func/ will be called with the accumulated
@@ -18055,72 +18281,72 @@ zero? will return nil on data types other than numbers.
 
     Error codes
 
-description	no
-not enough memory	1
-environment stack overflow	2
-call stack overflow	3
-problem accessing file	4
-not an expression	5
-missing parenthesis	6
-string token too long	7
-missing argument	8
-number or string expected	9
-value expected	10
-string expected	11
-symbol expected	12
-context expected	13
-symbol or context expected	14
-list expected	15
-list or array expected	16
-list or symbol expected	17
-list or string expected	18
-list or number expected	19
-array expected	20
-array, list or string expected	21
-lambda expected	22
-lambda-macro expected	23
-invalid function	24
-invalid lambda expression	25
-invalid macro expression	26
-invalid let parameter list	27
-problem saving file	28
-division by zero	29
-matrix expected	30
-wrong dimensions	31
-matrix is singular	32
-syntax in regular expression	33
-throw without catch	34
-problem loading library	35
-import function not found	36
-symbol is protected	37
-error number too high	38
-regular expression	39
-missing end of text [/text]	40
-mismatch in number of arguments	41
-problem in format string	42
+description				no
+not enough memory			1
+environment stack overflow		2
+call stack overflow			3
+problem accessing file			4
+not an expression			5
+missing parenthesis			6
+string token too long			7
+missing argument			8
+number or string expected		9
+value expected				10
+string expected				11
+symbol expected				12
+context expected			13
+symbol or context expected		14
+list expected				15
+list or array expected			16
+list or symbol expected			17
+list or string expected			18
+list or number expected			19
+array expected				20
+array, list or string expected		21
+lambda expected				22
+lambda-macro expected			23
+invalid function			24
+invalid lambda expression		25
+invalid macro expression		26
+invalid let parameter list		27
+problem saving file			28
+division by zero			29
+matrix expected				30
+wrong dimensions			31
+matrix is singular			32
+syntax in regular expression		33
+throw without catch			34
+problem loading library			35
+import function not found		36
+symbol is protected			37
+error number too high			38
+regular expression			39
+missing end of text [/text]		40
+mismatch in number of arguments		41
+problem in format string		42
 data type and format don't match	43
-invalid parameter	44
-invalid parameter: 0.0	45
-invalid parameter: NaN	46
-illegal parameter type	47
-symbol not in MAIN context	48
-symbol not in current context	49
-target cannot be MAIN	50
-list index out of bounds	51
-array index out of bounds	52
-string index out of bounds	53
-nesting level too deep	54
-invalid syntax	55
-user error	56
-user reset -	57
-received SIGINT -	58
-function is not reentrant	59
-local symbol is protected	60
-no reference found	61
-list is empty	62
-I/O error	63
-working directory not found	64
-invalid PID	65
+invalid parameter	   		44
+invalid parameter: 0.0			45
+invalid parameter: NaN			46
+illegal parameter type			47
+symbol not in MAIN context		48
+symbol not in current context		49
+target cannot be MAIN			50
+list index out of bounds		51
+array index out of bounds		52
+string index out of bounds		53
+nesting level too deep			54
+invalid syntax				55
+user error				56
+user reset -				57
+received SIGINT -			58
+function is not reentrant		59
+local symbol is protected		60
+no reference found			61
+list is empty				62
+I/O error				63
+working directory not found		64
+invalid PID				65
 
 
 
