@@ -13,41 +13,44 @@ already built in. newLISP runs on most OS platforms.
 
 init.lsp
 --------
-雑多な関数群。
+My newlisp initialization file.
 
-* nl-modules.git - その他モジュールはこちら
+* Other snippet, see below:
 
-  <http://github.com/kosh04/nl-modules>
+  <https://github.com/kosh04/newlisp.snippet>
 
 
 newlisp.el
 ----------
-Emacsで編集するための簡易メジャーモード。
+newLISP editing mode for Emacs.
 
-何が出来るのか
+- Editing newlisp code
+- Syntax highlighting [*]
+- Keyword completion [*]
+- Run newlisp process
+- eval-region, eval-last-sexp
 
-- ファイルの編集
-- プロセスの起動、操作
-- リージョンの評価 (eval-region, eval-last-sexp)
-- シンタックスハイライト
-- 関数名の補完 (組み込み関数のみ)
+[*] primitive keyword only.
 
 
-newlisp_manual.txt (v.10.2.8 rev-19)
+newlisp_manual.txt (v.10.3.0rev)
 -----------------------------------
-HTMLマニュアルをテキストに変換したもの。
-ブラウザで開くと非常に重いので、一旦ローカルに落とす方が良い
+Text file converted from newlisp html document.
+
+newlisp.el と組み合わせて利用します。
+ブラウザで開くと非常に重いので、一旦ローカルに落とす方が良いです。
 
 `wget http://github.com/kosh04/newlisp-files/raw/master/newlisp_manual.txt`
 
-newLISP Manual and Reference
-<http://www.newlisp.org/downloads/newlisp_manual.html>
+- newLISP Manual and Reference
+
+  <http://www.newlisp.org/downloads/newlisp_manual.html>
 
 
 swank-newlisp.lsp
 -----------------
-Emacsと通信するためのSwankサーバファイル。今のところ最低限の機能のみ。
+Swank server for newLISP.
 
-SLIME - <http://common-lisp.net/project/slime/>
+What is SLIME? - <http://common-lisp.net/project/slime/>
 
-* swank-newlisp.sh - swankサーバ起動用 wrapper
+* swank-newlisp.sh - swank server startup wrapper
