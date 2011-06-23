@@ -5,7 +5,7 @@
 ;; Author: KOBAYASHI Shigeru <shigeru.kb@gmail.com>
 ;; Version: 0.3
 ;; Created: 2008-12-15
-;; Keywords: language,lisp
+;; Keywords: language,lisp,newlisp
 ;; URL: http://github.com/kosh04/newlisp-files/raw/master/newlisp.el
 
 ;; This file is NOT part of GNU Emacs.
@@ -26,7 +26,7 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Commentary:
-;;
+
 ;; LISP風軽量スクリプト言語`newLISP'を編集するための簡単なメジャーモードです。
 ;;
 ;; newLISP Home - http://www.newlisp.org/
@@ -35,19 +35,27 @@
 ;;      https://github.com/kosh04/newlisp-files
 
 ;;; Installation:
+
+;; このファイルを load-path の通ったディレクトリに置いて
+;; .emacs に以下のコードを追加してください
 ;;
-;; (require 'newlisp)
-;; (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
-;; (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
-;; (newlisp-mode-setup) 	; if needed
-;; (defun newlisp-user-hook ()
-;;   (setq comment-start "; ")
-;;   (setq tab-width 8)
-;;   (setq indent-tabs-mode nil))
-;; (add-hook 'newlisp-mode-hook 'newlisp-user-hook)
+;;   (require 'newlisp)
+;;   (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
+;;   (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
+;;
+;;   ;; 必要ならば
+;;   (newlisp-mode-setup)
+;;   (defun newlisp-mode-user-hook ()
+;;     (setq comment-start "; ")
+;;     (setq tab-width 8)
+;;     (setq indent-tabs-mode nil))
+;;   (add-hook 'newlisp-mode-hook 'newlisp-mode-user-hook)
 
 ;;; ChangeLog:
 
+;; 2011-06-23
+;; - typo fixed
+;;
 ;; 2011-01-28 version 0.3
 ;; - newlisp-complete-symbol: キーワード補完関数を作り直した
 ;; - newlisp--allow-lazy-eval: readlineよる余計なタブ補完を抑制するように修正
@@ -88,8 +96,8 @@
 ;;
 
 ;;; Known Bugs:
-;;
-;; - (newlisp-eval "(eval-string \"((define hex\t0xff))\")") => ERR
+
+;; - (newlisp-eval "(eval-string \"(define hex\t0xff)\")") => ERR
 ;; - 複数行のS式([cmd]~[cmd]タグで囲まれたS式)の出力が溜まる場合がある
 ;; - 先頭に複数のTABを含むS式を入力するとreadline関数の補完がうざったい
 ;;   > これはv.10.2.11以降のmultiline-modeにて発生する
@@ -106,7 +114,7 @@
 ;; (add-to-list 'exec-path "~/bin")
 
 ;;; Todo:
-;;
+
 ;; - pop-to-buffer は縦分割を好む人もいるかもしれない
 ;; - elisp の書式チェック (M-x checkdoc)
 ;; - defcustom
@@ -125,7 +133,7 @@
   "Newlisp source code editing functions."
   :group 'newlisp
   :prefix "newlisp-"                    ; or "nl-" ?
-  :version "0.2")
+  :version "0.3")
 
 ;; (executable-find "newlisp") or "/usr/bin/newlisp"
 (defcustom newlisp-command "newlisp"
@@ -181,7 +189,7 @@ If not running, then start new process."
   (let ((proc (newlisp-process)))
     (labels ((sendln (str)
                (comint-send-string proc (concat str "\n"))))
-      ;; タブ補完を抑制する [tab] -> [space]
+      ;; タブ補完を抑制する [Tab] -> [Space]
       (if newlisp--allow-lazy-eval
           (setq str-sexp (replace-regexp-in-string
                           "\t\t" (make-string (* 2 tab-width) #x20)
@@ -296,7 +304,8 @@ This function is not available on Win32."
 
 (defun newlisp-debug-region (start end)
   (interactive "r")
-  (newlisp-eval (format "(debug %s)" (buffer-substring start end)))
+  (error "Not implemented yet.")
+  ;; (newlisp-eval (format "(debug %s)" (buffer-substring start end)))
   ;; "s|tep n|ext c|ont q|uit" の操作もまとめたい
   )
 
@@ -317,7 +326,9 @@ This function is not available on Win32."
       "betai" "bind" "binomial" "bits" "callback" "case" "catch" "ceil" "change-dir" "char" 
       "chop" "clean" "close" "command-event" "cond" "cons" "constant" "context" "context?" 
       "copy" "copy-file" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-z" "current-line" 
-      "curry" "date" "date-list" "date-parse" "date-value" "debug" "dec" "def-new" "default" 
+      "curry" "date" "date-list"
+      ;; "date-parse"
+      "date-value" "debug" "dec" "def-new" "default" 
       ;; "define" "define-macro"
       "delete" "delete-file" "delete-url" "destroy" "det" "device" 
       "difference" "directory" "directory?" "div" "do-until" "do-while" "doargs" "dolist" 
@@ -358,12 +369,12 @@ This function is not available on Win32."
       "$args" "$idx" "$it" "$main-args" "$prompt-event"
       "$0" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
       "$10" "$11" "$12" "$13" "$14" "$15"))
-  (defvar newlisp-context-keyowrds
+  (defvar newlisp-context-keywords
     '("Class" "MAIN" "Tree"))
   (defvar newlisp-tag-keywords
     '("[text]" "[/text]" "[cmd]" "[/cmd]"))
   (defvar newlisp-un*x-based-function-keywords
-    '("peek" "fork" "wait-pid" "net-ping" "parse-date"))
+    '("peek" "fork" "wait-pid" "net-ping" "date-parse" "parse-date"))
   )
 
 (defsubst newlisp-keywords ()
@@ -520,6 +531,11 @@ This function is not available on Win32."
 (defindent doargs 1)
 (defindent dotree 1)
 
+;; (defun newlisp-indent-function (indent-point state)
+;;   ...
+;;   (setq method (or (get (intern-soft function) 'newlisp-indent-function)
+;;                    (get (intern-soft function) 'newlisp-indent-hook))))
+
 ;; $ html2txt $NEWLISPDIR/newlisp_manual.html -o newlisp_manual.txt
 ;; or use www-browser [File] -> [Save Page As (Text)]
 (defvar newlisp-manual-text "newlisp_manual.txt")
@@ -546,7 +562,7 @@ This function is not available on Win32."
   (interactive)
   (browse-url-of-file newlisp-manual-html))
 
-(defun newlisp-lookup-manual (keyword )
+(defun newlisp-lookup-manual (keyword)
   "マニュアルファイルから関数を調べます."
   (interactive
     (list (let* ((s (newlisp-find-symbol
@@ -562,8 +578,10 @@ This function is not available on Win32."
                                          ""))
                              newlisp-obarray ; (newlisp-keywords)
                              nil t nil nil default))))
-  (if (equal keyword "setf")
-      (setq keyword "setq"))
+  (if (equal keyword "setf") (setq keyword "setq"))
+  (if (equal keyword "parse-date") (setq keyword "date-parse"))
+  (if (equal keyword "lambda") (setq keyword "fn"))
+
   (newlisp-switch-to-manual)
   (let ((opoint (point)) (found nil))
     (goto-char (point-min))
@@ -599,7 +617,7 @@ This function is not available on Win32."
          font-lock-function-name-face)
    (cons (eval-when-compile (regexp-opt newlisp-variable-keyword 'words))
          font-lock-constant-face)
-   (cons (eval-when-compile (regexp-opt newlisp-context-keyowrds 'words))
+   (cons (eval-when-compile (regexp-opt newlisp-context-keywords 'words))
          font-lock-type-face)
    (cons (eval-when-compile (regexp-opt newlisp-tag-keywords)) ; not 'words
          font-lock-string-face)
