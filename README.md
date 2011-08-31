@@ -33,7 +33,7 @@ newLISP editing mode for Emacs.
 [*] primitive keyword only.
 
 
-newlisp_manual.txt (v.10.3.0rev)
+newlisp_manual.txt (v.10.3.2)
 -----------------------------------
 Text file converted from newlisp html document.
 
@@ -45,6 +45,10 @@ newlisp.el と組み合わせて利用します。
 - newLISP Manual and Reference
 
   <http://www.newlisp.org/downloads/newlisp_manual.html>
+
+- newLISP Manual and Reference [ja]
+
+  <http://www.newlisp.org/newlisp_manual-jp.html>
 
 
 swank-newlisp.lsp

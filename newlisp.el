@@ -53,6 +53,9 @@
 
 ;;; ChangeLog:
 
+;; 2011-07-07 ~
+;; - ADD newlisp-change-dir
+;;
 ;; 2011-06-23
 ;; - typo fixed
 ;;
@@ -115,6 +118,7 @@
 
 ;;; Todo:
 
+;; - ユーザ関数なども補完候補に動的に組み込む
 ;; - pop-to-buffer は縦分割を好む人もいるかもしれない
 ;; - elisp の書式チェック (M-x checkdoc)
 ;; - defcustom
@@ -189,7 +193,7 @@ If not running, then start new process."
   (let ((proc (newlisp-process)))
     (labels ((sendln (str)
                (comint-send-string proc (concat str "\n"))))
-      ;; タブ補完を抑制する [Tab] -> [Space]
+      ;; Suppress TAB completion. [Tab] -> [Space]
       (if newlisp--allow-lazy-eval
           (setq str-sexp (replace-regexp-in-string
                           "\t\t" (make-string (* 2 tab-width) #x20)
@@ -237,6 +241,11 @@ If not running, then start new process."
   (interactive (list
                 (read-file-name "Load file: " (buffer-file-name))))
   (newlisp-eval (format "(load {%s})" (expand-file-name file))))
+
+(defun newlisp-change-dir (dir)
+  "Change the working directory."
+  (interactive "DchangeDir: ")
+  (newlisp-eval (format "(change-dir {%s})" (expand-file-name dir))))
 
 (defun newlisp-restart-process ()
   "Restart a new clean newLISP process with same command-line params.

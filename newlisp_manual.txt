@@ -6,8 +6,7 @@ newLISP®
 *For Mac OS X, GNU Linux, Unix and Win32*
 
 
-    User Manual and Reference v.10.3.0rev 2010-02-06
-
+    User Manual and Reference v.10.3.2
 
 
 
@@ -34,121 +33,117 @@ newLISP is a registered trademark of Lutz Mueller.
 
       User Manual <#users_manual>
 
-   1. Introduction <#introduction>
-   2. Deprecated functions and future changes <#deprecated>
-   3. Interactive Lisp mode <#REPL>
-   4. Command line options <#options>
-          * Command line help summary <#cmd_help>
-          * Specifying files as URLs <#url_files>
-          * No loading of init.lsp <#no_init>
-          * Stack size <#stack_size>
-          * Maximum memory usage <#max_mem>
-          * Direct execution mode <#direct_exec>
-          * Logging I/O <#logging>
-          * Specifying the working directory <#working_dir>
-          * newLISP as a TCP/IP server <#tcpip_server>
-          * TCP/IP daemon mode <#daemon>
-          * Suppressing the prompt and HTTP processing <#prompt>
-          * Forcing prompts in pipe I/O mode <#forcing_prompt>
-          * HTTP only server mode <#http_mode>
-          * Local domain Unix socket server <#local_domain_server>
-          * Connection timeout <#conn_timeout>
-          * inetd daemon mode <#inetd_daemon>
-   5. Startup, directories, environment <#startup>
-          * Environment variable NEWLISPDIR <#environment>
-          * The initialization file init.lsp <#initialization>
-          * Directories on Linux, BSD, Mac OS X <#directories_unix>
-          * Directories on Win32 <#directories_win32>
-   6. Shared library module for Unix <#shared-lib>
-   7. DLL module for Win32 versions <#dll>
-   8. Evaluating newLISP expressions <#expressions>
-          * Intercactive multiline expressions <#multiline>
-          * Integer, floating point data and operators <#int_float>
-          * Evaluation rules and data types <#eval_rules>
-   9. Lambda expressions in newLISP <#lambda_expressions>
-  10. nil, true, cons and () in newLISP <#nil_and_true>
-  11. Arrays <#arrays>
-  12. Indexing elements of strings, lists and arrays <#indexing>
-          * Implicit indexing for nth <#implicit_indexing>
-          * Implicit indexing and the default functor <#implicit_default>
-          * Implicit indexing for rest and slice <#implicit_rest_slice>
-          * Modify references in lists, arrays and strings
-            <#implicit_modify>
-  13. Destructive versus non-destructive functions <#destructive>
-          * Make a destructive function non-destructive
-            <#make_nondestructive>
-  14. Dynamic and lexical scoping <#scoping>
-  15. Early return from functions, loops, blocks <#return>
-          * Using catch and throw <#flow_catch_throw>
-          * Using and and or <#flow_and_or>
-  16. Contexts <#contexts>
-          * Symbol creation in contexts <#context_rules>
-          * Creating contexts <#creating_contexts>
-          * Global scope <#scope_global>
-          * Symbol protection <#protection>
-          * Overwriting global symbols and built-ins <#overwrite>
-          * Variables holding contexts <#context_vars>
-          * Sequence of creating contexts <#sequence_creating>
-          * Contexts as programming modules <#context_modules>
-          * Contexts as data containers <#context_data>
-          * Loading and declaring contexts <#loading_contexts>
-          * Serializing context objects <#serializing>
-  17. The context default functor <#default_function>
-          * Functions with memory <#func_memory>
-          * Hash functions and dictionaries <#hash>
-          * Passing data by reference <#pass_big>
-  18. Functional object-oriented programming in newLISP <#foop>
-          * FOOP classes and constructors <#newlisp_classes>
-          * Objects <#newlisp_objects>
-          * The colon : operator and polymorphism <#colon_operator>
-          * Structuring a larger FOOP program <#structure_foop>
-  19. Concurrent processing and distributed computing <#multi_processing>
-          * The Cilk API <#cilk>
-          * Distributed network computing <#distributed>
-  20. XML, SXML and XML-RPC <#XML>
-  21. Customization, localization and UTF-8 <#internationalization>
-          * Customizing function names <#naming>
-          * Switching the locale <#switching>
-          * Decimal point and decimal comma <#decimal_point>
-          * Unicode and UTF-8 encoding <#unicode_utf8>
-          * Functions working on UTF-8 characters <#utf8_capable>
-          * Functions only available on UTF-8 enabled versions
-            <#utf8_version>
-  22. Commas in parameter lists <#commas>
-  23. Linking newLISP source and executable <#linking>
+ 1. Introduction <#introduction>
+ 2. Deprecated functions and future changes <#deprecated>
+ 3. Interactive Lisp mode <#REPL>
+ 4. Command line options <#options>
+      * Command line help summary <#cmd_help>
+      * Specifying files as URLs <#url_files>
+      * No loading of init.lsp <#no_init>
+      * Stack size <#stack_size>
+      * Maximum memory usage <#max_mem>
+      * Direct execution mode <#direct_exec>
+      * Logging I/O <#logging>
+      * Specifying the working directory <#working_dir>
+      * newLISP as a TCP/IP server <#tcpip_server>
+      * TCP/IP daemon mode <#daemon>
+      * Suppressing the prompt and HTTP processing <#prompt>
+      * Forcing prompts in pipe I/O mode <#forcing_prompt>
+      * HTTP only server mode <#http_mode>
+      * Local domain Unix socket server <#local_domain_server>
+      * Connection timeout <#conn_timeout>
+      * inetd daemon mode <#inetd_daemon>
+ 5. Startup, directories, environment <#startup>
+      * Environment variable NEWLISPDIR <#environment>
+      * The initialization file init.lsp <#initialization>
+      * Directories on Linux, BSD, Mac OS X <#directories_unix>
+      * Directories on Win32 <#directories_win32>
+ 6. Shared library module for Unix <#shared-lib>
+ 7. DLL module for Win32 versions <#dll>
+ 8. Evaluating newLISP expressions <#expressions>
+      * Intercactive multiline expressions <#multiline>
+      * Integer, floating point data and operators <#int_float>
+      * Evaluation rules and data types <#eval_rules>
+ 9. Lambda expressions in newLISP <#lambda_expressions>
+10. nil, true, cons and () in newLISP <#nil_and_true>
+11. Arrays <#arrays>
+12. Indexing elements of strings, lists and arrays <#indexing>
+      * Implicit indexing for nth <#implicit_indexing>
+      * Implicit indexing and the default functor <#implicit_default>
+      * Implicit indexing for rest and slice <#implicit_rest_slice>
+      * Modify references in lists, arrays and strings <#implicit_modify>
+13. Destructive versus non-destructive functions <#destructive>
+      * Make a destructive function non-destructive <#make_nondestructive>
+14. Dynamic and lexical scoping <#scoping>
+15. Early return from functions, loops, blocks <#return>
+      * Using catch and throw <#flow_catch_throw>
+      * Using and and or <#flow_and_or>
+16. Contexts <#contexts>
+      * Symbol creation in contexts <#context_rules>
+      * Creating contexts <#creating_contexts>
+      * Global scope <#scope_global>
+      * Symbol protection <#protection>
+      * Overwriting global symbols and built-ins <#overwrite>
+      * Variables holding contexts <#context_vars>
+      * Sequence of creating contexts <#sequence_creating>
+      * Contexts as programming modules <#context_modules>
+      * Contexts as data containers <#context_data>
+      * Loading and declaring contexts <#loading_contexts>
+      * Serializing context objects <#serializing>
+17. The context default functor <#default_function>
+      * Functions with memory <#func_memory>
+      * Hash functions and dictionaries <#hash>
+      * Passing data by reference <#pass_big>
+18. Functional object-oriented programming in newLISP <#foop>
+      * FOOP classes and constructors <#newlisp_classes>
+      * Objects <#newlisp_objects>
+      * The colon : operator and polymorphism <#colon_operator>
+      * Structuring a larger FOOP program <#structure_foop>
+19. Concurrent processing and distributed computing <#multi_processing>
+      * The Cilk API <#cilk>
+      * Distributed network computing <#distributed>
+20. XML, SXML and XML-RPC <#XML>
+21. Customization, localization and UTF-8 <#internationalization>
+      * Customizing function names <#naming>
+      * Switching the locale <#switching>
+      * Decimal point and decimal comma <#decimal_point>
+      * Unicode and UTF-8 encoding <#unicode_utf8>
+      * Functions working on UTF-8 characters <#utf8_capable>
+      * Functions only available on UTF-8 enabled versions <#utf8_version>
+22. Commas in parameter lists <#commas>
+23. Linking newLISP source and executable <#linking>
 
 
       Function Reference <#function_ref>
 
-   1. Syntax of symbol variables and numbers <#symbol_names>
-   2. Data types and names in the reference <#type_ids>
-   3. Functions in groups <#functions>
-          * List processing, flow control, and integer arithmetic
-            <#list_processing>
-          * String and conversion functions <#string_operators>
-          * Floating point math and special functions <#floating_point>
-          * Matrix functions <#matrices>
-          * Array functions <#array-funcs>
-          * Bit operators <#bit_operators>
-          * Predicates <#predicates>
-          * Date and time functions <#timedate>
-          * Simulation and modeling functions <#montecarlo>
-          * Pattern matching <#pattern>
-          * Financial math functions <#financial>
-          * File and I/O operations <#input_output>
-          * Processes and the Cilk API <#processes>
-          * File and directory management <#directory_management>
-          * HTTP networking API <#http_api>
-          * Socket TCP/IP, UDP and ICMP network API <#socket_tcpip>
-          * Reflection and customization <#reflection>
-          * System functions <#system_functions>
-          * Importing libraries <#importing_libraries>
-          * newLISP internals API <#internals>
-   4. Functions in alphabetical order <#functions_alphabetical>
+ 1. Syntax of symbol variables and numbers <#symbol_names>
+ 2. Data types and names in the reference <#type_ids>
+ 3. Functions in groups <#functions>
+      * List processing, flow control, and integer arithmetic <#list_processing>
+      * String and conversion functions <#string_operators>
+      * Floating point math and special functions <#floating_point>
+      * Matrix functions <#matrices>
+      * Array functions <#array-funcs>
+      * Bit operators <#bit_operators>
+      * Predicates <#predicates>
+      * Date and time functions <#timedate>
+      * Simulation and modeling functions <#montecarlo>
+      * Pattern matching <#pattern>
+      * Financial math functions <#financial>
+      * File and I/O operations <#input_output>
+      * Processes and the Cilk API <#processes>
+      * File and directory management <#directory_management>
+      * HTTP networking API <#http_api>
+      * Socket TCP/IP, UDP and ICMP network API <#socket_tcpip>
+      * Reflection and customization <#reflection>
+      * System functions <#system_functions>
+      * Importing libraries <#importing_libraries>
+      * newLISP internals API <#internals>
+ 4. Functions in alphabetical order <#functions_alphabetical>
 
-      *	! <newlisp_manual.html#shell>
+    * 	! <newlisp_manual.html#shell>
 	+-*/% <newlisp_manual.html#arithmetic>
-	Ab <newlisp_manual.html#abort> 
+	Ab <newlisp_manual.html#abort>
 	Ap <newlisp_manual.html#append>
 	As <newlisp_manual.html#asin>
 	Ba <newlisp_manual.html#base64-dec>
@@ -156,14 +151,14 @@ newLISP is a registered trademark of Lutz Mueller.
 	Cl <newlisp_manual.html#clean>
 	Co <newlisp_manual.html#command-event>
 	Cu <newlisp_manual.html#current-line>
-	De <newlisp_manual.html#dec> 
+	De <newlisp_manual.html#dec>
 	Di <newlisp_manual.html#difference>
 	Do <newlisp_manual.html#do-until>
-	En <newlisp_manual.html#encrypt> 
+	En <newlisp_manual.html#encrypt>
 	Ex <newlisp_manual.html#exec>
-	Fi <newlisp_manual.html#file-info> 
+	Fi <newlisp_manual.html#file-info>
 	Fl <newlisp_manual.html#flat>
-	Ga <newlisp_manual.html#gammaln> 
+	Ga <newlisp_manual.html#gammaln>
 	Gl <newlisp_manual.html#global>
 	In <newlisp_manual.html#inc>
 	La <newlisp_manual.html#lambdap>
@@ -171,31 +166,31 @@ newLISP is a registered trademark of Lutz Mueller.
 	Ma <newlisp_manual.html#macrop>
 	Mu <newlisp_manual.html#mul>
 	Net <newlisp_manual.html#net-accept>
-	New <newlisp_manual.html#new> 
+	New <newlisp_manual.html#new>
 	Nt <newlisp_manual.html#nth>
-	Pa <newlisp_manual.html#pack> 
+	Pa <newlisp_manual.html#pack>
 	Pr <newlisp_manual.html#pretty-print>
 	Ra <newlisp_manual.html#randomize>
 	Rea <newlisp_manual.html#read>
 	Reg <newlisp_manual.html#regex>
-	Sea <newlisp_manual.html#search> 
+	Sea <newlisp_manual.html#search>
 	Seq <newlisp_manual.html#sequence>
 	Sl <newlisp_manual.html#sleep>
-	St <newlisp_manual.html#starts-with> 
+	St <newlisp_manual.html#starts-with>
 	Sy <newlisp_manual.html#sync>
 	Ti <newlisp_manual.html#time-of-day>
-	Tr <newlisp_manual.html#truep> 
+	Tr <newlisp_manual.html#truep>
 	Ut <newlisp_manual.html#utf8>
 	Wr <newlisp_manual.html#write-file>
-    *
+	*
 
 
       Appendix <#appendix>
 
-    * Error Codes <#error_codes>
-    * System Symbols <#system_symbols>
-    * GNU Free Documentation License <#GNUFDL>
-    * GNU General Public License <#GNUGPL>
+  * Error Codes <#error_codes>
+  * System Symbols <#system_symbols>
+  * GNU Free Documentation License <#GNUFDL>
+  * GNU General Public License <#GNUGPL>
 
 
 ( ∂ )
@@ -366,7 +361,7 @@ The mode can also be used to call an editor or any other program:
 
 *> *!vi foo.lsp
 
-The Vi editor will open to edit the progtam "foo.lsp". After leaving the
+The Vi editor will open to edit the program "foo.lsp". After leaving the
 editor the program could be run using a load statement:
 
 *> *(load "foo.lsp")
@@ -501,8 +496,8 @@ In any mode, newLISP can write a log when started with the -l or -L
 option. Depending on the mode newLISP is running, different output is
 written to the log file. Both options always must specify the path of a
 log-file. The path may be a relative path and can be either attached or
-detached to the -l or -L option. The file must exist and is not created
-automatically.
+detached to the -l or -L option. If the file does not exist, it is
+created when the first logging output is written.
 
 newlisp -l./logfile.txt -c
 
@@ -1146,7 +1141,7 @@ characters for format <#format>.
 *Strings* may contain null characters and can have different delimiters.
 They evaluate to themselves.
 
-"hello"             →"hello"  
+"hello"             →"hello"
 "\032\032\065\032"  →"  A " 
 "\x20\x20\x41\x20"  →"  A "
 "\t\r\n"            →"\t\r\n" 
@@ -1373,11 +1368,11 @@ Lisps. Only in conditional expressions are they treated as a Boolean
 false, as in and, or, if, while, unless, until, and cond.
 
 Evaluation of (cons 'x '()) yields (x), but (cons 'x nil) yields (x nil)
-because nil is treated as a Boolean value when evaluated not as an empty
-list. The cons of two atoms in newLISP does not yield a dotted pair, but
-rather a two-element list. The predicate atom? is true for nil, but
-false for the empty list. The empty list in newLISP is only an empty
-list and not equal to nil.
+because nil is treated as a Boolean value when evaluated, not as an
+empty list. The cons of two atoms in newLISP does not yield a dotted
+pair, but rather a two-element list. The predicate atom? is true for
+nil, but false for the empty list. The empty list in newLISP is only an
+empty list and not equal to nil.
 
 A list in newLISP is a newLISP cell of type list. It acts like a
 container for the linked list of elements making up the list cell's
@@ -1647,10 +1642,8 @@ reverse <#reverse> 	reverses a list or string
 rotate <#rotate> 	rotates the elements of a list or characters of a string
 set <#set> 	sets the contents of a variable
 setf setq <#setf> 	sets the contents of a variable, list, array or string
-set-ref <#set-ref> 	searches for an element in a nested list and
-replaces it
-set-ref-all <#set-ref-all> 	searches for an element in a nested list and
-replaces all instances
+set-ref <#set-ref> 	searches for an element in a nested list and replaces it
+set-ref-all <#set-ref-all> 	searches for an element in a nested list and replaces all instances
 sort <#sort> 	sorts the elements of a list or array
 swap <#swap> 	swaps two elements inside a list or string
 
@@ -1724,11 +1717,11 @@ unaffected. Dynamic scoping's /variable capture/ can be a disadvantage
 when passing symbol references to user-defined functions. newLISP offers
 several methods to avoid variable capture.
 
-    * The function args <#args> can be used when passing symbols.
-    * One or more user-defined functions can be placed in their own
-      namespace called a context <#contexts>. A symbol name clash cannot
-      occur when accessing symbols and calling functions from /outside/
-      of the defining context.
+  * The function args <#args> can be used when passing symbols.
+  * One or more user-defined functions can be placed in their own
+    namespace called a context <#contexts>. A symbol name clash cannot
+    occur when accessing symbols and calling functions from /outside/ of
+    the defining context.
 
 Contexts should be used to group related functions when creating
 interfaces or function libraries. This surrounds the functions with a
@@ -1873,35 +1866,34 @@ The following rules should simplify the process of understanding
 contexts by identifying to which context the created symbols are being
 assigned.
 
-   1. newLISP first parses and translates each top level expression. The
-      symbols are created during this phase. After the expression is
-      translated, it gets evaluated.
+ 1. newLISP first parses and translates each top level expression. The
+    symbols are created during this phase. After the expression is
+    translated, it gets evaluated.
 
-   2. A symbol is created when newLISP first /sees/ it, when calling the
-      load <#load>, sym <#sym>, or eval-string <#eval-string> functions.
-      When newLISP reads a source file, symbols are created /before/
-      evaluation occurs.
+ 2. A symbol is created when newLISP first /sees/ it, when calling the
+    load <#load>, sym <#sym>, or eval-string <#eval-string> functions.
+    When newLISP reads a source file, symbols are created /before/
+    evaluation occurs.
 
-   3. When an unknown symbol is encountered during code translation, a
-      search for its definition begins inside the current context.
-      Failing that, the search continues inside MAIN for a built-in
-      function, context, or global symbol. If no definition is found,
-      the symbol is created locally inside the current context.
+ 3. When an unknown symbol is encountered during code translation, a
+    search for its definition begins inside the current context. Failing
+    that, the search continues inside MAIN for a built-in function,
+    context, or global symbol. If no definition is found, the symbol is
+    created locally inside the current context.
 
-   4. Once a symbol is created and assigned to a specific context, it
-      will belong to that context permanently.
+ 4. Once a symbol is created and assigned to a specific context, it will
+    belong to that context permanently.
 
-   5. When a user-defined function is evaluated, the context is switched
-      to the parent context of the symbol it is called with.
+ 5. When a user-defined function is evaluated, the context is switched
+    to the parent context of the symbol it is called with.
 
-   6. A context switch only influences symbol creation during load
-      <#load>, sym <#sym>, or eval-string <#eval-string>. load <#load>
-      by default loads into MAIN except when context switches occur on
-      the top level of the file loaded. The context should always be
-      specified when the functions sym <#sym> and eval-string
-      <#eval-string> are used. When this rule is followed, a context
-      switch should _only_ occur on the top level of a program, _never_
-      inside a function.
+ 6. A context switch only influences symbol creation during load
+    <#load>, sym <#sym>, or eval-string <#eval-string>. load <#load> by
+    default loads into MAIN except when context switches occur on the
+    top level of the file loaded. The context should always be specified
+    when the functions sym <#sym> and eval-string <#eval-string> are
+    used. When this rule is followed, a context switch should _only_
+    occur on the top level of a program, _never_ inside a function.
 
 
       Creating contexts
@@ -2627,19 +2619,19 @@ symbol of that namespace (context).
 Functional-object oriented programming (FOOP) is based on the following
 five principles:
 
-    * Class attributes and methods are stored in the namespace of the
-      object class.
+  * Class attributes and methods are stored in the namespace of the
+    object class.
 
-    * The namespace default functor holds the object constructor method.
+  * The namespace default functor holds the object constructor method.
 
-    * An object is constructed using a list, the first element of which
-      is the context symbol describing the class of the object.
+  * An object is constructed using a list, the first element of which is
+    the context symbol describing the class of the object.
 
-    * Polymorphism is implemented using the : (colon) <#colon> operator,
-      which selects the appropriate class from the object.
+  * Polymorphism is implemented using the : (colon) <#colon> operator,
+    which selects the appropriate class from the object.
 
-    * A target object inside a class-method function is accessed via the
-      self <#self> function.
+  * A target object inside a class-method function is accessed via the
+    self <#self> function.
 
 The following paragraphs are a short introduction to FOOP as designed by
 /Michael Michaels/ from neglook.com <http://neglook.com>.
@@ -2660,8 +2652,20 @@ constructors when creating new object classes with new:
 
 ; create some new classes
 
-(new Class 'Rectangle)
-(new Class 'Circle)
+(new Class 'Rectangle)   → Rectangle
+(new Class 'Circle)      → Circle
+
+; create some objects using the default constructor
+
+(set 'rect (Rectangle 10 20))   → (Rectangle 10 20)
+(set 'circ (Circle 10 10 20))   → (Circle 10 10 20)
+
+; create a list of objects
+; building the list using the list function instead of assigning
+; a quoted list ensures that the object constructors are executed
+
+(set 'shapes (list (Circle 5 8 12) (Rectangle 4 8) (Circle 7 7 15)))
+→ ((Circle 5 8 12) (Rectangle 4 8) (Circle 7 7 15))
 
 The generic FOOP constructor is already pre-defined, and FOOP code can
 start with (new Class ...) statements right away.
@@ -3245,7 +3249,8 @@ lower-case <#lower-case> 	converts a string to lowercase characters
 nth <#nth> 	gets the /nth/ element of a list or string
 pop <#pop> 	deletes an element from a list or string
 push <#push> 	inserts a new element in a list or string
-rest <#rest> 	gets all but the first element of a list (cdr, tail) or string
+rest <#rest> 	gets all but the first element of a list (cdr, tail) or
+string
 select <#select> 	selects and permutes elements from a list or string
 title-case <#title-case> 	converts the first character of a string to uppercase
 trim <#trim> 	trims a string from both sides
@@ -3404,19 +3409,19 @@ calling parse <#parse> without optional arguments.
 The following rules apply to the naming of symbols used as variables or
 functions:
 
-   1. Variable symbols may not start with any of the following characters:
-      # ; " ' ( ) { } . , 0 1 2 3 4 5 6 7 8 9
+ 1. Variable symbols may not start with any of the following characters:
+    # ; " ' ( ) { } . , 0 1 2 3 4 5 6 7 8 9
 
-   2. Variable symbols starting with a + or - cannot have a number as
-      the second character.
+ 2. Variable symbols starting with a + or - cannot have a number as the
+    second character.
 
-   3. Any character is allowed inside a variable name, except for:
-      \" ' ( ) : , and the space character. These mark the end of a
-      variable symbol.
+ 3. Any character is allowed inside a variable name, except for:
+    \" ' ( ) : , and the space character. These mark the end of a
+    variable symbol.
 
-   4. A symbol name starting with [ (left square bracket) and ending
-      with ] (right square bracket) may contain any character except the
-      right square bracket.
+ 4. A symbol name starting with [ (left square bracket) and ending with
+    ] (right square bracket) may contain any character except the right
+    square bracket.
 
 All of the following symbols are legal variable names in newLISP:
 
@@ -3631,6 +3636,9 @@ character	description
 \t 	the tab character (ASCII 9)
 \nnn 	a decimal ASCII code where nnn is between 000 and 255
 \xnn 	a hexadecimal code where nn is between 00 and FF
+\unnnn 	a unicode character encoded in the four nnnn hexadecimal digits.
+When reading a quoted string, newLISP will translate this to a UTF8
+character in the UTF8 enabled versions of newLISP.
 \\ 	the backslash character itself
 
 
@@ -3745,7 +3753,7 @@ dostring <#dostring> 	evaluates once for each character in a string
 dotimes <#dotimes> 	evaluates once for each number in a range
 dotree <#dotree> 	iterates through the symbols of a context
 do-until <#do-until> 	repeats evaluation of an expression until the condition is met
-do-while <#do-while> 	repeats evaluation of an expression while the condition is true
+do-while <#do-while> 	repeats evaluation of an expression while the 
 dup <#dup> 	duplicates a list or string a specified number of times
 ends-with <#ends-with> 	checks the end of a string or list against a key of the same type
 eval <#eval> 	evaluates an expression
@@ -3810,16 +3818,14 @@ while <#while> 	repeats evaluation of an expression while the condition is true
       String and conversion functions
 
 address <#address> 	gets the memory address of a number or string
-append <#append> 	appends lists, arrays or strings to form a new list,
-array or string
+append <#append> 	appends lists, arrays or strings to form a new list, array or string
 bits <#bits> 	translates a number into binary representation
 char <#char> 	translates between characters and ASCII codes
 chop <#chop> 	chops off characters from the end of a string
 dostring <#dostring> 	evaluates once for each character in a string
 dup <#dup> 	duplicates a list or string a specified number of times
 ends-with <#ends-with> 	checks the end of a string or list against a key of the same type
-encrypt <#encrypt> 	does a one-time–pad encryption and decryption of a
-string
+encrypt <#encrypt> 	does a one-time–pad encryption and decryption of a string
 eval-string <#eval-string> 	compiles, then evaluates a string
 explode <#explode> 	transforms a string into a list of characters
 extend <#extend> 	extends a list or string
@@ -4146,7 +4152,7 @@ last-error <#last-error> 	report the last error number and text
 ostype <#ostype> 	contains a string describing the OS platform
 prefix <#prefix> 	Returns the context prefix of a symbol
 prompt-event <#prompt-event> 	customizes the interactive newLISP shell prompt
-read-expr <#read-expr> 	reads and optionally translates s-expressions from source
+read-expr <#read-expr> 	reads and translates s-expressions from source
 reader-event <#reader-event> 	preprocess expressions before evaluation event-driven
 set-locale <#set-locale> 	switches to a different locale
 source <#source> 	returns the source required to bind a symbol to a string
@@ -4208,7 +4214,7 @@ command-event <#command-event> 	pre-processes the command-line and HTTP requests
 cpymem <#cpymem> 	copies memory between addresses
 dump <#dump> 	shows memory address and contents of newLISP cells
 prompt-event <#prompt-event> 	customizes the interactive newLISP shell prompt
-read-expr <#read-expr> 	reads and optionally translates s-expressions from source
+read-expr <#read-expr> 	reads and translates s-expressions from source
 reader-event <#reader-event> 	preprocess expressions before evaluation event-driven
 
 
@@ -4902,6 +4908,7 @@ left-associative order). For example, if op takes two arguments, then:
 
 The last example shows how apply's /reduce/ functionality can be used to
 convert a two-argument function into one that takes multiple arguments.
+Note, that a built-in gcd <#gcd> is available.
 
 apply should only be used on functions and operators that evaluate all
 of their arguments, not on /special forms/ like dotimes <#dotimes> or
@@ -6536,7 +6543,7 @@ incorrectly.
 
 (cpymem "xxx" (+ (address s) 5) 3)
 
-s  → "01234xxx89")
+s  → "01234xxx89"
 
 The first example would remove the protection bit in symbol sym. The
 second example copies a string directly into a string variable.
@@ -7144,12 +7151,12 @@ x                → nil
 There are several methods that can be used to avoid this problem, known
 as /variable capture/, by writing /hygienic/ macros:
 
-    * Put the macro into its own lexically closed namespace context. If
-      the function has the same name as the context, it can be called by
-      using the context name alone. A function with this characteristic
-      is called a /default function/ <#default_function>. This is the
-      preferred method in newLISP to write macros (/fexpr/s).
-    * Use args <#args> to access arguments passed by the function.
+  * Put the macro into its own lexically closed namespace context. If
+    the function has the same name as the context, it can be called by
+    using the context name alone. A function with this characteristic is
+    called a /default function/ <#default_function>. This is the
+    preferred method in newLISP to write macros (/fexpr/s).
+  * Use args <#args> to access arguments passed by the function.
 
 ;; a macro as a lexically isolated function
 ;; avoiding variable capture in passed parameters
@@ -8657,7 +8664,7 @@ To find expressions in nested or multidimensional lists, use the ref
     find-all
 
 
-        syntax: (find-all /str-pattern/ /str-text/ [/exp/ [/int-regex-option/]])
+        syntax: (find-all /str-regex-pattern/ /str-text/ [/exp/ [/int-regex-option/]])
         syntax: (find-all /list-match-pattern/ /list-lists/ [/exp/])
         syntax: (find-all /exp-key/ /list/ /exp/ /func-compare/)
 
@@ -8715,6 +8722,9 @@ function used for comparing list elements with the key expression in
 ; process the found element available in $it
 
 (find-all 5 '(2 7 4 5 9 2 4 9 7 4 8) (* 3 $it) <) → (21 27 27 21 24)
+; same as
+(find-all 5 '(2 7 4 5 9 2 4 9 7 4 8) (* 3 $it) (fn (x y) (< x y))) → (21 27 27 21 24)
+
 
 (find-all 5 '(2 7 4 5 9 2 4 9 7 4 8) ("abcdefghijk" $it) <) → ("h" "j" "j" "h" "i")
 
@@ -9733,7 +9743,7 @@ imported function, use the functions float <#float> for 64-bit double
 floats, flt <#flt> for 32-bit floats, and int <#int> for 32-bit
 integers. By default, newLISP passes floating point numbers as 64-bit
 double floats, integers as 32-bit integers, and strings as 32-bit
-integers for string addresses.
+integers for string addresses (pointers in C).
 
 ;; import in Linux
 
@@ -9786,16 +9796,19 @@ str  → "C:\\WINDOWS\000                     "
 ;; or use trim
 (trim str)  → "C:\\WINDOWS"
 
-;; passing an integer parameter by reference
 
 (import "kernel32.dll" "GetComputerNameA")
 
-(set 'str (dup "\000" 64)  ; reserve space, initialize
+;; allocate memory and initialize to zeros
+(set 'str (dup "\000" 64)  
 
-;; get size in a buffer lpNum
+;; get size in a buffer lpNum to pass
+;; an integer parameter by reference
 (set 'lpNum (pack "lu" (length str)))  
 
 ;; call the function
+;; the size of the string is passed by reference
+;; str contains the string address (C pointer)
 (GetComputerNameA str lpNum) 
 
 str  → "LUTZ-PC\000                        "
@@ -9826,6 +9839,19 @@ calling conventions by default and ignores any additional string.
 Imported functions may take up to fourteen arguments. Note that floating
 point arguments take up two spaces each (e.g., passing five floats takes
 up ten of the fourteen parameters).
+
+
+      Memory management
+
+Any allocation performed by imported foreign functions has to be
+deallocated manually if there's no call in the imported API to do so.
+See the Code Patterns in newLISP
+<http://www.newlisp.org/CodePatterns.html> document for an example.
+
+In case of calling foreign functions with passing by reference, memory
+for variables needs to be allocated beforehand by newLISP — see import
+of GetWindowsDirectoryA above — and hence, memory needs not be
+deallocated manually.
 
 
 
@@ -16994,8 +17020,7 @@ now <#now> functions.
     timer
 
 
-        syntax: (timer /sym-event-handler | func-event-handler/
-        /num-seconds/ [/int-option/])
+        syntax: (timer /sym-event-handler | func-event-handler/ /num-seconds/ [/int-option/])
         syntax: (timer /sym-event-handler | func-event-handler/)
         syntax: (timer)
 
@@ -17367,15 +17392,15 @@ variables with their terms:
 (expand '(f (g A) A) (unify '(f (g A) A) '(f B xyz)))
 → (f (g xyz) xyz)
 
+
+      Use unify with bind for de-structuring
+
 The function bind <#bind> can be used to set unified variables:
 
 (bind (unify '(f (g A) A) '(f B xyz)))
 
 A → xyz 
 B → (g xyz)
-
-
-      Use unify with bind for de-structuring
 
 This can be used for de-structuring:
 
@@ -17940,25 +17965,39 @@ read-file <#read-file>, write-file <#write-file> and append-file
 <#append-file>.
 
 E.g. whenever a block of data requested with get-url <#get-url> arrives
-the function in /sym/ or /func/ will be called with the accumulated
-number of bytes transferred. Likewise when sending data with post-url
-<#post-url> or any of the other data sending functions, /sym/ or /func/
-will be called with the number of bytes already transferred.
+the function in /sym/ or /func/ will be called with the number of bytes
+transferred. Likewise when sending data with post-url <#post-url> or any
+of the other data sending functions, /sym/ or /func/ will be called with
+the number of bytes transferred for each block of data transferred.
 
 (xfer-event (fn (n) (println "->" n)))
-(length (get-url "http://yahoo.com"))
-
-*->3779*
-*->5219*
-*->6659*
-*->8099*
-*->9490*
-*9490*
+(length (get-url "http://newlisp.org"))
+*
+->73
+->799
+->1452
+->351
+->1093
+->352
+->211
+->885
+->564
+->884
+->561
+->75
+->812
+->638
+->1452
+->801
+->5
+->927
+11935
+*
 
 The computer output is shown in bold. Whenever a block of data is
-received the accumulated byte size is printed. Instead of defining the
-handler function directory with a lambda function in /func/, a symbol
-containing a function definition could have been used:
+received its byte size is printed. Instead of defining the handler
+function directory with a lambda function in /func/, a symbol containing
+a function definition could have been used:
 
 (define (report n) (println "->" n))
 (xfer-event 'report)
@@ -18281,72 +18320,72 @@ zero? will return nil on data types other than numbers.
 
     Error codes
 
-description				no
-not enough memory			1
-environment stack overflow		2
-call stack overflow			3
-problem accessing file			4
-not an expression			5
-missing parenthesis			6
-string token too long			7
-missing argument			8
-number or string expected		9
-value expected				10
-string expected				11
-symbol expected				12
-context expected			13
-symbol or context expected		14
-list expected				15
-list or array expected			16
-list or symbol expected			17
-list or string expected			18
-list or number expected			19
-array expected				20
-array, list or string expected		21
-lambda expected				22
-lambda-macro expected			23
-invalid function			24
-invalid lambda expression		25
-invalid macro expression		26
-invalid let parameter list		27
-problem saving file			28
-division by zero			29
-matrix expected				30
-wrong dimensions			31
-matrix is singular			32
-syntax in regular expression		33
-throw without catch			34
-problem loading library			35
-import function not found		36
-symbol is protected			37
-error number too high			38
-regular expression			39
-missing end of text [/text]		40
-mismatch in number of arguments		41
-problem in format string		42
+description	no
+not enough memory	1
+environment stack overflow	2
+call stack overflow	3
+problem accessing file	4
+not an expression	5
+missing parenthesis	6
+string token too long	7
+missing argument	8
+number or string expected	9
+value expected	10
+string expected	11
+symbol expected	12
+context expected	13
+symbol or context expected	14
+list expected	15
+list or array expected	16
+list or symbol expected	17
+list or string expected	18
+list or number expected	19
+array expected	20
+array, list or string expected	21
+lambda expected	22
+lambda-macro expected	23
+invalid function	24
+invalid lambda expression	25
+invalid macro expression	26
+invalid let parameter list	27
+problem saving file	28
+division by zero	29
+matrix expected	30
+wrong dimensions	31
+matrix is singular	32
+syntax in regular expression	33
+throw without catch	34
+problem loading library	35
+import function not found	36
+symbol is protected	37
+error number too high	38
+regular expression	39
+missing end of text [/text]	40
+mismatch in number of arguments	41
+problem in format string	42
 data type and format don't match	43
-invalid parameter	   		44
-invalid parameter: 0.0			45
-invalid parameter: NaN			46
-illegal parameter type			47
-symbol not in MAIN context		48
-symbol not in current context		49
-target cannot be MAIN			50
-list index out of bounds		51
-array index out of bounds		52
-string index out of bounds		53
-nesting level too deep			54
-invalid syntax				55
-user error				56
-user reset -				57
-received SIGINT -			58
-function is not reentrant		59
-local symbol is protected		60
-no reference found			61
-list is empty				62
-I/O error				63
-working directory not found		64
-invalid PID				65
+invalid parameter	44
+invalid parameter: 0.0	45
+invalid parameter: NaN	46
+illegal parameter type	47
+symbol not in MAIN context	48
+symbol not in current context	49
+target cannot be MAIN	50
+list index out of bounds	51
+array index out of bounds	52
+string index out of bounds	53
+nesting level too deep	54
+invalid syntax	55
+user error	56
+user reset -	57
+received SIGINT -	58
+function is not reentrant	59
+local symbol is protected	60
+no reference found	61
+list is empty	62
+I/O error	63
+working directory not found	64
+invalid PID	65
 
 
 
