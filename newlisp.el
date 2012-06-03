@@ -1,12 +1,12 @@
 ;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
 
-;; Copyright (C) 2008, 2009, 2010, 2011 KOBAYASHI Shigeru
+;; Copyright (C) 2008-2012 KOBAYASHI Shigeru
 
-;; Author: KOBAYASHI Shigeru <shigeru.kb@gmail.com>
+;; Author: KOBAYASHI Shigeru <shigeru.kb[at]gmail.com>
 ;; Version: 0.3
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp,newlisp
-;; URL: http://github.com/kosh04/newlisp-files/raw/master/newlisp.el
+;; URL: https://github.com/kosh04/newlisp-files/ [newlisp.el]
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -27,23 +27,22 @@
 
 ;;; Commentary:
 
-;; LISP風軽量スクリプト言語`newLISP'を編集するための簡単なメジャーモードです。
-;;
-;; newLISP Home - http://www.newlisp.org/
-;;
-;; このファイルの最新バージョンはこちらにあります
-;;      https://github.com/kosh04/newlisp-files
+;; Major mode for editing newLISP script.
+
+;; - syntax highlighting
+;; - keyword completion
+;; - support for inferior processes
 
 ;;; Installation:
 
-;; このファイルを load-path の通ったディレクトリに置いて
-;; .emacs に以下のコードを追加してください
+;; You should add this to .emacs file after putting it on your load-path:
 ;;
-;;   (require 'newlisp)
+;;   (autoload 'newlisp-mode "newlisp-mode" "Major mode for newLISP files." t)
+;;   ; or (require 'newlisp)
 ;;   (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
 ;;   (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
 ;;
-;;   ;; 必要ならば
+;;   ;; if needed
 ;;   (newlisp-mode-setup)
 ;;   (defun newlisp-mode-user-hook ()
 ;;     (setq comment-start "; ")
@@ -53,56 +52,56 @@
 
 ;;; ChangeLog:
 
-;; 2011-07-07 ~
-;; - ADD newlisp-change-dir
+;; 2012-06-04
+;; - add newlisp-change-dir
+;; - update keyword for newLISP v.10.4.3
+;; - doc changes (ja -> en)
 ;;
 ;; 2011-06-23
 ;; - typo fixed
 ;;
 ;; 2011-01-28 version 0.3
-;; - newlisp-complete-symbol: キーワード補完関数を作り直した
-;; - newlisp--allow-lazy-eval: readlineよる余計なタブ補完を抑制するように修正
+;; - rewrite newlisp-complete-symbol function
+;; - add newlisp--allow-lazy-eval
 ;;
 ;; 2010-10-15
-;; - syntax-tableの指定が間違っていたので修正
+;; - syntax-table fixed
 ;;
 ;; 2010-10-08 version 0.26
-;; - リモートのファイル上でプロセス生成に失敗するとreplバッファ
-;;   (*newlisp*)が残るので間に合わせ修正
-;; - メニューバーを追加してみた
-;; - キーワードをnewLISP v10.2.14に追従
-;; - Win32の場合に利用できない関数の色分けができてなかったのを修正
-;; - [text][cmd]キーワードのfont-lockを変更 (emacs21では未定義だったので)
+;; - temporary fix, for remote process buffer. (see XXX-1)
+;; - add menu bar
+;; - update keyword for newLISP v10.2.14
+;; - fornt-lock fixed ([text], [cmd], unix-based-function-keywords)
 ;;
 ;; 2010-06-25 version 0.25
-;; - Emacs21でも利用出来るように修正
+;; - now Emacs 21 available
 ;;
 ;; 2010-02-05
-;; - とりあえずライセンス適用 (GPLv3)
+;; - add licence (GPLv3)
 ;;
 ;; 2009-09-30 version 0.2
-;; - キーワード補完が出来るように
+;; - add complete-symbol
 ;;
 ;; 2009-07-05 version 0.1b
-;; - キーワードをnewLISP v10.1.0に追従
-;; - rename `*variable*' to `variable' (Emacsの命名規則に従って変数名変更)
+;; - update keyword for newLISP v10.1.0
+;; - rename `*variable*' to `variable' (emacs namespace)
 ;;
 ;; 2009-06-05 version 0.1a
-;; - font-lock 若干修正
-;; - newlisp-mode-syntax-table 追加
+;; - font-lock fixed
+;; - add newlisp-mode-syntax-table
 ;;
 ;; 2009-04-19 version 0.1
-;; - newlisp-mode, font-lock 追加
+;; - add newlisp-mode, font-lock
 ;;
 ;; 2008-12-15 version 0.01
-;; - 初版作成 (newlisp-mode)
+;; - first commit (add newlisp-mode)
 ;;
 
 ;;; Known Bugs:
 
-;; - (newlisp-eval "(eval-string \"(define hex\t0xff)\")") => ERR
-;; - 複数行のS式([cmd]~[cmd]タグで囲まれたS式)の出力が溜まる場合がある
-;; - 先頭に複数のTABを含むS式を入力するとreadline関数の補完がうざったい
+;; * (newlisp-eval "(eval-string \"(define hex\t0xff)\")") => ERR
+;; * 複数行のS式([cmd]~[cmd]タグで囲まれたS式)の出力が溜まる場合がある
+;; * 先頭に複数のTABを含むS式を入力するとreadline関数の補完がうざったい
 ;;   > これはv.10.2.11以降のmultiline-modeにて発生する
 ;; - ２バイト文字を含むパスから起動することができない
 ;;   e.g. "c:/Documents and Settings/User/デスクトップ/"
@@ -167,7 +166,7 @@ If not running, then start new process."
          (apply #'make-comint "newlisp"
                 newlisp-command nil switches))
       (error
-       ;; XXX: (error "No process started")
+       ;; XXX-1: (error "No process started")
        ;; プロセス生成時にエラーを吐くとバッファが残る
        ;; おそらく comint.el 側の不具合
        (kill-buffer "*newlisp*")
@@ -185,7 +184,8 @@ If not running, then start new process."
 ;;;###autoload
 (defalias 'run-newlisp 'newlisp-show-repl)
 
-(defvar newlisp--allow-lazy-eval t)
+(defvar newlisp--allow-lazy-eval t
+  "If non-nil, suppress a readline tab-completion.")
 
 (defun newlisp-eval (str-sexp)
   "Eval newlisp s-expression."
@@ -313,63 +313,58 @@ This function is not available on Win32."
 
 (defun newlisp-debug-region (start end)
   (interactive "r")
-  (error "Not implemented yet.")
-  ;; (newlisp-eval (format "(debug %s)" (buffer-substring start end)))
-  ;; "s|tep n|ext c|ont q|uit" の操作もまとめたい
-  )
+  (error "Not implemented yet."))
 
 ;;
 ;; Keyword List
 ;;
 (eval-when (compile load eval)
-  ;; newlisp-font-lock-keywords (lisp-font-lock-keywords)
   (defvar newlisp-primitive-keywords
-    ;; newLISP v.10.1.14 on Linux IPv4/6 UTF-8
+    ;; newLISP v.10.4.3
     ;; $ newlisp -n
     ;; > (map term (filter (lambda (s) (primitive? (eval s))) (symbols MAIN)))
     ;; - define define-macro
-    '("!" "!=" "$" "%" "&" "*" "+" "++" "-" "--" "/" ":" "<" "<<" "<=" "=" ">" ">=" ">>" 
-      "NaN?" "^" "abort" "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file" 
-      "apply" "args" "array" "array-list" "array?" "asin" "asinh" "assoc" "atan" "atan2" 
-      "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query" "bayes-train" "begin" "beta" 
-      "betai" "bind" "binomial" "bits" "callback" "case" "catch" "ceil" "change-dir" "char" 
-      "chop" "clean" "close" "command-event" "cond" "cons" "constant" "context" "context?" 
-      "copy" "copy-file" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-z" "current-line" 
-      "curry" "date" "date-list"
-      ;; "date-parse"
-      "date-value" "debug" "dec" "def-new" "default" 
-      ;; "define" "define-macro"
-      "delete" "delete-file" "delete-url" "destroy" "det" "device" 
-      "difference" "directory" "directory?" "div" "do-until" "do-while" "doargs" "dolist" 
-      "dostring" "dotimes" "dotree" "dump" "dup" "empty?" "encrypt" "ends-with" "env" 
-      "erf" "error-event" "eval" "eval-string" "exec" "exists" "exit" "exp" "expand" "explode" 
-      "extend" "factor" "fft" "file-info" "file?" "filter" "find" "find-all" "first" "flat" 
-      "float" "float?" "floor" "flt" "for" "for-all" "format" "fv" "gammai" "gammaln" ; "fork"
-      "gcd" "get-char" "get-float" "get-int" "get-long" "get-string" "get-url" "global" 
-      "global?" "if" "if-not" "ifft" "import" "inc" "index" "inf?" "int" "integer" "integer?" 
-      "intersect" "invert" "irr" "join" "lambda?" "last" "last-error" "legal?" "length" 
-      "let" "letex" "letn" "list" "list?" "load" "local" "log" "lookup" "lower-case" "macro?" 
-      "main-args" "make-dir" "map" "mat" "match" "max" "member" "min" "mod" "mul" "multiply" 
-      "net-accept" "net-close" "net-connect" "net-error" "net-eval" "net-interface" "net-ipv" 
-      "net-listen" "net-local" "net-lookup" "net-packet" "net-peek" "net-peer" ; "net-ping"
-      "net-receive" "net-receive-from" "net-receive-udp" "net-select" "net-send" "net-send-to" 
-      "net-send-udp" "net-service" "net-sessions" "new" "nil?" "normal" "not" "now" "nper" 
-      "npv" "nth" "null?" "number?" "open" "or" "pack" "parse" "pipe" ; "peek" "parse-date"
-      "pmt" "pop" "pop-assoc" "post-url" "pow" "prefix" "pretty-print" "primitive?" "print" 
-      "println" "prob-chi2" "prob-z" "process" "prompt-event" "protected?" "push" "put-url" 
-      "pv" "quote" "quote?" "rand" "random" "randomize" "read" "read-buffer" "read-char" 
-      "read-expr" "read-file" "read-key" "read-line" "read-utf8" "reader-event" "real-path" 
-      "receive" "ref" "ref-all" "regex" "regex-comp" "remove-dir" "rename-file" "replace" 
-      "reset" "rest" "reverse" "rotate" "round" "save" "search" "seed" "seek" "select" 
-      "self" "semaphore" "send" "sequence" "series" "set" "set-locale" "set-ref" "set-ref-all" 
-      "setf" "setq" "sgn" "share" "signal" "silent" "sin" "sinh" "sleep" "slice" "sort" 
-      "source" "spawn" "sqrt" "starts-with" "string" "string?" "sub" "swap" "sym" "symbol?" 
-      "symbols" "sync" "sys-error" "sys-info" "tan" "tanh" "term" "throw" "throw-error" 
-      "time" "time-of-day" "timer" "title-case" "trace" "trace-highlight" "transpose" 
-      "trim" "true?" "unicode" "unify" "unique" "unless" "unpack" "until" "upper-case" 
-      "utf8" "utf8len" "uuid" "when" "while" "write" "write-buffer" "write-char" ; "wait-pid"
-      "write-file" "write-line" "xfer-event" "xml-error" "xml-parse" "xml-type-tags" "zero?" 
-      "|" "~")
+    '("!" "!=" "$" "%" "&" "*" "+" "++" "-" "--" "/" ":" "<" "<<" "<=" "=" ">" ">=" ">>"
+      "NaN?" "^" "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file"
+      "apply" "args" "array" "array-list" "array?" "asin" "asinh" "assoc" "atan" "atan2"
+      "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query" "bayes-train" "begin"
+      "beta" "betai" "bind" "binomial" "bits" "callback" "case" "catch" "ceil" "change-dir"
+      "char" "chop" "clean" "close" "command-event" "cond" "cons" "constant" "context"
+      "context?" "copy" "copy-file" "cos" "cosh" "corr" "count" "cpymem" "crc32"
+      "crit-chi2" "crit-f" "crit-t" "crit-z" "current-line" "curry" "date" "date-list"
+      "date-value" "debug" "dec" "def-new" "default" "delete" "delete-file" "delete-url"
+      "destroy" "det" "device" "difference" "directory" "directory?" "div" "do-until"
+      "do-while" "doargs" "dolist" "dostring" "dotimes" "dotree" "dump" "dup" "empty?"
+      "encrypt" "ends-with" "env" "erf" "error-event" "eval" "eval-string" "even?"
+      "exec" "exists" "exit" "exp" "expand" "explode" "extend" "factor" "fft" "file-info"
+      "file?" "filter" "find" "find-all" "first" "flat" "float" "float?" "floor" "flt"
+      "for" "for-all" "format" "fv" "gammai" "gammaln" "gcd" "get-char" "get-float"
+      "get-int" "get-long" "get-string" "get-url" "global" "global?" "if" "if-not"
+      "ifft" "import" "inc" "index" "inf?" "int" "integer" "integer?" "intersect"
+      "invert" "irr" "join" "lambda?" "last" "last-error" "legal?" "length" "let"
+      "letex" "letn" "list" "list?" "load" "local" "log" "lookup" "lower-case" "macro?"
+      "main-args" "make-dir" "map" "mat" "match" "max" "member" "min" "mod" "module"
+      "mul" "multiply" "net-accept" "net-close" "net-connect" "net-error" "net-eval"
+      "net-interface" "net-ipv" "net-listen" "net-local" "net-lookup" "net-peek"
+      "net-peer" "net-receive" "net-receive-from" "net-receive-udp" "net-select"
+      "net-send" "net-send-to" "net-send-udp" "net-service" "net-sessions" "new" "nil?"
+      "normal" "not" "now" "nper" "npv" "nth" "null?" "number?" "odd?" "open" "or"
+      "pack" "parse" "pipe" "pmt" "pop" "pop-assoc" "post-url" "pow" "prefix"
+      "pretty-print" "primitive?" "print" "println" "prob-chi2" "prob-f" "prob-t"
+      "prob-z" "process" "prompt-event" "protected?" "push" "put-url" "pv" "quote"
+      "quote?" "rand" "random" "randomize" "read" "read-buffer" "read-char" "read-expr"
+      "read-file" "read-key" "read-line" "read-utf8" "reader-event" "real-path"
+      "ref" "ref-all" "regex" "regex-comp" "remove-dir" "rename-file" "replace"
+      "reset" "rest" "reverse" "rotate" "round" "save" "search" "seed" "seek" "select"
+      "self" "semaphore" "sequence" "series" "set" "set-locale" "set-ref" "set-ref-all"
+      "setf" "setq" "sgn" "share" "signal" "silent" "sin" "sinh" "sleep" "slice" "sort"
+      "source" "sqrt" "starts-with" "stats" "string" "string?" "struct" "sub" "swap"
+      "sym" "symbol?" "symbols" "sys-error" "sys-info" "t-test" "tan" "tanh" "term"
+      "throw" "throw-error" "time" "time-of-day" "timer" "title-case" "trace"
+      "trace-highlight" "transpose" "trim" "true?" "unicode" "unify" "union" "unique"
+      "unless" "unpack" "until" "upper-case" "utf8" "utf8len" "uuid" "when" "while"
+      "write" "write-buffer" "write-char" "write-file" "write-line" "xfer-event"
+      "xml-error" "xml-parse" "xml-type-tags" "zero?" "|" "~")
     "newLISP primitive keyword list.")
   (defvar newlisp-lambda-keywords
     '("define" "lambda" "fn" "fn-macro" "define-macro" "lambda-macro"))
@@ -382,8 +377,9 @@ This function is not available on Win32."
     '("Class" "MAIN" "Tree"))
   (defvar newlisp-tag-keywords
     '("[text]" "[/text]" "[cmd]" "[/cmd]"))
-  (defvar newlisp-un*x-based-function-keywords
-    '("peek" "fork" "wait-pid" "net-ping" "date-parse" "parse-date"))
+  (defvar newlisp-unix-based-function-keywords
+    '("abort" "peek" "fork" "wait-pid" "net-packet" "net-ping"
+      "date-parse" "parse-date" "send" "spawn" "sync" "receive"))
   )
 
 (defsubst newlisp-keywords ()
@@ -391,7 +387,7 @@ This function is not available on Win32."
   (append newlisp-primitive-keywords
           newlisp-lambda-keywords
           (unless (eq system-type 'windows-nt)
-            newlisp-un*x-based-function-keywords)
+            newlisp-unix-based-function-keywords)
           newlisp-variable-keyword
           ))
 
@@ -450,7 +446,7 @@ This function is not available on Win32."
     ;; COMMENT
     (modify-syntax-entry ?# "<   " table)
     ;; ESCAPE
-    ;; ?\\ は通常はエスケープ文字だが、{}で囲まれた文字列内の場合はリテラルになる
+    ;;
     table))
 
 ;;;###autoload
@@ -572,7 +568,7 @@ This function is not available on Win32."
   (browse-url-of-file newlisp-manual-html))
 
 (defun newlisp-lookup-manual (keyword)
-  "マニュアルファイルから関数を調べます."
+  "Lookup newlisp reference manual."
   (interactive
     (list (let* ((s (newlisp-find-symbol
                      (current-word)
@@ -630,7 +626,7 @@ This function is not available on Win32."
          font-lock-type-face)
    (cons (eval-when-compile (regexp-opt newlisp-tag-keywords)) ; not 'words
          font-lock-string-face)
-   (cons (eval-when-compile (regexp-opt newlisp-un*x-based-function-keywords 'words))
+   (cons (eval-when-compile (regexp-opt newlisp-unix-based-function-keywords 'words))
          (if (eq system-type 'windows-nt)
              font-lock-warning-face
              font-lock-keyword-face)
