@@ -1,4 +1,4 @@
-﻿;;; init.lsp    -*- encoding: utf-8 -*-
+;;; init.lsp    -*- encoding: utf-8 -*-
 
 ;; TODO:
 ;; * newLISPコテコテの関数を使うべきか、なるべくLISP準拠にするべきか
