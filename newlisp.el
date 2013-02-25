@@ -1,6 +1,6 @@
 ;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
 
-;; Copyright (C) 2008-2012 KOBAYASHI Shigeru
+;; Copyright (C) 2008-2013 KOBAYASHI Shigeru
 
 ;; Author: KOBAYASHI Shigeru <shigeru.kb[at]gmail.com>
 ;; Version: 0.3
@@ -52,6 +52,9 @@
 
 ;;; ChangeLog:
 
+;; 2013-2-26
+;; - update keyword v.10.4.6
+;;
 ;; 2012-06-04
 ;; - add newlisp-change-dir
 ;; - update keyword for newLISP v.10.4.3
@@ -320,51 +323,53 @@ This function is not available on Win32."
 ;;
 (eval-when (compile load eval)
   (defvar newlisp-primitive-keywords
-    ;; newLISP v.10.4.3
-    ;; $ newlisp -n
-    ;; > (map term (filter (lambda (s) (primitive? (eval s))) (symbols MAIN)))
-    ;; - define define-macro
-    '("!" "!=" "$" "%" "&" "*" "+" "++" "-" "--" "/" ":" "<" "<<" "<=" "=" ">" ">=" ">>"
-      "NaN?" "^" "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file"
-      "apply" "args" "array" "array-list" "array?" "asin" "asinh" "assoc" "atan" "atan2"
-      "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query" "bayes-train" "begin"
-      "beta" "betai" "bind" "binomial" "bits" "callback" "case" "catch" "ceil" "change-dir"
-      "char" "chop" "clean" "close" "command-event" "cond" "cons" "constant" "context"
-      "context?" "copy" "copy-file" "cos" "cosh" "corr" "count" "cpymem" "crc32"
-      "crit-chi2" "crit-f" "crit-t" "crit-z" "current-line" "curry" "date" "date-list"
-      "date-value" "debug" "dec" "def-new" "default" "delete" "delete-file" "delete-url"
-      "destroy" "det" "device" "difference" "directory" "directory?" "div" "do-until"
-      "do-while" "doargs" "dolist" "dostring" "dotimes" "dotree" "dump" "dup" "empty?"
-      "encrypt" "ends-with" "env" "erf" "error-event" "eval" "eval-string" "even?"
-      "exec" "exists" "exit" "exp" "expand" "explode" "extend" "factor" "fft" "file-info"
-      "file?" "filter" "find" "find-all" "first" "flat" "float" "float?" "floor" "flt"
-      "for" "for-all" "format" "fv" "gammai" "gammaln" "gcd" "get-char" "get-float"
-      "get-int" "get-long" "get-string" "get-url" "global" "global?" "if" "if-not"
-      "ifft" "import" "inc" "index" "inf?" "int" "integer" "integer?" "intersect"
-      "invert" "irr" "join" "lambda?" "last" "last-error" "legal?" "length" "let"
-      "letex" "letn" "list" "list?" "load" "local" "log" "lookup" "lower-case" "macro?"
-      "main-args" "make-dir" "map" "mat" "match" "max" "member" "min" "mod" "module"
-      "mul" "multiply" "net-accept" "net-close" "net-connect" "net-error" "net-eval"
-      "net-interface" "net-ipv" "net-listen" "net-local" "net-lookup" "net-peek"
-      "net-peer" "net-receive" "net-receive-from" "net-receive-udp" "net-select"
-      "net-send" "net-send-to" "net-send-udp" "net-service" "net-sessions" "new" "nil?"
-      "normal" "not" "now" "nper" "npv" "nth" "null?" "number?" "odd?" "open" "or"
-      "pack" "parse" "pipe" "pmt" "pop" "pop-assoc" "post-url" "pow" "prefix"
-      "pretty-print" "primitive?" "print" "println" "prob-chi2" "prob-f" "prob-t"
-      "prob-z" "process" "prompt-event" "protected?" "push" "put-url" "pv" "quote"
-      "quote?" "rand" "random" "randomize" "read" "read-buffer" "read-char" "read-expr"
-      "read-file" "read-key" "read-line" "read-utf8" "reader-event" "real-path"
+    ;; $ newlisp -n -e "(map term (filter (lambda (s) (primitive? (eval s))) (symbols)))"
+    '("!" "!=" "$" "%" "&" "*" "+" "++" "-" "--" "/" ":" "<" "<<" "<=" "="
+      ">" ">=" ">>" "NaN?" "^" "abs" "acos" "acosh" "add" "address" "amb" "and"
+      "append" "append-file" "apply" "args" "array" "array-list" "array?" "asin" "asinh"
+      "assoc" "atan" "atan2" "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query"
+      "bayes-train" "begin" "beta" "betai" "bind" "binomial" "bits" "callback" "case"
+      "catch" "ceil" "change-dir" "char" "chop" "clean" "close" "command-event" "cond"
+      "cons" "constant" "context" "context?" "copy" "copy-file" "corr" "cos" "cosh" "count"
+      "cpymem" "crc32" "crit-chi2" "crit-f" "crit-t" "crit-z" "current-line" "curry"
+      "date" "date-list" "date-value" "debug" "dec" "def-new" "default"
+      "delete" "delete-file" "delete-url" "destroy" "det" "device"
+      "difference" "directory" "directory?" "div" "do-until" "do-while" "doargs" "dolist"
+      "dostring" "dotimes" "dotree" "dump" "dup" "empty?" "encrypt" "ends-with" "env"
+      "erf" "error-event" "eval" "eval-string" "even?" "exec" "exists" "exit" "exp" "expand"
+      "explode" "extend" "factor" "fft" "file-info" "file?" "filter" "find" "find-all"
+      "first" "flat" "float" "float?" "floor" "flt" "for" "for-all" "format" "fv"
+      "gammai" "gammaln" "gcd" "get-char" "get-float" "get-int" "get-long" "get-string"
+      "get-url" "global" "global?" "if" "if-not" "ifft" "import" "inc" "index" "inf?"
+      "int" "integer" "integer?" "intersect" "invert" "irr" "join" "json-error" "json-parse"
+      "lambda?" "last" "last-error" "legal?" "length" "let" "letex" "letn" "list" "list?"
+      "load" "local" "log" "lookup" "lower-case" "macro?" "main-args" "make-dir" "map"
+      "mat" "match" "max" "member" "min" "mod" "mul" "multiply" "net-accept" "net-close"
+      "net-connect" "net-error" "net-eval" "net-interface" "net-ipv" "net-listen" "net-local"
+      "net-lookup" "net-peek" "net-peer" "net-receive" "net-receive-from"
+      "net-receive-udp" "net-select" "net-send" "net-send-to" "net-send-udp" "net-service"
+      "net-sessions" "new" "nil?" "normal" "not" "now" "nper" "npv" "nth" "null?" "number?"
+      "odd?" "open" "or" "pack" "parse" "pipe" "pmt" "pop" "pop-assoc"
+      "post-url" "pow" "prefix" "pretty-print" "primitive?" "print" "println" "prob-chi2"
+      "prob-f" "prob-t" "prob-z" "process" "prompt-event" "protected?" "push" "put-url"
+      "pv" "quote" "quote?" "rand" "random" "randomize" "read" "read-buffer" "read-char"
+      "read-expr" "read-file" "read-key" "read-line" "reader-event" "real-path"
       "ref" "ref-all" "regex" "regex-comp" "remove-dir" "rename-file" "replace"
       "reset" "rest" "reverse" "rotate" "round" "save" "search" "seed" "seek" "select"
       "self" "semaphore" "sequence" "series" "set" "set-locale" "set-ref" "set-ref-all"
       "setf" "setq" "sgn" "share" "signal" "silent" "sin" "sinh" "sleep" "slice" "sort"
-      "source" "sqrt" "starts-with" "stats" "string" "string?" "struct" "sub" "swap"
-      "sym" "symbol?" "symbols" "sys-error" "sys-info" "t-test" "tan" "tanh" "term"
-      "throw" "throw-error" "time" "time-of-day" "timer" "title-case" "trace"
-      "trace-highlight" "transpose" "trim" "true?" "unicode" "unify" "union" "unique"
-      "unless" "unpack" "until" "upper-case" "utf8" "utf8len" "uuid" "when" "while"
-      "write" "write-buffer" "write-char" "write-file" "write-line" "xfer-event"
-      "xml-error" "xml-parse" "xml-type-tags" "zero?" "|" "~")
+      "source" "sqrt" "starts-with" "stats" "string" "string?" "struct" "sub"
+      "swap" "sym" "symbol?" "symbols" "sys-error" "sys-info" "t-test" "tan" "tanh"
+      "term" "throw" "throw-error" "time" "time-of-day" "timer" "title-case" "trace"
+      "trace-highlight" "transpose" "trim" "true?" "unify" "union" "unique"
+      "unless" "unpack" "until" "upper-case" "uuid" "when"
+      "while" "write" "write-buffer" "write-char" "write-file" "write-line" "xfer-event"
+      "xml-error" "xml-parse" "xml-type-tags" "zero?" "|" "~"
+      ;; pre-defined
+      "module"
+      ;; UTF-8 version
+      "read-utf8" "utf8" "utf8len" "unicode"
+      )
     "newLISP primitive keyword list.")
   (defvar newlisp-lambda-keywords
     '("define" "lambda" "fn" "fn-macro" "define-macro" "lambda-macro"))
