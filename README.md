@@ -1,7 +1,7 @@
 newlisp-mode.el
 ===============
 
-newLISP editing mode for Emacs.
+This is a newLISP editing mode for Emacs.
 
 - Editing newlisp code
 - Syntax highlighting [*]
@@ -11,15 +11,26 @@ newLISP editing mode for Emacs.
 
 [*] primitive keyword only.
 
+More info, See [Wiki](https://github.com/kosh04/newlisp-mode.el/wiki)
 
-Others
-------
 
-- newlisp_manual.txt
-  moved to http://dl.dropbox.com/u/78796224/newlisp/newlisp_manual.txt
+Installation
+============
 
-- init.lsp
-  moved to https://github.com/kosh04/newlisp.snippet
+Clone the git repository into a local directory.
+or Download [ZIP](https://github.com/kosh04/newlisp-mode.el/archive/master.zip).
 
-- Swank server for newLISP 
-  moved to https://github.com/kosh04/swank-newlisp
+	$ git clone git://github.com/kosh04/newlisp-mode.el.git
+
+Add the following to your `.emacs`
+
+	(add-to-list 'load-path "/path/to/newlisp-mode.el/")
+	(require 'newlisp-mode)
+	(add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
+	(add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
+
+
+License
+=======
+
+newLISP Mode uses the [GNU General Public License 3.](http://www.gnu.org/copyleft/gpl.html)

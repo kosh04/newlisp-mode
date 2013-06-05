@@ -1,4 +1,4 @@
-;;; newlisp.el -- newLISP editing mode for Emacs  -*- coding:utf-8 -*-
+;;; newlisp-mode.el -- newLISP editing mode for Emacs
 
 ;; Copyright (C) 2008-2013 KOBAYASHI Shigeru
 
@@ -6,7 +6,7 @@
 ;; Version: 0.3
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp,newlisp
-;; URL: https://github.com/kosh04/newlisp-files/ [newlisp.el]
+;; URL: https://github.com/kosh04/newlisp-mode.el
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -38,7 +38,7 @@
 ;; You should add this to .emacs file after putting it on your load-path:
 ;;
 ;;   (autoload 'newlisp-mode "newlisp-mode" "Major mode for newLISP files." t)
-;;   ; or (require 'newlisp)
+;;   ; or (require 'newlisp-mode)
 ;;   (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
 ;;   (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
 ;;
@@ -52,7 +52,12 @@
 
 ;;; ChangeLog:
 
-;; 2013-2-26
+;; 2013-06-06
+;; - add keyword bigint, bigint?, $count (v.10.5.0)
+;; - rename newlisp.el to newlisp-mode.el
+;; - define-key use kbd macro
+;;
+;; 2013-02-26
 ;; - update keyword v.10.4.6
 ;;
 ;; 2012-06-04
@@ -102,31 +107,13 @@
 
 ;;; Known Bugs:
 
-;; * (newlisp-eval "(eval-string \"(define hex\t0xff)\")") => ERR
-;; * 複数行のS式([cmd]~[cmd]タグで囲まれたS式)の出力が溜まる場合がある
-;; * 先頭に複数のTABを含むS式を入力するとreadline関数の補完がうざったい
-;;   > これはv.10.2.11以降のmultiline-modeにて発生する
-;; - ２バイト文字を含むパスから起動することができない
-;;   e.g. "c:/Documents and Settings/User/デスクトップ/"
-;;   これは文字コードの違いが問題: sjis(windowsのパス名),utf-8(newlisp)
-;; - newlisp.exeが$PATHにないとshell-command-to-stringを実行できない
-;;
-;; export PATH="$HOME/bin:$PATH"
-;; - emacsのシェルからの起動に必要
-;; (or (string-match #1=(expand-file-name "~/bin") #2=(getenv "PATH"))
-;;     (setenv "PATH" (concat #1# ":" #2#)))
-;; - emacsからの起動に必要
-;; (add-to-list 'exec-path "~/bin")
-
 ;;; Todo:
 
-;; - ユーザ関数なども補完候補に動的に組み込む
-;; - pop-to-buffer は縦分割を好む人もいるかもしれない
-;; - elisp の書式チェック (M-x checkdoc)
+;; - dynamic completion for user-defined var/func
+;; - checkdoc
 ;; - defcustom
-;; - 出力だけでなく入力も*newlisp*バッファに送るべきかもしれない
-;; - lisp-modeから間借りしている機能は分割するべきかも
-;; - 全ては気の赴くままに
+;; - display input-expr to *newlisp* buffer when using newlisp-eval
+;; - avoid relying on newlisp-mode
 
 ;;; Code:
 
@@ -170,8 +157,8 @@ If not running, then start new process."
                 newlisp-command nil switches))
       (error
        ;; XXX-1: (error "No process started")
-       ;; プロセス生成時にエラーを吐くとバッファが残る
-       ;; おそらく comint.el 側の不具合
+       ;; don't remove the buffer, when error occurs during start process
+       ;; comint.el bug ?
        (kill-buffer "*newlisp*")
        (error "%s" (error-message-string err))))
     ))
@@ -328,10 +315,11 @@ This function is not available on Win32."
       ">" ">=" ">>" "NaN?" "^" "abs" "acos" "acosh" "add" "address" "amb" "and"
       "append" "append-file" "apply" "args" "array" "array-list" "array?" "asin" "asinh"
       "assoc" "atan" "atan2" "atanh" "atom?" "base64-dec" "base64-enc" "bayes-query"
-      "bayes-train" "begin" "beta" "betai" "bind" "binomial" "bits" "callback" "case"
-      "catch" "ceil" "change-dir" "char" "chop" "clean" "close" "command-event" "cond"
-      "cons" "constant" "context" "context?" "copy" "copy-file" "corr" "cos" "cosh" "count"
-      "cpymem" "crc32" "crit-chi2" "crit-f" "crit-t" "crit-z" "current-line" "curry"
+      "bayes-train" "begin" "beta" "betai" "bigint" "bigint?" "bind" "binomial" "bits"
+      "callback" "case" "catch" "ceil" "change-dir" "char" "chop" "clean" "close"
+      "command-event" "cond" "cons" "constant" "context" "context?" "copy" "copy-file"
+      "corr" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-f" "crit-t" "crit-z"
+      "current-line" "curry" 
       "date" "date-list" "date-value" "debug" "dec" "def-new" "default"
       "delete" "delete-file" "delete-url" "destroy" "det" "device"
       "difference" "directory" "directory?" "div" "do-until" "do-while" "doargs" "dolist"
@@ -375,7 +363,7 @@ This function is not available on Win32."
     '("define" "lambda" "fn" "fn-macro" "define-macro" "lambda-macro"))
   (defvar newlisp-variable-keyword
     '("nil" "true" "ostype"
-      "$args" "$idx" "$it" "$main-args" "$prompt-event"
+      "$args" "$count" "$idx" "$it" "$main-args" "$prompt-event"
       "$0" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
       "$10" "$11" "$12" "$13" "$14" "$15"))
   (defvar newlisp-context-keywords
@@ -407,17 +395,16 @@ This function is not available on Win32."
 (defvar newlisp-mode-map
   (let ((map (make-sparse-keymap "newlisp")))
     (set-keymap-parent map lisp-mode-shared-map)
-    (define-key map "\M-:" 'newlisp-eval)
-    (define-key map "\e\C-x" 'newlisp-eval-defun)
-    (define-key map "\C-x\C-e" 'newlisp-eval-last-sexp)
-    (define-key map "\C-c\C-r" 'newlisp-eval-region)
-    (define-key map "\C-c\C-l" 'newlisp-load-file)
-    (define-key map "\C-c\C-z" 'newlisp-show-repl)
-    (define-key map "\e\t" 'newlisp-complete-symbol) ; ESC TAB
-    ;; (define-key map "\C-c\C-i" 'newlisp-complete-symbol)
-    (define-key map [f5] 'newlisp-execute-file)
-    (define-key map [(control c) f4] 'newlisp-kill-process) ; C-c f4
-    (define-key map "\C-m" 'newline-and-indent)
+    (define-key map (kbd "M-:") 'newlisp-eval)
+    (define-key map (kbd "M-C-x") 'newlisp-eval-defun)
+    (define-key map (kbd "C-x C-e") 'newlisp-eval-last-sexp)
+    (define-key map (kbd "C-c C-r") 'newlisp-eval-region)
+    (define-key map (kbd "C-c C-l") 'newlisp-load-file)
+    (define-key map (kbd "C-c C-z") 'newlisp-show-repl)
+    (define-key map (kbd "C-c C-i") 'newlisp-complete-symbol) ; or ESC TAB
+    (define-key map (kbd "C-m") 'newline-and-indent)
+    (define-key map (kbd "C-c <f4>") 'newlisp-kill-process)
+    (define-key map (kbd "<f5>") 'newlisp-execute-file)
     map))
 
 ;; refer to prolog-mode
@@ -638,6 +625,6 @@ This function is not available on Win32."
          ))
   )
 
-(provide 'newlisp)
+(provide 'newlisp-mode)
 
 ;;; newlisp.el ends here
