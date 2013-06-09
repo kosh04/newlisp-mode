@@ -6,7 +6,7 @@
 ;; Version: 0.3
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp,newlisp
-;; URL: https://github.com/kosh04/newlisp-mode.el
+;; URL: https://github.com/kosh04/newlisp-mode
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -627,4 +627,4 @@ This function is not available on Win32."
 
 (provide 'newlisp-mode)
 
-;;; newlisp.el ends here
+;;; newlisp-mode.el ends here
