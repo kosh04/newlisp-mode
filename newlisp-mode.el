@@ -1,4 +1,4 @@
-;;; newlisp-mode.el -- newLISP editing mode for Emacs
+;;; newlisp-mode.el --- newLISP editing mode for Emacs
 
 ;; Copyright (C) 2008-2013 KOBAYASHI Shigeru
 
