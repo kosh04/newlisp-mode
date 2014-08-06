@@ -516,6 +516,9 @@ This function is not available on Win32."
 (defindent dostring 1)
 (defindent doargs 1)
 (defindent dotree 1)
+(defindent do-while 1)
+(defindent do-until 1)
+(defindent if 0)
 
 ;; (defun newlisp-indent-function (indent-point state)
 ;;   ...
