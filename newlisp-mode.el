@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008-2013 KOBAYASHI Shigeru
 
 ;; Author: KOBAYASHI Shigeru <shigeru.kb[at]gmail.com>
-;; Version: 0.3
+;; Version: 0.3.1
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp,newlisp
 ;; URL: https://github.com/kosh04/newlisp-mode
@@ -129,7 +129,7 @@
   "Newlisp source code editing functions."
   :group 'newlisp
   :prefix "newlisp-"                    ; or "nl-" ?
-  :version "0.3")
+  :version "0.3.1")
 
 ;; (executable-find "newlisp") or "/usr/bin/newlisp"
 (defcustom newlisp-command "newlisp"
@@ -313,29 +313,55 @@ This function is not available on Win32."
 ;;
 (eval-when (compile load eval)
   (defvar newlisp-primitive-keywords
-    ;; $ newlisp -n -e "(map term (filter (lambda (s) (primitive? (eval s))) (symbols)))"
-    '("!" "!=" "$" "%" "&" "*" "+" "++" "-" "--" "/" ":" "<" "<<" "<=" "=" ">" ">=" ">>" "^" "|" "~"
-      "NaN?" 
-      "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file" "apply" "args" "array" "array-list" "array?" "asin" "asinh" "assoc" "atan" "atan2" "atanh" "atom?"
-      "base64-dec" "base64-enc" "bayes-query"
-      "bayes-train" "begin" "beta" "betai" "bigint" "bigint?" "bind" "binomial" "bits"
-      "callback" "case" "catch" "ceil" "change-dir" "char" "chop" "clean" "close" "command-event" "cond" "cons" "constant" "context" "context?" "copy" "copy-file" "corr" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-f" "crit-t" "crit-z" "current-line" "curry" 
-      "date" "date-list" "date-value" "debug" "dec" "def-new" "default" "delete" "delete-file" "delete-url" "destroy" "det" "device" "difference" "directory" "directory?" "div" "do-until" "do-while" "doargs" "dolist" "dostring" "dotimes" "dotree" "dump" "dup"
-      "empty?" "encrypt" "ends-with" "env" "erf" "error-event" "eval" "eval-string" "even?" "exec" "exists" "exit" "exp" "expand" "explode" "extend"
-      "factor" "fft" "file-info" "file?" "filter" "find" "find-all" "first" "flat" "float" "float?" "floor" "flt" "for" "for-all" "format" "fv"
-      "gammai" "gammaln" "gcd" "get-char" "get-float" "get-int" "get-long" "get-string" "get-url" "global" "global?"
-      "if" "if-not" "ifft" "import" "inc" "index" "inf?" "int" "integer" "integer?" "intersect" "invert" "irr"
+    '("!" "!=" "$" "%" "&" "*" "+" "++" "-" "--" "/"
+      ":" "<" "<<" "<=" "=" ">" ">=" ">>" "^" "|" "~"
+      "abs" "acos" "acosh" "add" "address" "amb" "and" "append" "append-file" "apply"
+      "args" "array" "array-list" "array?" "asin" "asinh" "assoc" "atan" "atan2" "atanh" "atom?"
+      "base64-dec" "base64-enc" "bayes-query" "bayes-train" "begin"
+      "beta" "betai" "bigint" "bigint?" "bind" "binomial" "bits"
+      "callback" "case" "catch" "ceil" "change-dir" "char" "chop" "clean" "close" "collect"
+      "command-event" "cond" "cons" "constant" "context" "context?" "copy" "copy-file"
+      "corr" "cos" "cosh" "count" "cpymem" "crc32" "crit-chi2" "crit-f" "crit-t" "crit-z"
+      "current-line" "curry"
+      "date" "date-list" "date-value" "debug" "dec" "def-new" "default" "delete"
+      "delete-file" "delete-url" "destroy" "det" "device" "difference" "directory"
+      "directory?" "div" "do-until" "do-while" "doargs" "dolist" "dostring" "dotimes"
+      "dotree" "dump" "dup"
+      "empty?" "encrypt" "ends-with" "env" "erf" "error-event" "eval" "eval-string"
+      "even?" "exec" "exists" "exit" "exp" "expand" "explode" "extend"
+      "factor" "fft" "file-info" "file?" "filter" "find" "find-all" "first" "flat"
+      "float" "float?" "floor" "flt" "for" "for-all" "format" "fv"
+      "gammai" "gammaln" "gcd" "get-char" "get-float" "get-int" "get-long" "get-string"
+      "get-url" "global" "global?"
+      "if" "if-not" "ifft" "import" "inc" "index" "inf?" "int" "integer" "integer?"
+      "intersect" "invert" "irr"
       "join" "json-error" "json-parse"
       "kmeans-query" "kmeans-train"
-      "lambda?" "last" "last-error" "legal?" "length" "let" "letex" "letn" "list" "list?" "load" "local" "log" "lookup" "lower-case"
-      "macro?" "main-args" "make-dir" "map" "mat" "match" "max" "member" "min" "mod" "mul" "multiply"
-      "net-accept" "net-close" "net-connect" "net-error" "net-eval" "net-interface" "net-ipv" "net-listen" "net-local" "net-lookup" "net-peek" "net-peer" "net-receive" "net-receive-from" "net-receive-udp" "net-select" "net-send" "net-send-to" "net-send-udp" "net-service" "net-sessions" "new" "nil?" "normal" "not" "now" "nper" "npv" "nth" "null?" "number?"
+      "lambda?" "last" "last-error" "legal?" "length" "let" "letex" "letn"
+      "list" "list?" "load" "local" "log" "lookup" "lower-case"
+      "macro" "macro?" "main-args" "make-dir" "map" "mat" "match" "max"
+      "member" "min" "mod" "mul" "multiply"
+      "NaN?"
+      "net-accept" "net-close" "net-connect" "net-error" "net-eval" "net-interface"
+      "net-ipv" "net-listen" "net-local" "net-lookup" "net-peek" "net-peer"
+      "net-receive" "net-receive-from" "net-receive-udp" "net-select" "net-send"
+      "net-send-to" "net-send-udp" "net-service" "net-sessions" "new" "nil?" "normal"
+      "not" "now" "nper" "npv" "nth" "null?" "number?"
       "odd?" "open" "or"
-      "pack" "parse" "pipe" "pmt" "pop" "pop-assoc" "post-url" "pow" "prefix" "pretty-print" "primitive?" "print" "println" "prob-chi2" "prob-f" "prob-t" "prob-z" "process" "prompt-event" "protected?" "push" "put-url" "pv"
+      "pack" "parse" "pipe" "pmt" "pop" "pop-assoc" "post-url" "pow" "prefix"
+      "pretty-print" "primitive?" "print" "println" "prob-chi2" "prob-f" "prob-t"
+      "prob-z" "process" "prompt-event" "protected?" "push" "put-url" "pv"
       "quote" "quote?" "rand" "random" "randomize" "read" "read-buffer" "read-char"
-      "read-expr" "read-file" "read-key" "read-line" "reader-event" "real-path" "ref" "ref-all" "regex" "regex-comp" "remove-dir" "rename-file" "replace" "reset" "rest" "reverse" "rotate" "round"
-      "save" "search" "seed" "seek" "select" "self" "semaphore" "sequence" "series" "set" "set-locale" "set-ref" "set-ref-all" "setf" "setq" "sgn" "share" "signal" "silent" "sin" "sinh" "sleep" "slice" "sort" "source" "sqrt" "starts-with" "stats" "string" "string?" "struct" "sub" "swap" "sym" "symbol?" "symbols" "sys-error" "sys-info"
-      "t-test" "tan" "tanh" "term" "throw" "throw-error" "time" "time-of-day" "timer" "title-case" "trace" "trace-highlight" "transpose" "trim" "true?"
+      "read-expr" "read-file" "read-key" "read-line" "reader-event" "real-path"
+      "ref" "ref-all" "regex" "regex-comp" "remove-dir" "rename-file" "replace"
+      "reset" "rest" "reverse" "rotate" "round"
+      "save" "search" "seed" "seek" "select" "self" "semaphore" "sequence" "series"
+      "set" "set-locale" "set-ref" "set-ref-all" "setf" "setq" "sgn" "share" "signal"
+      "silent" "sin" "sinh" "sleep" "slice" "sort" "source" "sqrt" "starts-with"
+      "stats" "string" "string?" "struct" "sub" "swap" "sym" "symbol?" "symbols"
+      "sys-error" "sys-info"
+      "t-test" "tan" "tanh" "term" "throw" "throw-error" "time" "time-of-day"
+      "timer" "title-case" "trace" "trace-highlight" "transpose" "trim" "true?"
       "unify" "union" "unique" "unless" "unpack" "until" "upper-case" "uuid"
       "when" "while" "write" "write-buffer" "write-char" "write-file" "write-line"
       "xfer-event" "xml-error" "xml-parse" "xml-type-tags"
@@ -362,14 +388,19 @@ This function is not available on Win32."
       "date-parse" "parse-date" "send" "spawn" "sync" "receive"))
   )
 
-(defsubst newlisp-keywords ()
+(defsubst newlisp-keywords (&optional use-process)
   "Return newLISP keyword list as string."
-  (append newlisp-primitive-keywords
-          newlisp-lambda-keywords
-          (unless (eq system-type 'windows-nt)
-            newlisp-unix-based-function-keywords)
-          newlisp-variable-keyword
-          ))
+  (if use-process
+      (car (read-from-string
+            (shell-command-to-string
+             (format "%s -n -e \"%s\"" newlisp-command
+                     "(map term (filter (lambda (s) (global? s)) (symbols)))"))))
+      (append newlisp-primitive-keywords
+              newlisp-lambda-keywords
+              (unless (eq system-type 'windows-nt)
+                newlisp-unix-based-function-keywords)
+              newlisp-variable-keyword
+              newlisp-context-keywords)))
 
 (defvar newlisp-obarray
   (let ((array (make-vector 401 0)))    ; more than keyword size
@@ -477,13 +508,6 @@ This function is not available on Win32."
            (message "Making completion list...done"))
           )))
 
-;; (defun newlisp-complete-symbol ()
-;;   (interactive "*")
-;;   (let ((emacs-lisp-mode-syntax-table newlisp-mode-syntax-table)
-;;         (obarray newlisp-obarray))
-;;     (lisp-complete-symbol (lambda (s)
-;;                             (newlisp-find-symbol (symbol-name s))))))
-
 (defun newlisp-mode-setup ()
   (setq newlisp-process-coding-system
         (let ((res (shell-command-to-string
@@ -494,7 +518,7 @@ This function is not available on Win32."
   (setq newlisp-primitive-keywords
         (car (read-from-string
               (shell-command-to-string
-               (format "%s -n -e \"(map term (filter (fn (s) (primitive? (eval s))) (symbols MAIN)))\""
+               (format "%s -n -e \"(map term (filter (fn (s) (global? s)) (symbols MAIN)))\""
                        newlisp-command)))))
   t)
 
