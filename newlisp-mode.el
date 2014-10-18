@@ -1,9 +1,9 @@
 ;;; newlisp-mode.el --- newLISP editing mode for Emacs
 
-;; Copyright (C) 2008-2013 KOBAYASHI Shigeru
+;; Copyright (C) 2008-2014 KOBAYASHI Shigeru
 
 ;; Author: KOBAYASHI Shigeru <shigeru.kb[at]gmail.com>
-;; Version: 0.3.1
+;; Version: 0.3.2
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp,newlisp
 ;; URL: https://github.com/kosh04/newlisp-mode
@@ -41,17 +41,14 @@
 ;;   ; or (require 'newlisp-mode)
 ;;   (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
 ;;   (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
-;;
-;;   ;; if needed
-;;   (newlisp-mode-setup)
-;;   (defun newlisp-mode-user-hook ()
-;;     (setq comment-start "; ")
-;;     (setq tab-width 8)
-;;     (setq indent-tabs-mode nil))
-;;   (add-hook 'newlisp-mode-hook 'newlisp-mode-user-hook)
 
 ;;; ChangeLog:
 
+;; 2014-09-16 version 0.3.2
+;; - use define-derived-mode
+;; - simplify newlisp-execute-file
+;; - font-lock available string brackets {} and [text] tag
+;; 
 ;; 2013-08-23
 ;; - add keyrowd bayes-query, bayes-train (v.10.5.3)
 ;;
@@ -129,9 +126,8 @@
   "Newlisp source code editing functions."
   :group 'newlisp
   :prefix "newlisp-"                    ; or "nl-" ?
-  :version "0.3.1")
+  :version "0.3.2")
 
-;; (executable-find "newlisp") or "/usr/bin/newlisp"
 (defcustom newlisp-command "newlisp"
   "Filename to use to run newlisp."
   :type 'string
@@ -261,48 +257,24 @@ This function is not available on Win32."
   ;; 2) SIGINT  9) SIGKILL  15) SIGTERM
   (signal-process (newlisp-process) sigcode))
 
-;; eval sync
-;; (defun newlisp-eval-buffer (arg)
-;;   (interactive "P")
-;;   (setq arg (if arg (read-string "newLISP args: ") ""))
-;;   (shell-command (format "%s \"%s\" %s"
-;;                          newlisp-command
-;;                          (buffer-file-name)
-;;                          arg)
-;;                  "*newLISP output*"))
-
-;; (newlisp-eval (concat "(eval-string \"" (buffer-string) "\")" ))
-
-;; eval async
-(defun newlisp-execute-file (&optional cmd-args)
+(defun newlisp-execute-file (&optional args)
+  "Run current newlisp script.
+You can specify a script additional ARGS, if called with a prefix arg."
   (interactive (list (if current-prefix-arg
                          (read-string "execute args: " )
                          "")))
-  ;; (setq arg (if arg (read-string "args: ") ""))
-  (lexical-let ((outbuf (get-buffer-create "*newLISP output*")))
-    (with-current-buffer outbuf (erase-buffer))
-    (set-process-sentinel
-     (start-process-shell-command "newlisp" outbuf
-                                  newlisp-command
-                                  (buffer-file-name)
-                                  cmd-args)
-     (lambda (process event)
-       (cond ((zerop (buffer-size outbuf))
-              (kill-buffer outbuf)
-              (message "(no output)"))
-             (:else
-              (with-current-buffer outbuf
-                (goto-char (point-min))
-                (if (< (count-lines (point-min) (point-max)) 5)
-                    (message "%s" (replace-regexp-in-string
-                                   "\n+$" "" (buffer-string)))
-                    (pop-to-buffer (process-buffer process))))))))
-    ))
+  (async-shell-command (format "\"%s\" %s %s"
+                               ;;"%s %s %s"
+                               newlisp-command
+                               ;;"c:\\Program Files (x86)\\newlisp\\newlisp.exe"
+                               (expand-file-name (buffer-file-name))
+                               args)
+                       "*newLISP output*"))
 
 (defun newlisp-begin-cmd () (interactive) (insert "[cmd]") (comint-send-input))
 (defun newlisp-end-cmd () (interactive) (insert "[/cmd]") (comint-send-input))
-;; (define-key inferior-newlisp-mode-map "\C-c[" 'newlisp-begin-cmd)
-;; (define-key inferior-newlisp-mode-map "\C-c]" 'newlisp-end-cmd)
+;; (define-key inferior-newlisp-mode-map (kbd "\C-c [") 'newlisp-begin-cmd)
+;; (define-key inferior-newlisp-mode-map (kbd "\C-c ]") 'newlisp-end-cmd)
 
 (defun newlisp-debug-region (start end)
   (interactive "r")
@@ -388,6 +360,21 @@ This function is not available on Win32."
       "date-parse" "parse-date" "send" "spawn" "sync" "receive"))
   )
 
+(defvar newlisp-font-lock-keywords
+  (eval-when-compile
+    `((,(regexp-opt newlisp-primitive-keywords 'symbols) . font-lock-keyword-face)
+      (,(regexp-opt newlisp-lambda-keywords 'symbols) . font-lock-function-name-face)
+      ;;(,(regexp-opt '("nil" "true" "ostype") 'symbols)  . font-lock-constant-face)
+      (,(regexp-opt newlisp-variable-keyword 'symbols) . font-lock-variable-name-face)
+      (,(regexp-opt newlisp-context-keywords 'symbols) . font-lock-type-face)
+      ("\\[text\\]\\(?:.\\|\n\\)*?\\[/text\\]" . font-lock-string-face)
+      ("{[^{}]*?}" . font-lock-string-face)
+      (,(regexp-opt newlisp-unix-based-function-keywords 'symbols)
+        . ,(if (eq system-type 'windows-nt)
+               'font-lock-warning-face
+               'font-lock-keyword-face))))
+  "Keyword highlighting specification for `newlisp-mode'.")
+
 (defsubst newlisp-keywords (&optional use-process)
   "Return newLISP keyword list as string."
   (if use-process
@@ -409,7 +396,8 @@ This function is not available on Win32."
     array)
   "newLISP symbol table.")
 
-(defvar newlisp-mode-hook nil)
+(defvar newlisp-mode-hook nil
+  "Hook run when entering `newlisp-mode'.")
 
 (defvar newlisp-mode-map
   (let ((map (make-sparse-keymap "newlisp")))
@@ -444,7 +432,7 @@ This function is not available on Win32."
     ))
 
 (defvar newlisp-mode-syntax-table
-  (let ((table (copy-syntax-table emacs-lisp-mode-syntax-table)))
+  (let ((table (copy-syntax-table lisp-mode-syntax-table)))
     ;; SYMBOL
     (modify-syntax-entry ?` "_   " table)
     (modify-syntax-entry ?, "_   " table)
@@ -462,21 +450,12 @@ This function is not available on Win32."
     table))
 
 ;;;###autoload
-(defun newlisp-mode ()
+(define-derived-mode newlisp-mode prog-mode "newLISP"
   "Major mode for editing newLISP code."
-  (interactive)
-  (kill-all-local-variables)
-  (setq major-mode 'newlisp-mode
-        mode-name "newLISP")
-  (use-local-map newlisp-mode-map)
-  (lisp-mode-variables)
-  (set-syntax-table newlisp-mode-syntax-table)
-  ;; (set (make-local-variable (quote font-lock-defaults)) '(fn t nil nil fn))
-  ;; (set (make-local-variable 'font-lock-keywords-case-fold-search) nil)
-  ;; (set (make-local-variable 'comment-start) "# ")
-  (if (fboundp 'run-mode-hooks)
-      (run-mode-hooks 'newlisp-mode-hook)
-      (run-hooks 'newlisp-mode-hook)))
+  :group 'newlisp
+  :syntax-table newlisp-mode-syntax-table
+  (lisp-mode-variables)                 ; FIXME: lisp-mode independent setup
+  (setq-local font-lock-defaults '(newlisp-font-lock-keywords)))
 
 (defsubst newlisp-find-symbol (string)
   "Locates a symbol whose name is STRING in a newLISP symbols."
@@ -568,7 +547,7 @@ This function is not available on Win32."
       (progn
         (pop-to-buffer (find-file-noselect #1#))
         (unless (eq major-mode 'newlisp-mode) (newlisp-mode))
-        (toggle-read-only t))
+        (read-only-mode))
       (error "manual %s not exist" #1#)))
 
 (defun newlisp-browse-manual ()
@@ -617,29 +596,6 @@ This function is not available on Win32."
     (unless found
       (message "not found %s" keyword)
       (goto-char opoint))))
-
-;; (setf (get 'font-lock-add-keywords 'lisp-indent-function) 1)
-;; lisp-mode.el:91
-(font-lock-add-keywords 'newlisp-mode
-  (list
-   ;; (list "\\<\\(FIXME\\):" 1 font-lock-warning-face 'prepend)
-   (cons (eval-when-compile (regexp-opt newlisp-primitive-keywords 'words))
-         font-lock-keyword-face)
-   ;; (eval-when-compile (regexp-opt newlisp-primitive-keywords 'words))
-   (cons (eval-when-compile (regexp-opt newlisp-lambda-keywords 'words))
-         font-lock-function-name-face)
-   (cons (eval-when-compile (regexp-opt newlisp-variable-keyword 'words))
-         font-lock-constant-face)
-   (cons (eval-when-compile (regexp-opt newlisp-context-keywords 'words))
-         font-lock-type-face)
-   (cons (eval-when-compile (regexp-opt newlisp-tag-keywords)) ; not 'words
-         font-lock-string-face)
-   (cons (eval-when-compile (regexp-opt newlisp-unix-based-function-keywords 'words))
-         (if (eq system-type 'windows-nt)
-             font-lock-warning-face
-             font-lock-keyword-face)
-         ))
-  )
 
 (provide 'newlisp-mode)
 
