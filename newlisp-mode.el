@@ -438,6 +438,9 @@ You can specify a script additional ARGS, if called with a prefix arg."
   (lisp-mode-variables)                 ; FIXME: lisp-mode independent setup
   (setq-local font-lock-defaults '(newlisp-font-lock-keywords)))
 
+;;;###autoload (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
+;;;###autoload (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
+
 (defsubst newlisp-find-symbol (string)
   "Locates a symbol whose name is STRING in a newLISP symbols."
   (intern-soft string newlisp-obarray))
