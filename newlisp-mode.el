@@ -37,73 +37,54 @@
 
 ;; You should add this to .emacs file after putting it on your load-path:
 ;;
-;;   (autoload 'newlisp-mode "newlisp-mode" "Major mode for newLISP files." t)
-;;   ; or (require 'newlisp-mode)
+;;   (require 'newlisp-mode)
 ;;   (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
 ;;   (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
+;;
+;; NOTE: If emacs 24.1 or lator, you can install package from MELPA.
 
 ;;; ChangeLog:
 
-;; 2014-09-16 version 0.3.2
-;; - use define-derived-mode
-;; - simplify newlisp-execute-file
+;; version 0.3.2
+;; - rewrite newlisp-mode for derived-mode
 ;; - font-lock available string brackets {} and [text] tag
-;; 
-;; 2013-08-23
-;; - add keyrowd bayes-query, bayes-train (v.10.5.3)
+;; - add autoload-cookies for mode-alist
+;; - update keyword (bayes-query, bayes-train)
 ;;
-;; 2013-06-06
-;; - add keyword bigint, bigint?, $count (v.10.5.0)
+;; version 0.3.1
 ;; - rename newlisp.el to newlisp-mode.el
-;; - define-key use kbd macro
-;;
-;; 2013-02-26
-;; - update keyword v.10.4.6
-;;
-;; 2012-06-04
-;; - add newlisp-change-dir
-;; - update keyword for newLISP v.10.4.3
+;; - update keyword (bigint, bigint?, $count, etc)
+;; - add function newlisp-change-dir
 ;; - doc changes (ja -> en)
-;;
-;; 2011-06-23
 ;; - typo fixed
 ;;
-;; 2011-01-28 version 0.3
+;; version 0.3
 ;; - rewrite newlisp-complete-symbol function
 ;; - add newlisp--allow-lazy-eval
+;; - fix syntax-table
 ;;
-;; 2010-10-15
-;; - syntax-table fixed
-;;
-;; 2010-10-08 version 0.26
+;; version 0.26
 ;; - temporary fix, for remote process buffer. (see XXX-1)
 ;; - add menu bar
 ;; - update keyword for newLISP v10.2.14
 ;; - fornt-lock fixed ([text], [cmd], unix-based-function-keywords)
 ;;
-;; 2010-06-25 version 0.25
+;; version 0.25
 ;; - now Emacs 21 available
 ;;
-;; 2010-02-05
+;; version 0.2
+;; - add complete-symbol
 ;; - add licence (GPLv3)
 ;;
-;; 2009-09-30 version 0.2
-;; - add complete-symbol
-;;
-;; 2009-07-05 version 0.1b
+;; version 0.1
+;; - add newlisp-mode, font-lock
+;; - font-lock fixed
+;; - add newlisp-mode-syntax-table
 ;; - update keyword for newLISP v10.1.0
 ;; - rename `*variable*' to `variable' (emacs namespace)
 ;;
-;; 2009-06-05 version 0.1a
-;; - font-lock fixed
-;; - add newlisp-mode-syntax-table
-;;
-;; 2009-04-19 version 0.1
-;; - add newlisp-mode, font-lock
-;;
-;; 2008-12-15 version 0.01
+;; version 0.01
 ;; - first commit (add newlisp-mode)
-;;
 
 ;;; Known Bugs:
 

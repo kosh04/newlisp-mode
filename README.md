@@ -29,7 +29,7 @@ Add the following to your `.emacs`
 	(add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
 
 
-NOTE: newlisp-mode can also available in [MELPA](http://melpa.milkbox.net/).
+NOTE: newlisp-mode can also available from [MELPA](http://melpa.milkbox.net/).
 Thanks @yasuyk.
 
 
