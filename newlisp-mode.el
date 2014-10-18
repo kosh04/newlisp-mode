@@ -343,17 +343,18 @@ You can specify a script additional ARGS, if called with a prefix arg."
 
 (defvar newlisp-font-lock-keywords
   (eval-when-compile
-    `((,(regexp-opt newlisp-primitive-keywords 'symbols) . font-lock-keyword-face)
+    `(("\\[text\\]\\(?:.\\|\n\\)*?\\[/text\\]" . font-lock-string-face)
+      ("{[^{}]*?}" . font-lock-string-face)
+      (,(regexp-opt newlisp-primitive-keywords 'symbols) . font-lock-keyword-face)
       (,(regexp-opt newlisp-lambda-keywords 'symbols) . font-lock-function-name-face)
       ;;(,(regexp-opt '("nil" "true" "ostype") 'symbols)  . font-lock-constant-face)
       (,(regexp-opt newlisp-variable-keyword 'symbols) . font-lock-variable-name-face)
       (,(regexp-opt newlisp-context-keywords 'symbols) . font-lock-type-face)
-      ("\\[text\\]\\(?:.\\|\n\\)*?\\[/text\\]" . font-lock-string-face)
-      ("{[^{}]*?}" . font-lock-string-face)
       (,(regexp-opt newlisp-unix-based-function-keywords 'symbols)
         . ,(if (eq system-type 'windows-nt)
                'font-lock-warning-face
-               'font-lock-keyword-face))))
+               'font-lock-keyword-face))
+      ))
   "Keyword highlighting specification for `newlisp-mode'.")
 
 (defsubst newlisp-keywords (&optional use-process)
