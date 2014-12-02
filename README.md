@@ -1,6 +1,8 @@
 newlisp-mode
 ============
 
+[![MELPA](http://melpa.org/packages/newlisp-mode-badge.svg)](http://melpa.org/#/newlisp-mode)
+
 This is a newLISP editing mode for Emacs.
 
 - Editing newlisp code
