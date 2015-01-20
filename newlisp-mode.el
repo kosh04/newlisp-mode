@@ -38,10 +38,8 @@
 ;; You should add this to .emacs file after putting it on your load-path:
 ;;
 ;;   (require 'newlisp-mode)
-;;   (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
-;;   (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
 ;;
-;; NOTE: If emacs 24.1 or lator, you can install package from MELPA.
+;; If Emacs 24.1+, you can install package from MELPA.
 
 ;;; ChangeLog:
 
@@ -340,6 +338,10 @@ You can specify a script additional ARGS, if called with a prefix arg."
     '("abort" "peek" "fork" "wait-pid" "net-packet" "net-ping"
       "date-parse" "parse-date" "send" "spawn" "sync" "receive"))
   )
+
+;; NOTE:
+;; "if-not", "parse-date" are deprecated in future version.
+;; see http://newlisp.nfshost.com/downloads/newlisp_manual.html#deprecated
 
 (defvar newlisp-font-lock-keywords
   (eval-when-compile

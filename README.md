@@ -23,16 +23,14 @@ or Download [ZIP](https://github.com/kosh04/newlisp-mode/archive/master.zip).
 
 	$ git clone git://github.com/kosh04/newlisp-mode.git
 
-Add the following to your `.emacs`
+or Install from [MELPA](http://melpa.milkbox.net/#/newlisp-mode). (thanks @yasuyk)
+
+    M-x package-install newlisp-mode
+
+and Add the following to your `.emacs`
 
 	(add-to-list 'load-path "/path/to/newlisp-mode")
 	(require 'newlisp-mode)
-	(add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
-	(add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
-
-
-NOTE: newlisp-mode can also available from [MELPA](http://melpa.milkbox.net/).
-Thanks @yasuyk.
 
 
 License
