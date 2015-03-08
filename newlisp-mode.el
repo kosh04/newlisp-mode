@@ -386,7 +386,7 @@ You can specify a script additional ARGS, if called with a prefix arg."
 (defvar newlisp-mode-map
   (let ((map (make-sparse-keymap "newlisp")))
     (set-keymap-parent map lisp-mode-shared-map)
-    (define-key map (kbd "M-:") 'newlisp-eval)
+    (define-key map (kbd "C-c M-:") 'newlisp-eval)
     (define-key map (kbd "M-C-x") 'newlisp-eval-defun)
     (define-key map (kbd "C-x C-e") 'newlisp-eval-last-sexp)
     (define-key map (kbd "C-c C-b") 'newlisp-eval-buffer)
