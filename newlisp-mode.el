@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008-2014 KOBAYASHI Shigeru
 
 ;; Author: KOBAYASHI Shigeru <shigeru.kb[at]gmail.com>
-;; Version: 0.3.2
+;; Version: 0.3.3-beta
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp,newlisp
 ;; URL: https://github.com/kosh04/newlisp-mode
@@ -43,6 +43,10 @@
 
 ;;; ChangeLog:
 
+;; version 0.3.3 (beta)
+;; - newlisp-eval: `M-:' yield up the default keymap
+;; - implement `completion-at-point' substitute for `newlisp-complete-symbol'
+;;
 ;; version 0.3.2
 ;; - rewrite newlisp-mode for derived-mode
 ;; - font-lock available string brackets {} and [text] tag
@@ -159,7 +163,7 @@ If not running, then start new process."
   "Eval newlisp s-expression."
   (interactive "snewLISP Eval: ")
   (let ((proc (newlisp-process)))
-    (labels ((sendln (str)
+    (cl-labels ((sendln (str)
                (comint-send-string proc (concat str "\n"))))
       ;; Suppress TAB completion. [Tab] -> [Space]
       (if newlisp--allow-lazy-eval
@@ -393,7 +397,6 @@ You can specify a script additional ARGS, if called with a prefix arg."
     (define-key map (kbd "C-c C-r") 'newlisp-eval-region)
     (define-key map (kbd "C-c C-l") 'newlisp-load-file)
     (define-key map (kbd "C-c C-z") 'newlisp-show-repl)
-    (define-key map (kbd "C-c C-i") 'newlisp-complete-symbol) ; or ESC TAB
     (define-key map (kbd "C-m") 'newline-and-indent)
     (define-key map (kbd "C-c <f4>") 'newlisp-kill-process)
     (define-key map (kbd "<f5>") 'newlisp-execute-file)
@@ -439,7 +442,8 @@ You can specify a script additional ARGS, if called with a prefix arg."
   :group 'newlisp
   :syntax-table newlisp-mode-syntax-table
   (lisp-mode-variables)                 ; FIXME: lisp-mode independent setup
-  (setq-local font-lock-defaults '(newlisp-font-lock-keywords)))
+  (setq-local font-lock-defaults '(newlisp-font-lock-keywords))
+  (add-hook 'completion-at-point-functions #'newlisp-completion-at-point nil t))
 
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.lsp$" . newlisp-mode))
 ;;;###autoload (add-to-list 'interpreter-mode-alist '("newlisp" . newlisp-mode))
@@ -448,31 +452,16 @@ You can specify a script additional ARGS, if called with a prefix arg."
   "Locates a symbol whose name is STRING in a newLISP symbols."
   (intern-soft string newlisp-obarray))
 
-(defun newlisp-complete-symbol ()
-  "Perform completion on newLISP symbol preceding point."
-  (interactive "*")
-  ;; NOTE: newlisp's symbol is case-insensitive
-  (let* ((completion-ignore-case nil)
-         (from (save-excursion (backward-sexp) (point)))
-         (to (point))
-         (pattern (buffer-substring from to))
-         (completion (try-completion pattern newlisp-obarray)))
-    (cond ((eq completion t)
-           (message "Sole completion"))
-          ((null completion)
-           (message "Can't find completion for \"%s\"" pattern)
-           (ding))
-          ((not (string= pattern completion))
-           (delete-region from to)
-           (insert completion))
-          (:else
-           (message "Making completion list...")
-           (with-output-to-temp-buffer "*Completions*"
-             (display-completion-list
-              (all-completions pattern newlisp-obarray nil)
-              pattern))
-           (message "Making completion list...done"))
-          )))
+(defun newlisp-completion-at-point ()
+  "Perform completion on symbol preceding point."
+  (let ((bounds (bounds-of-thing-at-point 'symbol)))
+    (when bounds
+      (list (car bounds)
+            (cdr bounds)
+            newlisp-obarray))))
+
+(define-obsolete-function-alias 'newlisp-complete-symbol
+  #'completion-at-point "2016-02-21")
 
 (defun newlisp-mode-setup ()
   (setq newlisp-process-coding-system
@@ -509,6 +498,7 @@ You can specify a script additional ARGS, if called with a prefix arg."
 (defindent do-while 1)
 (defindent do-until 1)
 (defindent if 0)
+(defindent macro 1)
 
 ;; (defun newlisp-indent-function (indent-point state)
 ;;   ...
@@ -521,9 +511,10 @@ You can specify a script additional ARGS, if called with a prefix arg."
 
 (defvar newlisp-manual-html
   (or (dolist (path (list "/usr/share/doc/newlisp/manual_frame.html"
+                          "/usr/local/share/doc/newlisp/manual_frame.html"
                           ;; When build newlisp `make install_home'
                           "~/share/doc/newlisp/manual_frame.html"
-                          "C:/Program Files/newlisp/manual_frame.html"))
+                          (expand-file-name "manual_frame.html" (getenv "NEWLISPDIR"))))
         (if (file-exists-p path)
             (return path)))
       "http://www.newlisp.org/downloads/manual_frame.html"))
@@ -544,18 +535,14 @@ You can specify a script additional ARGS, if called with a prefix arg."
 (defun newlisp-lookup-manual (keyword)
   "Lookup newlisp reference manual."
   (interactive
-    (list (let* ((s (newlisp-find-symbol
-                     (current-word)
-                     ;; (function-called-at-point)
-                     ;; (thing-at-point 'symbol)
-                     ))
+    (list (let* ((s (newlisp-find-symbol (thing-at-point 'symbol)))
                  (default (and s (symbol-name s))))
             ;; NOTE: Type "lambda?" from minibuffer -> l a m b d a C-q ?
             (completing-read (format "newLISP manual%s: "
                                      (if default
                                          (format " (default %s)" default)
                                          ""))
-                             newlisp-obarray ; (newlisp-keywords)
+                             newlisp-obarray
                              nil t nil nil default))))
   (if (equal keyword "setf") (setq keyword "setq"))
   (if (equal keyword "parse-date") (setq keyword "date-parse"))
