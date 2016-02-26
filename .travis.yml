@@ -1,0 +1,11 @@
+language: emacs-lisp
+sudo: false
+addons:
+  apt:
+    sources:
+      - cassou-emacs
+    packages:
+      - emacs24
+script:
+  - emacs --version
+  - emacs -batch -f batch-byte-compile newlisp-mode.el

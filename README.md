@@ -2,6 +2,7 @@ newlisp-mode
 ============
 
 [![MELPA](http://melpa.org/packages/newlisp-mode-badge.svg)](http://melpa.org/#/newlisp-mode)
+[![Build Status](https://travis-ci.org/kosh04/newlisp-mode.svg?branch=master)](https://travis-ci.org/kosh04/newlisp-mode)
 
 This is a newLISP editing mode for Emacs.
 
