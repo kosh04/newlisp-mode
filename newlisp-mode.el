@@ -1,9 +1,9 @@
 ;;; newlisp-mode.el --- newLISP editing mode for Emacs
 
-;; Copyright (C) 2008-2014 KOBAYASHI Shigeru
+;; Copyright (C) 2008-2016 KOBAYASHI Shigeru (kosh)
 
 ;; Author: KOBAYASHI Shigeru <shigeru.kb[at]gmail.com>
-;; Version: 0.3.3-beta
+;; Version: 0.3.3
 ;; Created: 2008-12-15
 ;; Keywords: language,lisp,newlisp
 ;; URL: https://github.com/kosh04/newlisp-mode
@@ -43,7 +43,7 @@
 
 ;;; ChangeLog:
 
-;; version 0.3.3 (beta)
+;; version 0.3.3
 ;; - newlisp-eval: `M-:' yield up the default keymap
 ;; - implement `completion-at-point' substitute for `newlisp-complete-symbol'
 ;;
@@ -461,7 +461,7 @@ You can specify a script additional ARGS, if called with a prefix arg."
             newlisp-obarray))))
 
 (define-obsolete-function-alias 'newlisp-complete-symbol
-  #'completion-at-point "2016-02-21")
+  #'completion-at-point "0.3.3")
 
 (defun newlisp-mode-setup ()
   (setq newlisp-process-coding-system
