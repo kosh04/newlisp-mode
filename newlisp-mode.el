@@ -397,7 +397,6 @@ You can specify a script additional ARGS, if called with a prefix arg."
     (define-key map (kbd "C-c C-r") 'newlisp-eval-region)
     (define-key map (kbd "C-c C-l") 'newlisp-load-file)
     (define-key map (kbd "C-c C-z") 'newlisp-show-repl)
-    (define-key map (kbd "ESC TAB") 'completion-at-point)
     (define-key map (kbd "C-m") 'newline-and-indent)
     (define-key map (kbd "C-c <f4>") 'newlisp-kill-process)
     (define-key map (kbd "<f5>") 'newlisp-execute-file)
